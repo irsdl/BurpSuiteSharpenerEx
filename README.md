@@ -1,5 +1,5 @@
-# About this repository & EOL
-This repository will not be updated anymore. Please use https://github.com/irsdl/BurpSuiteSharpenerEx.
+# About this repository
+Continuation of the Burp Suite Sharpener project originally from https://github.com/mdsecresearch/BurpSuiteSharpener.
 
 # Burp Suite Sharpener
 This extension should add a number of UI and functional features to Burp Suite to make working with it a bit easier. The latest version only works with the Montoya API which should be available in Burp Suite 2023.1 or higher.
