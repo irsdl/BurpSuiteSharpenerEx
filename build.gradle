@@ -1,13 +1,8 @@
-// Burp Suite Extension Name: Sharpener
-// Released under AGPL see LICENSE for more information
-// Developed by Soroush Dalili (@irsdl)
-// Released initially as open source by MDSec - https://www.mdsec.co.uk
-// Project link: https://github.com/mdsecresearch/BurpSuiteSharpener
+plugins {
+    id 'java'
+}
 
-apply plugin: 'java-library'
-apply plugin: 'maven-publish'
-
-group 'burp'
+group 'ninja.burpsuite.extension.sharpener'
 version ''
 
 repositories {
@@ -18,13 +13,13 @@ repositories {
 }
 
 dependencies {
-    implementation "net.portswigger.burp.extensions:montoya-api:2023.1"
+    compileOnly "net.portswigger.burp.extensions:montoya-api:2023.10" //https://central.sonatype.com/artifact/net.portswigger.burp.extensions/montoya-api/
     implementation "com.github.CoreyD97:Burp-Montoya-Utilities:86c912a" //https://jitpack.io/com/github/CoreyD97/Burp-Montoya-Utilities/86c912a/
-    implementation "com.google.code.gson:gson:2.10.1"
-    implementation "com.google.guava:guava:31.1-jre"
-    implementation "org.apache.commons:commons-lang3:3.12.0"
-    implementation "com.formdev:flatlaf:3.0"
-    implementation "org.springframework:spring-core:6.0.6"
+    //implementation "com.google.code.gson:gson:2.10.1" //https://mvnrepository.com/artifact/com.google.code.gson/gson
+    implementation "com.google.guava:guava:32.1.2-jre" //https://mvnrepository.com/artifact/com.google.guava/guava
+    implementation "org.apache.commons:commons-lang3:3.13.0" //https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    implementation "com.formdev:flatlaf:3.2" //https://mvnrepository.com/artifact/com.formdev/flatlaf
+    implementation "org.springframework:spring-core:6.0.11" //https://mvnrepository.com/artifact/org.springframework/spring-core
 }
 
 jar{
