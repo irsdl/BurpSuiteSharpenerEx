@@ -13,7 +13,7 @@ import ninja.burpsuite.libs.objects.StandardSettings;
 import java.util.Collection;
 
 public class SuiteTabSettings extends StandardSettings {
-    protected SuiteTabSettings(ExtensionSharedParameters sharedParameters) {
+    public SuiteTabSettings(ExtensionSharedParameters sharedParameters) {
         super(sharedParameters);
     }
 

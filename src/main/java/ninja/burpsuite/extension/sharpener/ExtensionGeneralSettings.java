@@ -10,7 +10,9 @@ import com.coreyd97.BurpExtenderUtilities.Preferences;
 import ninja.burpsuite.extension.sharpener.capabilities.pwnFox.PwnFoxSettings;
 import ninja.burpsuite.extension.sharpener.uiControllers.burpFrame.BurpFrameSettings;
 import ninja.burpsuite.extension.sharpener.uiControllers.mainTabs.MainTabsSettings;
-import ninja.burpsuite.extension.sharpener.uiControllers.subTabs.SubTabsSettings;
+import ninja.burpsuite.extension.sharpener.uiControllers.subTabs.SubTabsSettingsV2;
+import ninja.burpsuite.extension.sharpener.uiSelf.contextMenu.ContextMenuSettings;
+import ninja.burpsuite.extension.sharpener.uiSelf.suiteTab.SuiteTabSettings;
 import ninja.burpsuite.extension.sharpener.uiSelf.topMenu.TopMenuSettings;
 import ninja.burpsuite.libs.burp.generic.BurpUITools;
 import ninja.burpsuite.libs.objects.PreferenceObject;
@@ -20,10 +22,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class ExtensionGeneralSettings extends StandardSettings {
-    public SubTabsSettings subTabsSettings;
+    public SubTabsSettingsV2 subTabsSettings;
     public MainTabsSettings mainTabsSettings;
     public BurpFrameSettings burpFrameSettings;
     public TopMenuSettings topMenuSettings;
+    public ContextMenuSettings contextMenuSettings;
+    public SuiteTabSettings suiteTabSettings;
     public PwnFoxSettings pwnFoxSettings;
 
     public ExtensionGeneralSettings(ExtensionSharedParameters sharedParameters) {
@@ -57,16 +61,44 @@ public class ExtensionGeneralSettings extends StandardSettings {
         if(sharedParameters.features.hasTopMenu){
             topMenuSettings = new TopMenuSettings(sharedParameters);
         }
+        if(sharedParameters.features.hasContextMenu){
+            contextMenuSettings= new ContextMenuSettings(sharedParameters);
+        }
+        if(sharedParameters.features.hasSuiteTab){
+            suiteTabSettings= new SuiteTabSettings(sharedParameters);
+        }
+
         if (sharedParameters.preferences.safeGetSetting("checkForUpdate", false)) {
             ExtensionMainClass sharpenerBurpExtension = (ExtensionMainClass) sharedParameters.burpExtender;
             sharpenerBurpExtension.checkForUpdate();
         }
+
+        burpFrameSettings = new BurpFrameSettings(sharedParameters);
+        mainTabsSettings = new MainTabsSettings(sharedParameters);
+        subTabsSettings = new SubTabsSettingsV2(sharedParameters);
+        pwnFoxSettings = new PwnFoxSettings(sharedParameters);
     }
 
     @Override
     public void unloadSettings() {
         if(sharedParameters.features.hasTopMenu && topMenuSettings != null){
             topMenuSettings.unloadSettings();
+        }
+
+        if(burpFrameSettings!=null){
+            burpFrameSettings.unloadSettings();
+        }
+
+        if(mainTabsSettings != null){
+            mainTabsSettings.unloadSettings();
+        }
+
+        if(subTabsSettings != null){
+            subTabsSettings.unloadSettings();
+        }
+
+        if(pwnFoxSettings != null){
+            pwnFoxSettings.unloadSettings();
         }
     }
 }

@@ -82,7 +82,7 @@ public class SubTabsContainerHandler {
         this.currentTabContainer = (Container) currentTabTemp;
 
         UiSpecObject textFieldTabTitleUSO = new UiSpecObject(JTextField.class);
-        currentTabTextField = (JComponent) UIWalker.FindUIObjectInSubComponents(currentTabContainer, 1, textFieldTabTitleUSO);
+        currentTabTextField = (JComponent) UIWalker.findUIObjectInSubComponents(currentTabContainer, 1, textFieldTabTitleUSO);
 
         if (currentTabTextField == null) {
             sharedParameters.printlnError("An error has occurred when reading a specific tab. A restart might be needed.");
@@ -93,13 +93,13 @@ public class SubTabsContainerHandler {
         closeButtonUSO.set_isPartialName(true);
         closeButtonUSO.set_isCaseSensitiveName(false);
         closeButtonUSO.set_name("close");
-        currentTabCloseButton = (JComponent) UIWalker.FindUIObjectInSubComponents(currentTabContainer, 1, closeButtonUSO);
+        currentTabCloseButton = (JComponent) UIWalker.findUIObjectInSubComponents(currentTabContainer, 1, closeButtonUSO);
 
         UiSpecObject groupButtonUSO = new UiSpecObject(JComponent.class);
         groupButtonUSO.set_isPartialName(true);
         groupButtonUSO.set_isCaseSensitiveName(false);
         groupButtonUSO.set_name("group");
-        currentTabGroupButton = (JComponent) UIWalker.FindUIObjectInSubComponents(currentTabContainer, 1, groupButtonUSO);
+        currentTabGroupButton = (JComponent) UIWalker.findUIObjectInSubComponents(currentTabContainer, 1, groupButtonUSO);
 
         // to keep history of previous titles
         if (titleHistory.size() == 0)
@@ -814,7 +814,7 @@ public class SubTabsContainerHandler {
             groupCountLabelUSO.set_isPartialName(true);
             groupCountLabelUSO.set_isCaseSensitiveName(false);
             groupCountLabelUSO.set_name("group");
-            var currentTabGroupCountLabel = (JLabel) UIWalker.FindUIObjectInSubComponents(currentTabContainer, 1, groupCountLabelUSO);
+            var currentTabGroupCountLabel = (JLabel) UIWalker.findUIObjectInSubComponents(currentTabContainer, 1, groupCountLabelUSO);
             if(currentTabGroupCountLabel != null){
                 try{
                     result = Integer.parseInt(currentTabGroupCountLabel.getText());

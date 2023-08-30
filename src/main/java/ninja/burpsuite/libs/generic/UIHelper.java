@@ -6,7 +6,11 @@ package ninja.burpsuite.libs.generic;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 public class UIHelper {
@@ -170,6 +174,25 @@ public class UIHelper {
         }catch(Exception e){
             System.err.println("Error in moveFrameToCenter, it has been ignored");
         }
+
+    }
+
+    public static void simulateClick(JLabel label) {
+        Point labelLocation = label.getLocationOnScreen();
+        int clickX = labelLocation.x + label.getWidth() / 2;
+        int clickY = labelLocation.y + label.getHeight() / 2;
+
+        MouseEvent pressEvent = new MouseEvent(label, MouseEvent.MOUSE_PRESSED, System.currentTimeMillis(), 0, clickX, clickY, 1, false);
+        MouseEvent releaseEvent = new MouseEvent(label, MouseEvent.MOUSE_RELEASED, System.currentTimeMillis(), 0, clickX, clickY, 1, false);
+        MouseEvent clickedEvent = new MouseEvent(label, MouseEvent.MOUSE_CLICKED, System.currentTimeMillis(), 0, clickX, clickY, 1, false);
+        /*
+        Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(pressEvent);
+        Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(releaseEvent);
+        Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(clickedEvent);
+        */
+        label.dispatchEvent(pressEvent);
+        label.dispatchEvent(releaseEvent);
+        label.dispatchEvent(clickedEvent);
 
     }
 

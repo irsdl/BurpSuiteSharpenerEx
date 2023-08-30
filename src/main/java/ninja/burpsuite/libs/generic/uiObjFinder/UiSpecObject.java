@@ -16,6 +16,9 @@ public class UiSpecObject {
     private String _name = null;
     private boolean _isPartialName = false;
     private boolean _isCaseSensitiveName = true;
+    private Boolean _hasMouseListener = null;
+    private Boolean _hasToolTipText = null;
+    private String _toolTipText = null;
     private Integer _minWidth = null;
     private Integer _maxWidth = null;
     private Integer _minHeight = null;
@@ -104,6 +107,18 @@ public class UiSpecObject {
         }
 
         if (get_minJComponentCount() != null && ((JComponent) component).getComponentCount() < get_minJComponentCount()) {
+            return false;
+        }
+
+        if (get_hasMouseListener() != null && get_hasMouseListener() != (((JComponent) component).getMouseListeners().length > 0)){
+            return false;
+        }
+
+        if(get_hasToolTipText() != null && get_hasToolTipText() != (((JComponent) component).getToolTipText() != null)){
+            return false;
+        }
+
+        if(get_toolTipText() != null && !get_toolTipText().equals(((JComponent) component).getToolTipText())){
             return false;
         }
 
@@ -228,5 +243,32 @@ public class UiSpecObject {
 
     public void set_maxJComponentCount(int _maxJComponentCount) {
         this._maxJComponentCount = _maxJComponentCount;
+    }
+
+    public Boolean get_hasMouseListener() {
+        return _hasMouseListener;
+    }
+
+    public void set_hasMouseListener(Boolean _hasMouseListener) {
+        this._hasMouseListener = _hasMouseListener;
+    }
+
+    public Boolean get_hasToolTipText() {
+        if(_toolTipText != null){
+            this._hasToolTipText = true;
+        }
+        return _hasToolTipText;
+    }
+
+    public void set_hasToolTipText(Boolean _hasToolTipText) {
+        this._hasToolTipText = _hasToolTipText;
+    }
+
+    public String get_toolTipText() {
+        return _toolTipText;
+    }
+
+    public void set_toolTipText(String _toolTipText) {
+        this._toolTipText = _toolTipText;
     }
 }

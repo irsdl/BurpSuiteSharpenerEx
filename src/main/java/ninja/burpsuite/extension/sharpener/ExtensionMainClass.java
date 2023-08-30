@@ -11,12 +11,10 @@ import burp.api.montoya.MontoyaApi;
 import burp.api.montoya.extension.ExtensionUnloadingHandler;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import ninja.burpsuite.extension.sharpener.capabilities.pwnFox.PwnFoxProxyRequestHandler;
-import ninja.burpsuite.extension.sharpener.uiSelf.contextMenu.MainContextMenu;
-import ninja.burpsuite.extension.sharpener.uiSelf.suiteTab.MainSuiteTab;
+import ninja.burpsuite.extension.sharpener.uiSelf.contextMenu.ContextMenu;
+import ninja.burpsuite.extension.sharpener.uiSelf.suiteTab.SuiteTab;
 import ninja.burpsuite.extension.sharpener.uiSelf.topMenu.TopMenu;
-import ninja.burpsuite.libs.burp.generic.BurpExtensionFeatures;
 import ninja.burpsuite.libs.burp.generic.BurpUITools;
-import ninja.burpsuite.libs.generic.PropertiesHelper;
 import ninja.burpsuite.libs.generic.UIHelper;
 
 import javax.swing.*;
@@ -36,7 +34,6 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
     @Override
     public void initialize(MontoyaApi api) {
         this.sharedParameters = new ExtensionSharedParameters(this, api, "/extension.properties");
-
         // set our extension name
         api.extension().setName(sharedParameters.extensionName);
         // registering itself to handle unloading
@@ -59,12 +56,12 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
         SwingUtilities.invokeLater(() -> {
             // we no longer need to create an extension GUI tab to get access to the jFrame - Montoya can give us access
             if(sharedParameters.features.hasSuiteTab){
-                sharedParameters.extensionSuiteTab = new MainSuiteTab();
+                sharedParameters.extensionSuiteTab = new SuiteTab(sharedParameters);
                 sharedParameters.extensionSuiteTabRegistration = api.userInterface().registerSuiteTab(sharedParameters.extensionName, sharedParameters.extensionSuiteTab);
             }
 
             if(sharedParameters.features.hasContextMenu){
-                sharedParameters.extensionMainContextMenu = new MainContextMenu();
+                sharedParameters.extensionMainContextMenu = new ContextMenu(sharedParameters);
                 sharedParameters.extensionContextMenuRegistration = api.userInterface().registerContextMenuItemsProvider(sharedParameters.extensionMainContextMenu);
             }
 
@@ -104,6 +101,19 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
 
             if (sharedParameters.get_isUILoaded() || isDirty) {
                 if (!BurpUITools.isMenuBarLoaded(sharedParameters.extensionName, sharedParameters.get_mainMenuBarUsingMontoya()) || isDirty) {
+
+                    /*
+                    // reattaching related tools before working on them!
+                    if (BurpUITools.reattachTools(sharedParameters.subTabSupportedTabs, sharedParameters.get_mainMenuBarUsingMontoya())) {
+                        try {
+                            // to make sure UI has been updated
+                            sharedParameters.printlnOutput("Detached windows were found. We need to wait for a few seconds after reattaching the tabs.");
+                            Thread.sleep(3000);
+                        } catch (Exception e) {
+                            sharedParameters.printDebugMessage("Error in SharpenerGeneralSettings.loadSettings(): " + e.getMessage());
+                        }
+                    }
+                    */
                     sharedParameters.printDebugMessage("Loading all settings!");
                     // Loading all settings!
                     sharedParameters.allSettings = new ExtensionGeneralSettings(sharedParameters);
@@ -151,8 +161,10 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
     public void unload() {
         sharedParameters.printDebugMessage("unload");
         try{
+            /*
             // reattaching related tools before working on them!
             if (BurpUITools.reattachTools(sharedParameters.subTabSupportedTabs, sharedParameters.get_mainMenuBarUsingMontoya())) {
+
                 try {
                     sharedParameters.printDebugMessage("reattaching");
                     // to make sure UI has been updated
@@ -162,7 +174,7 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
                     sharedParameters.printDebugMessage("Error in reattaching the tools");
                 }
             }
-
+            */
             if (sharedParameters.get_isUILoaded() && !anotherExist) {
                 try {
                     sharedParameters.printDebugMessage("removePropertyChangeListener: lookAndFeelPropChangeListener");

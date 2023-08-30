@@ -6,6 +6,7 @@
 
 package ninja.burpsuite.extension.sharpener.uiControllers.subTabs;
 
+import com.coreyd97.BurpExtenderUtilities.Preferences;
 import com.google.common.io.Files;
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
 import ninja.burpsuite.extension.sharpener.objects.TabFeaturesObjectStyle;
@@ -1118,7 +1119,7 @@ public class SubTabsActions {
                 toolSubTabPaneScrollableLayout.addActionListener((e) -> {
                     if (sharedParameters.preferences.safeGetBooleanSetting("isScrollable_" + tool)) {
                         SwingUtilities.invokeLater(() -> currentSubTabsContainerHandler.parentTabbedPane.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT));
-                        sharedParameters.preferences.safeSetSetting("isScrollable_" + tool, false);
+                        sharedParameters.preferences.safeSetSetting("isScrollable_" + tool, false, Preferences.Visibility.PROJECT);
                     } else {
                         SwingUtilities.invokeLater(() -> {
                             currentSubTabsContainerHandler.parentTabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -1133,7 +1134,7 @@ public class SubTabsActions {
                                     1000
                             );
                         });
-                        sharedParameters.preferences.safeSetSetting("isScrollable_" + tool, true);
+                        sharedParameters.preferences.safeSetSetting("isScrollable_" + tool, true, Preferences.Visibility.PROJECT);
                     }
                 });
 
@@ -1147,10 +1148,10 @@ public class SubTabsActions {
                 toolSubTabPaneTabMinimizeTabSize.addActionListener((e) -> {
                     if (sharedParameters.preferences.safeGetBooleanSetting("minimizeSize_" + tool)) {
                         changeToolTabbedPaneUI_safe(sharedParameters, currentSubTabsContainerHandler, false);
-                        sharedParameters.preferences.safeSetSetting("minimizeSize_" + tool, false);
+                        sharedParameters.preferences.safeSetSetting("minimizeSize_" + tool, false, Preferences.Visibility.PROJECT);
                     } else {
                         changeToolTabbedPaneUI_safe(sharedParameters, currentSubTabsContainerHandler, false);
-                        sharedParameters.preferences.safeSetSetting("minimizeSize_" + tool, true);
+                        sharedParameters.preferences.safeSetSetting("minimizeSize_" + tool, true, Preferences.Visibility.PROJECT);
                     }
                 });
                 popupMenu.add(toolSubTabPaneTabMinimizeTabSize);
@@ -1163,10 +1164,10 @@ public class SubTabsActions {
                 toolSubTabPaneTabFixedPositionLayout.addActionListener((e) -> {
                     if (sharedParameters.preferences.safeGetBooleanSetting("isTabFixedPosition_" + tool)) {
                         changeToolTabbedPaneUI_safe(sharedParameters, currentSubTabsContainerHandler, false);
-                        sharedParameters.preferences.safeSetSetting("isTabFixedPosition_" + tool, false);
+                        sharedParameters.preferences.safeSetSetting("isTabFixedPosition_" + tool, false, Preferences.Visibility.PROJECT);
                     } else {
                         changeToolTabbedPaneUI_safe(sharedParameters, currentSubTabsContainerHandler, false);
-                        sharedParameters.preferences.safeSetSetting("isTabFixedPosition_" + tool, true);
+                        sharedParameters.preferences.safeSetSetting("isTabFixedPosition_" + tool, true, Preferences.Visibility.PROJECT);
                     }
                 });
                 popupMenu.add(toolSubTabPaneTabFixedPositionLayout);
@@ -1181,10 +1182,10 @@ public class SubTabsActions {
             toolSubTabPaneMouseWheelScroll.addActionListener((e) -> {
                 if (sharedParameters.preferences.safeGetBooleanSetting("mouseWheelToScroll_" + tool)) {
                     SubTabsActions.removeMouseWheelFromJTabbedPane(sharedParameters, tool, true);
-                    sharedParameters.preferences.safeSetSetting("mouseWheelToScroll_" + tool, false);
+                    sharedParameters.preferences.safeSetSetting("mouseWheelToScroll_" + tool, false, Preferences.Visibility.PROJECT);
                 } else {
                     SubTabsActions.addMouseWheelToJTabbedPane(sharedParameters, tool, sharedParameters.isTabGroupSupportedByDefault);
-                    sharedParameters.preferences.safeSetSetting("mouseWheelToScroll_" + tool, true);
+                    sharedParameters.preferences.safeSetSetting("mouseWheelToScroll_" + tool, true, Preferences.Visibility.PROJECT);
                 }
             });
 
@@ -1448,7 +1449,7 @@ public class SubTabsActions {
     public static SubTabsContainerHandler getSubTabContainerHandlerFromEvent(ExtensionSharedParameters sharedParameters, AWTEvent event) {
         SubTabsContainerHandler subTabsContainerHandler = null;
         if (event.getSource() instanceof Component) {
-            JTabbedPane tabbedPane = (JTabbedPane) UIWalker.FindUIObjectInParentComponents((Component) event.getSource(), 4, new UiSpecObject(JTabbedPane.class));
+            JTabbedPane tabbedPane = (JTabbedPane) UIWalker.findUIObjectInParentComponents((Component) event.getSource(), 4, new UiSpecObject(JTabbedPane.class));
             if (tabbedPane != null) {
                 int currentSelection = tabbedPane.getSelectedIndex();
                 subTabsContainerHandler = getSubTabContainerHandlerFromSharedParameters(sharedParameters, tabbedPane, currentSelection);

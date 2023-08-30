@@ -3,6 +3,10 @@
 
 package ninja.burpsuite.libs.burp.generic;
 
+import ninja.burpsuite.libs.generic.UIHelper;
+import ninja.burpsuite.libs.generic.uiObjFinder.UIWalker;
+import ninja.burpsuite.libs.generic.uiObjFinder.UiSpecObject;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.Set;
@@ -175,7 +179,9 @@ public class BurpUITools {
         return result;
     }
 
-    public static boolean reattachTools(Set<BurpUITools.MainTabs> toolName, JMenuBar menuBar) {
+    // This used to work before right click detach was introduced in burp in 2023
+    @Deprecated
+    public static boolean reattachToolsLegacy(Set<BurpUITools.MainTabs> toolName, JMenuBar menuBar) {
         boolean result = false;
         for (BurpUITools.MainTabs tool : toolName) {
             JMenuItem detachedTool = (JMenuItem) BurpUITools.getSubMenuComponentFromMain("Window", "Reattach " + tool, menuBar);
@@ -187,7 +193,46 @@ public class BurpUITools {
         return result;
     }
 
+    // this does not work anywhere even in the latest version but has been added just in case we need to force it to work in the future!
+    @Deprecated
+    public static boolean reattachTools(Set<BurpUITools.MainTabs> toolName, JMenuBar menuBar) {
+        boolean result = false;
+        for (BurpUITools.MainTabs toolTabName : toolName) {
+            for (Window window : Window.getWindows()) {
+                if (window.isShowing()) {
+                    if (window instanceof JFrame) {
+                        String title = ((JFrame) window).getTitle();
+
+                        // "Repeater" used to become "Burp Repeater" when it was detached
+                        //if (title.equalsIgnoreCase("Burp " + toolTabName.toString())) {
+
+                        // "Repeater" is now "Repeater" (v2023.10)
+                        if (title.equalsIgnoreCase(toolTabName.toString())) {
+                            // it is not possible to trigger the reattach functionality in v2023.10-22956 (latest atm)
+                            UiSpecObject uiSpecObject = new UiSpecObject();
+                            uiSpecObject.set_isJComponent(true);
+                            uiSpecObject.set_isShowing(true);
+                            //uiSpecObject.set_maxJComponentCount(1);
+                            uiSpecObject.set_toolTipText("Reattach all tabs");
+                            uiSpecObject.set_hasMouseListener(true);
+                            Component tempComponent = UIWalker.findUIObjectInSubComponents(window.getComponents()[0], 6, uiSpecObject);
+                            if (tempComponent != null) {
+                                JLabel label = (JLabel) tempComponent;
+                                UIHelper.simulateClick(label);
+                                result = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return result;
+
+    }
+
     // This is case-insensitive to prevent confusion
+    @Deprecated
     public static boolean isTabLoaded(String tabName, JTabbedPane tabbedPane) {
         boolean result = false;
         for (Component component : tabbedPane.getComponents()) {
@@ -203,5 +248,9 @@ public class BurpUITools {
             }
         }
         return result;
+    }
+
+    public static MainTabs getBurpSuiteToolName(JTabbedPane toolTabbedPane) {
+        return getMainTabsObjFromString(toolTabbedPane.getTitleAt(0));
     }
 }

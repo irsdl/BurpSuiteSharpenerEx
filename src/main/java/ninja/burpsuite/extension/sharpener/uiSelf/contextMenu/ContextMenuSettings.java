@@ -13,8 +13,9 @@ import ninja.burpsuite.libs.objects.StandardSettings;
 import java.util.Collection;
 
 public class ContextMenuSettings extends StandardSettings {
-    protected ContextMenuSettings(ExtensionSharedParameters sharedParameters) {
+    public ContextMenuSettings(ExtensionSharedParameters sharedParameters) {
         super(sharedParameters);
+
     }
 
     @Override

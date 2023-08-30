@@ -21,8 +21,8 @@ public class MainTabsStyleHandler {
             sharedParameters.printDebugMessage("setToolTabStyle for " + toolName);
             String themeName = sharedParameters.preferences.safeGetStringSetting("ToolsThemeName");
             String themeCustomPath = sharedParameters.preferences.safeGetStringSetting("ToolsThemeCustomPath");
-            String iconSizeStr = sharedParameters.preferences.safeGetStringSetting("ToolsIconSize");
-            int iconSize = Integer.parseInt(iconSizeStr, 16);
+            String iconSizeStr = sharedParameters.preferences.safeGetSetting("ToolsIconSize" , "16");
+            int iconSize = Integer.parseInt(iconSizeStr);
 
             JTabbedPane tabbedPane = sharedParameters.get_rootTabbedPaneUsingMontoya();
             for (Component component : tabbedPane.getComponents()) {

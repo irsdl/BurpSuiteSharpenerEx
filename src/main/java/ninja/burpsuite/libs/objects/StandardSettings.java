@@ -66,7 +66,7 @@ public abstract class StandardSettings {
         for (PreferenceObject preferenceObject : _preferenceObjectCollection) {
             try {
                 // sharedParameters.preferences.resetSetting(preferenceObject.settingName); // there is a bug in the library, so we can't use this for now
-                sharedParameters.preferences.safeSetSetting(preferenceObject.settingName, null);
+                sharedParameters.preferences.safeSetSetting(preferenceObject.settingName, null, preferenceObject.visibility);
             } catch (Exception e) {
                 sharedParameters.printDebugMessage(e.getMessage());
                 if (sharedParameters.debugLevel == BurpExtensionSharedParameters.DebugLevels.VeryVerbose.getValue())

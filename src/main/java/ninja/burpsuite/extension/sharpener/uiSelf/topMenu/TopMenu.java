@@ -6,6 +6,7 @@
 
 package ninja.burpsuite.extension.sharpener.uiSelf.topMenu;
 
+import com.coreyd97.BurpExtenderUtilities.Preferences;
 import ninja.burpsuite.extension.sharpener.ExtensionMainClass;
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
 import ninja.burpsuite.extension.sharpener.uiControllers.mainTabs.MainTabsStyleHandler;
@@ -55,7 +56,7 @@ public class TopMenu extends javax.swing.JMenu {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
                     for (BurpUITools.MainTabs tool : BurpUITools.MainTabs.values()) {
-                        sharedParameters.preferences.safeSetSetting("isUnique_" + tool, true);
+                        sharedParameters.preferences.safeSetSetting("isUnique_" + tool, true, Preferences.Visibility.GLOBAL);
                         MainTabsStyleHandler.setMainTabsStyle(sharedParameters, tool);
                     }
                     updateTopMenuBar();
@@ -66,7 +67,7 @@ public class TopMenu extends javax.swing.JMenu {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
                     for (BurpUITools.MainTabs tool : BurpUITools.MainTabs.values()) {
-                        sharedParameters.preferences.safeSetSetting("isUnique_" + tool, false);
+                        sharedParameters.preferences.safeSetSetting("isUnique_" + tool, false, Preferences.Visibility.GLOBAL);
                         MainTabsStyleHandler.unsetMainTabsStyle(sharedParameters, tool);
                     }
                     updateTopMenuBar();
@@ -88,7 +89,7 @@ public class TopMenu extends javax.swing.JMenu {
                     String chosenOne = definedThemeName;
                     if (chosenOne.equalsIgnoreCase("none"))
                         chosenOne = "";
-                    sharedParameters.preferences.safeSetSetting("ToolsThemeName", chosenOne);
+                    sharedParameters.preferences.safeSetSetting("ToolsThemeName", chosenOne, Preferences.Visibility.GLOBAL);
                     MainTabsStyleHandler.resetMainTabsStylesFromSettings(sharedParameters);
                 });
                 themeGroup.add(toolStyleTheme);
@@ -103,8 +104,8 @@ public class TopMenu extends javax.swing.JMenu {
                 String themeCustomPath = sharedParameters.preferences.safeGetStringSetting("ToolsThemeCustomPath");
                 String customPath = UIHelper.showDirectoryDialog(themeCustomPath, sharedParameters.get_mainFrameUsingMontoya());
                 if (!customPath.isEmpty()) {
-                    sharedParameters.preferences.safeSetSetting("ToolsThemeName", "custom");
-                    sharedParameters.preferences.safeSetSetting("ToolsThemeCustomPath", customPath);
+                    sharedParameters.preferences.safeSetSetting("ToolsThemeName", "custom", Preferences.Visibility.GLOBAL);
+                    sharedParameters.preferences.safeSetSetting("ToolsThemeCustomPath", customPath, Preferences.Visibility.GLOBAL);
                 } else {
                     updateTopMenuBar();
                 }
@@ -124,7 +125,7 @@ public class TopMenu extends javax.swing.JMenu {
                 }
                 toolIconSize.addActionListener((e) -> {
                     String chosenOne = definedIconSize;
-                    sharedParameters.preferences.safeSetSetting("ToolsIconSize", chosenOne);
+                    sharedParameters.preferences.safeSetSetting("ToolsIconSize", chosenOne, Preferences.Visibility.GLOBAL);
                     MainTabsStyleHandler.resetMainTabsStylesFromSettings(sharedParameters);
                 });
                 iconSizeGroup.add(toolIconSize);
@@ -157,10 +158,10 @@ public class TopMenu extends javax.swing.JMenu {
                 toolStyleOption.addActionListener((e) -> {
                     Boolean currentSetting = sharedParameters.preferences.safeGetBooleanSetting("isUnique_" + tool);
                     if (currentSetting) {
-                        sharedParameters.preferences.safeSetSetting("isUnique_" + tool, false);
+                        sharedParameters.preferences.safeSetSetting("isUnique_" + tool, false, Preferences.Visibility.GLOBAL);
                         MainTabsStyleHandler.unsetMainTabsStyle(sharedParameters, tool);
                     } else {
-                        sharedParameters.preferences.safeSetSetting("isUnique_" + tool, true);
+                        sharedParameters.preferences.safeSetSetting("isUnique_" + tool, true, Preferences.Visibility.GLOBAL);
                         MainTabsStyleHandler.setMainTabsStyle(sharedParameters, tool);
                     }
                 });
@@ -178,10 +179,10 @@ public class TopMenu extends javax.swing.JMenu {
                 boolean isToolTabPaneScrollable = sharedParameters.preferences.safeGetBooleanSetting("isToolTabPaneScrollable");
                 if (isToolTabPaneScrollable) {
                     SwingUtilities.invokeLater(() -> sharedParameters.get_rootTabbedPaneUsingMontoya().setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT));
-                    sharedParameters.preferences.safeSetSetting("isToolTabPaneScrollable", false);
+                    sharedParameters.preferences.safeSetSetting("isToolTabPaneScrollable", false, Preferences.Visibility.GLOBAL);
                 } else {
                     SwingUtilities.invokeLater(() -> sharedParameters.get_rootTabbedPaneUsingMontoya().setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT));
-                    sharedParameters.preferences.safeSetSetting("isToolTabPaneScrollable", true);
+                    sharedParameters.preferences.safeSetSetting("isToolTabPaneScrollable", true, Preferences.Visibility.GLOBAL);
                 }
             });
 
@@ -197,9 +198,9 @@ public class TopMenu extends javax.swing.JMenu {
             useLastScreenPositionAndSizeChkBox.addActionListener((e) -> {
                 boolean useLastScreenPositionAndSize = sharedParameters.preferences.safeGetBooleanSetting("useLastScreenPositionAndSize");
                 if (useLastScreenPositionAndSize) {
-                    sharedParameters.preferences.safeSetSetting("useLastScreenPositionAndSize", false);
+                    sharedParameters.preferences.safeSetSetting("useLastScreenPositionAndSize", false, Preferences.Visibility.GLOBAL);
                 } else {
-                    sharedParameters.preferences.safeSetSetting("useLastScreenPositionAndSize", true);
+                    sharedParameters.preferences.safeSetSetting("useLastScreenPositionAndSize", true, Preferences.Visibility.GLOBAL);
                 }
             });
 
@@ -214,9 +215,9 @@ public class TopMenu extends javax.swing.JMenu {
             detectOffScreenChkBox.addActionListener((e) -> {
                 boolean useLastScreenPositionAndSize = sharedParameters.preferences.safeGetBooleanSetting("detectOffScreenPosition");
                 if (useLastScreenPositionAndSize) {
-                    sharedParameters.preferences.safeSetSetting("detectOffScreenPosition", false);
+                    sharedParameters.preferences.safeSetSetting("detectOffScreenPosition", false, Preferences.Visibility.GLOBAL);
                 } else {
-                    sharedParameters.preferences.safeSetSetting("detectOffScreenPosition", true);
+                    sharedParameters.preferences.safeSetSetting("detectOffScreenPosition", true, Preferences.Visibility.GLOBAL);
                 }
             });
 
@@ -232,9 +233,9 @@ public class TopMenu extends javax.swing.JMenu {
             }
             pwnFoxSupportCapability.addActionListener((e) -> {
                 if (sharedParameters.preferences.safeGetBooleanSetting("pwnFoxSupportCapability")) {
-                    sharedParameters.preferences.safeSetSetting("pwnFoxSupportCapability", false);
+                    sharedParameters.preferences.safeSetSetting("pwnFoxSupportCapability", false, Preferences.Visibility.GLOBAL);
                 } else {
-                    sharedParameters.preferences.safeSetSetting("pwnFoxSupportCapability", true);
+                    sharedParameters.preferences.safeSetSetting("pwnFoxSupportCapability", true, Preferences.Visibility.GLOBAL);
                 }
             });
             supportedCapabilitiesMenu.add(pwnFoxSupportCapability);
@@ -249,7 +250,7 @@ public class TopMenu extends javax.swing.JMenu {
                 JRadioButtonMenuItem debugOption = new JRadioButtonMenuItem(new AbstractAction(item.getName()) {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        sharedParameters.preferences.safeSetSetting("debugLevel", item.getValue());
+                        sharedParameters.preferences.safeSetSetting("debugLevel", item.getValue(), Preferences.Visibility.GLOBAL);
                         sharedParameters.debugLevel = item.getValue();
                     }
                 });
@@ -275,7 +276,7 @@ public class TopMenu extends javax.swing.JMenu {
                     if (newTitle != null && !newTitle.trim().isEmpty()) {
                         if (!sharedParameters.get_mainFrameUsingMontoya().getTitle().equals(newTitle)) {
                             BurpTitleAndIcon.setTitle(sharedParameters, newTitle);
-                            sharedParameters.preferences.safeSetSetting("BurpTitle", newTitle);
+                            sharedParameters.preferences.safeSetSetting("BurpTitle", newTitle, Preferences.Visibility.PROJECT);
                         }
                     }
                 }
@@ -306,8 +307,8 @@ public class TopMenu extends javax.swing.JMenu {
                 }
                 burpIconImage.addActionListener((e) -> {
                     BurpTitleAndIcon.setIcon(sharedParameters, resourcePath, 48, true);
-                    sharedParameters.preferences.safeSetSetting("BurpResourceIconName", resourcePath);
-                    sharedParameters.preferences.safeSetSetting("BurpIconCustomPath", "");
+                    sharedParameters.preferences.safeSetSetting("BurpResourceIconName", resourcePath, Preferences.Visibility.PROJECT);
+                    sharedParameters.preferences.safeSetSetting("BurpIconCustomPath", "", Preferences.Visibility.PROJECT);
                 });
                 burpIconGroup.add(burpIconImage);
                 changeBurpIcon.add(burpIconImage);
@@ -326,9 +327,9 @@ public class TopMenu extends javax.swing.JMenu {
                     String newIconPath = UIHelper.showFileDialog(lastIconPath, imageFilter, sharedParameters.get_mainFrameUsingMontoya());
                     if (newIconPath != null && !newIconPath.trim().isEmpty()) {
                         BurpTitleAndIcon.setIcon(sharedParameters, newIconPath, 48, false);
-                        sharedParameters.preferences.safeSetSetting("BurpResourceIconName", "");
-                        sharedParameters.preferences.safeSetSetting("BurpIconCustomPath", newIconPath);
-                        sharedParameters.preferences.safeSetSetting("LastBurpIconCustomPath", newIconPath);
+                        sharedParameters.preferences.safeSetSetting("BurpResourceIconName", "", Preferences.Visibility.PROJECT);
+                        sharedParameters.preferences.safeSetSetting("BurpIconCustomPath", newIconPath, Preferences.Visibility.PROJECT);
+                        sharedParameters.preferences.safeSetSetting("LastBurpIconCustomPath", newIconPath, Preferences.Visibility.PROJECT);
                     }
                 }
             });
@@ -345,7 +346,7 @@ public class TopMenu extends javax.swing.JMenu {
                     int response = UIHelper.askConfirmMessage("Sharpener Extension: Reset Title", "Are you sure?", new String[]{"Yes", "No"}, sharedParameters.get_mainFrameUsingMontoya());
                     if (response == 0) {
                         BurpTitleAndIcon.resetTitle(sharedParameters);
-                        sharedParameters.preferences.safeSetSetting("BurpTitle", "");
+                        sharedParameters.preferences.safeSetSetting("BurpTitle", "", Preferences.Visibility.PROJECT);
                     }
                 }
             });
@@ -358,7 +359,7 @@ public class TopMenu extends javax.swing.JMenu {
                     int response = UIHelper.askConfirmMessage("Sharpener Extension: Reset Icon", "Are you sure?", new String[]{"Yes", "No"}, sharedParameters.get_mainFrameUsingMontoya());
                     if (response == 0) {
                         BurpTitleAndIcon.resetIcon(sharedParameters);
-                        sharedParameters.preferences.safeSetSetting("BurpIconCustomPath", "");
+                        sharedParameters.preferences.safeSetSetting("BurpIconCustomPath", "", Preferences.Visibility.PROJECT);
                     }
                 }
             });
@@ -446,9 +447,9 @@ public class TopMenu extends javax.swing.JMenu {
 
             checkForUpdateOption.addActionListener((e) -> {
                 if (sharedParameters.preferences.safeGetBooleanSetting("checkForUpdate")) {
-                    sharedParameters.preferences.safeSetSetting("checkForUpdate", false);
+                    sharedParameters.preferences.safeSetSetting("checkForUpdate", false, Preferences.Visibility.GLOBAL);
                 } else {
-                    sharedParameters.preferences.safeSetSetting("checkForUpdate", true);
+                    sharedParameters.preferences.safeSetSetting("checkForUpdate", true, Preferences.Visibility.GLOBAL);
                     ExtensionMainClass sharpenerBurpExtension = (ExtensionMainClass) sharedParameters.burpExtender;
                     sharpenerBurpExtension.checkForUpdate();
                 }

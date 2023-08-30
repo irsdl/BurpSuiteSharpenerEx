@@ -23,19 +23,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-/**
- * This class is deprecated because it no longer worked with the latest version when windows were detached
- * Use {@link SubTabsSettingsV2} instead.
- */
-@Deprecated
-public class SubTabsSettings extends StandardSettings {
+
+public class SubTabsSettingsV2 extends StandardSettings {
 
     public String lastSavedImageLocation;
     public boolean isFirstLoad;
     private Lock updateInProgressLock = new ReentrantLock();
 
-    private SubTabsListeners subTabsListeners;
-    public SubTabsSettings(ExtensionSharedParameters sharedParameters) {
+    private SubTabsListenersV2 subTabsListeners;
+    public SubTabsSettingsV2(ExtensionSharedParameters sharedParameters) {
         super(sharedParameters);
         sharedParameters.printDebugMessage("SubTabsSettings");
     }
@@ -85,7 +81,7 @@ public class SubTabsSettings extends StandardSettings {
         sharedParameters.printDebugMessage("removing tab listener on tabs in Repeater and Intruder");
         // remove tab listener on tabs in Repeater and Intruder
         if (subTabsListeners != null && sharedParameters.get_isUILoaded()) {
-            subTabsListeners.removeTabListener(sharedParameters.get_rootTabbedPaneUsingMontoya());
+            subTabsListeners.removeTabListener();
         }
 
         // undo subtabs styles
@@ -202,7 +198,7 @@ public class SubTabsSettings extends StandardSettings {
                     if (sharedParameters.get_rootTabbedPaneUsingMontoya() != null) {
                         sharedParameters.printDebugMessage("Adding MiddleClick / RightClick+Alt to Repeater and Intruder");
 
-                        subTabsListeners = new SubTabsListeners(sharedParameters, mouseEvent -> {
+                        subTabsListeners = new SubTabsListenersV2(sharedParameters, mouseEvent -> {
                             SubTabsActions.tabClicked(mouseEvent, sharedParameters);
                         });
                     }
@@ -254,7 +250,9 @@ public class SubTabsSettings extends StandardSettings {
             if(updateInProgressLock.tryLock(5, TimeUnit.SECONDS)){
                 try{
                     for (BurpUITools.MainTabs tool : sharedParameters.subTabSupportedTabs) {
-                        if (currentMainTab != null && currentMainTab != tool) {
+                        var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(tool);
+
+                        if (currentToolTabbedPane == null || (currentMainTab != null && currentMainTab != tool)) {
                             continue;
                         }
 
@@ -263,7 +261,6 @@ public class SubTabsSettings extends StandardSettings {
                             sharedParameters.allSubTabContainerHandlers.put(tool, new ArrayList<>());
                         }
 
-                        var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(tool);
                         if (currentMainTab == null || (currentToolTabbedPane != null && sharedParameters.allSubTabContainerHandlers.get(tool).size() != currentToolTabbedPane.getTabCount())) {
                             // this is not a drag and drop
                             ArrayList<SubTabsContainerHandler> subTabsContainerHandlers = sharedParameters.allSubTabContainerHandlers.get(tool);

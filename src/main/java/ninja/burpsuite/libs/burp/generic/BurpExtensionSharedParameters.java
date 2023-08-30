@@ -407,7 +407,7 @@ public class BurpExtensionSharedParameters {
                 uiSpecObject.set_objectType(JFrame.class);
                 uiSpecObject.set_isShowing(true);
 
-                JRootPane rootPane = ((JFrame) UIWalker.FindUIObjectInComponents(JFrame.getWindows(), uiSpecObject)).getRootPane();
+                JRootPane rootPane = ((JFrame) UIWalker.findUIObjectInComponents(JFrame.getWindows(), uiSpecObject)).getRootPane();
                 set_rootTabbedPane((JTabbedPane) rootPane.getContentPane().getComponent(0));
             }
         }

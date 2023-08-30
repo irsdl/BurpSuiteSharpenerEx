@@ -21,6 +21,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.function.Consumer;
 
+/**
+ * This class is deprecated because it no longer worked with the latest version when windows were detached
+ * Use {@link SubTabsListenersV2} instead.
+ */
+@Deprecated
 public class SubTabsListeners implements ContainerListener {
     private final Consumer<MouseEvent> mouseEventConsumer;
     private final ExtensionSharedParameters sharedParameters;

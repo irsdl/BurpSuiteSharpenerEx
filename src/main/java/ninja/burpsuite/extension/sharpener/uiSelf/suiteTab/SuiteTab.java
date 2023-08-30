@@ -6,11 +6,15 @@
 
 package ninja.burpsuite.extension.sharpener.uiSelf.suiteTab;
 
+import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
+
 import javax.swing.*;
 
-public class MainSuiteTab extends JComponent
+public class SuiteTab extends JComponent
 {
-    public MainSuiteTab(){
+    ExtensionSharedParameters sharedParameters;
 
+    public SuiteTab(ExtensionSharedParameters sharedParameters) {
+        this.sharedParameters = sharedParameters;
     }
 }

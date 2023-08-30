@@ -6,6 +6,7 @@
 
 package ninja.burpsuite.extension.sharpener.uiControllers.burpFrame;
 
+import com.coreyd97.BurpExtenderUtilities.Preferences;
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
 import ninja.burpsuite.libs.generic.UIHelper;
 
@@ -89,8 +90,8 @@ public class BurpFrameListeners implements ComponentListener {
                                         try{
                                             Dimension newSize = e.getComponent().getBounds().getSize();
                                             Point newLocation = e.getComponent().getBounds().getLocation();
-                                            sharedParameters.preferences.safeSetSetting("lastApplicationSize", newSize);
-                                            sharedParameters.preferences.safeSetSetting("lastApplicationPosition", newLocation);
+                                            sharedParameters.preferences.safeSetSetting("lastApplicationSize", newSize, Preferences.Visibility.GLOBAL);
+                                            sharedParameters.preferences.safeSetSetting("lastApplicationPosition", newLocation, Preferences.Visibility.GLOBAL);
                                             boolean detectOffScreenPosition = sharedParameters.preferences.safeGetBooleanSetting("detectOffScreenPosition");
                                             if(detectOffScreenPosition && !isRecenterInProgress){
                                                 checkAndCenterOffScreen(sharedParameters.get_mainFrameUsingMontoya(), 0.8, false);
@@ -132,8 +133,8 @@ public class BurpFrameListeners implements ComponentListener {
                                         try {
                                             Dimension newSize = e.getComponent().getBounds().getSize();
                                             Point newLocation = e.getComponent().getBounds().getLocation();
-                                            sharedParameters.preferences.safeSetSetting("lastApplicationSize", newSize);
-                                            sharedParameters.preferences.safeSetSetting("lastApplicationPosition", newLocation);
+                                            sharedParameters.preferences.safeSetSetting("lastApplicationSize", newSize, Preferences.Visibility.GLOBAL);
+                                            sharedParameters.preferences.safeSetSetting("lastApplicationPosition", newLocation, Preferences.Visibility.GLOBAL);
                                             boolean detectOffScreenPosition = sharedParameters.preferences.safeGetBooleanSetting("detectOffScreenPosition");
                                             if (detectOffScreenPosition && !isRecenterInProgress) {
                                                 checkAndCenterOffScreen(sharedParameters.get_mainFrameUsingMontoya(), 0.8, false);

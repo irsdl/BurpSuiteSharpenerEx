@@ -6,13 +6,11 @@
 
 package ninja.burpsuite.extension.sharpener;
 
-import burp.api.montoya.BurpExtension;
 import burp.api.montoya.MontoyaApi;
 import ninja.burpsuite.extension.sharpener.objects.TabFeaturesObject;
 import ninja.burpsuite.extension.sharpener.objects.TabFeaturesObjectStyle;
 import ninja.burpsuite.extension.sharpener.uiControllers.subTabs.SubTabsContainerHandler;
 import ninja.burpsuite.extension.sharpener.uiSelf.topMenu.TopMenu;
-import ninja.burpsuite.libs.burp.generic.BurpExtensionFeatures;
 import ninja.burpsuite.libs.burp.generic.BurpExtensionSharedParameters;
 import ninja.burpsuite.libs.burp.generic.BurpUITools;
 import ninja.burpsuite.libs.generic.uiObjFinder.UIWalker;
@@ -85,21 +83,22 @@ public class ExtensionSharedParameters extends BurpExtensionSharedParameters {
     }
 
     public JTabbedPane get_toolTabbedPane(BurpUITools.MainTabs toolTabName, boolean useCache) {
-        JTabbedPane subTabbedPane = null;
+        JTabbedPane toolTabbedPane = null;
         JTabbedPane _rootTabbedPane = get_rootTabbedPaneUsingMontoya();
 
 
         if (useCache && cachedJTabbedPaneTools.get(toolTabName) != null) {
-            subTabbedPane = cachedJTabbedPaneTools.get(toolTabName);
+            toolTabbedPane = cachedJTabbedPaneTools.get(toolTabName);
             try {
-                subTabbedPane.getSelectedComponent();
+                toolTabbedPane.getSelectedComponent();
             } catch (Exception e) {
                 // could not access the object
-                subTabbedPane = null;
+                toolTabbedPane = null;
             }
         }
 
-        if (_rootTabbedPane != null && subTabbedPane == null) {
+        if (_rootTabbedPane != null && toolTabbedPane == null) {
+            boolean hasSubTabs = true;
             for (Component tabComponent : _rootTabbedPane.getComponents()) {
 
                 //Check tab titles and continue for accepted tab paths.
@@ -112,11 +111,12 @@ public class ExtensionSharedParameters extends BurpExtensionSharedParameters {
                 if (toolTabName.toString().equalsIgnoreCase(componentTitle)) {
                     // we have our tool tab, now we need to find its right component
                     try {
-                        subTabbedPane = (JTabbedPane) tabComponent;
+                        toolTabbedPane = (JTabbedPane) tabComponent;
                     } catch (Exception e1) {
                         try {
-                            subTabbedPane = (JTabbedPane) tabComponent.getComponentAt(0, 0);
+                            toolTabbedPane = (JTabbedPane) tabComponent.getComponentAt(0, 0);
                         } catch (Exception e2) {
+                            hasSubTabs = false;
                             printDebugMessage("The " + componentTitle + " tool seems to be empty or different. Cannot find the tabs.");
                         }
                     }
@@ -124,21 +124,27 @@ public class ExtensionSharedParameters extends BurpExtensionSharedParameters {
                 }
             }
 
-            if (subTabbedPane == null) {
+            if (toolTabbedPane == null && hasSubTabs) {
                 // it could not find the tool, this can happen when a tool has been detached, so we need to look for it!
                 for (Window window : Window.getWindows()) {
                     if (window.isShowing()) {
                         if (window instanceof JFrame) {
                             String title = ((JFrame) window).getTitle();
-                            // "Repeater" becomes "Burp Repeater" when it is detached
-                            if (title.equalsIgnoreCase("Burp " + toolTabName.toString())) {
+
+                            // "Repeater" used to become "Burp Repeater" when it was detached
+                            //if (title.equalsIgnoreCase("Burp " + toolTabName.toString())) {
+
+                            // "Repeater" is now "Repeater" (v2023.10)
+                            if (title.equalsIgnoreCase(toolTabName.toString())) {
                                 UiSpecObject uiSpecObject = new UiSpecObject(JTabbedPane.class);
                                 uiSpecObject.set_isJComponent(true);
                                 uiSpecObject.set_isShowing(true);
                                 uiSpecObject.set_minJComponentCount(1);
-                                Component tempComponent = UIWalker.FindUIObjectInSubComponents(window.getComponents()[0], 6, uiSpecObject);
-                                if (tempComponent != null) {
-                                    subTabbedPane = (JTabbedPane) tempComponent;
+                                Component tempComponent = UIWalker.findUIObjectInSubComponents(window.getComponents()[0], 6, uiSpecObject);
+                                // after finding the first JTabbedPane, we need to look again in its children and exclude itself to find the one that includes Repeater or Intruder tabs
+                                Component tempComponent2 = UIWalker.findUIObjectInSubComponentsWithExclusions(tempComponent, 1, uiSpecObject, new Component[]{tempComponent});
+                                if (tempComponent2 != null) {
+                                    toolTabbedPane = (JTabbedPane) tempComponent2;
                                     break;
                                 }
                             }
@@ -148,19 +154,19 @@ public class ExtensionSharedParameters extends BurpExtensionSharedParameters {
             }
         }
 
-        if (subTabbedPane != null) {
+        if (toolTabbedPane != null) {
             if (cachedJTabbedPaneTools.get(toolTabName) != null) {
-                cachedJTabbedPaneTools.replace(toolTabName, subTabbedPane);
+                cachedJTabbedPaneTools.replace(toolTabName, toolTabbedPane);
             } else {
-                cachedJTabbedPaneTools.put(toolTabName, subTabbedPane);
+                cachedJTabbedPaneTools.put(toolTabName, toolTabbedPane);
             }
         }
 
-        if(subTabbedPane == null){
+        if(toolTabbedPane == null){
             printDebugMessage("subTabbedPane is null for " + toolTabName + ". This can cause an error if not handled gracefully.");
         }
 
-        return subTabbedPane;
+        return toolTabbedPane;
     }
 
 }

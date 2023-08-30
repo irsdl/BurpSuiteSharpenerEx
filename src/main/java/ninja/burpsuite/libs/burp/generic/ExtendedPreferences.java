@@ -14,10 +14,10 @@ public class ExtendedPreferences extends Preferences {
         super(montoyaApi, gsonProvider);
     }
 
-    public void safeSetSetting(String settingName, Object value) {
+    public void safeSetSetting(String settingName, Object value, Visibility visibility) {
         boolean isSaved = false;
         int tryTimes = 0;
-        while (!isSaved && tryTimes < 10) {
+        while (!isSaved && tryTimes < 3) {
             tryTimes++;
 
             if (sharedParameters != null) {
@@ -36,6 +36,11 @@ public class ExtendedPreferences extends Preferences {
                 }
             } catch (Exception e) {
                 if (sharedParameters != null) {
+                    sharedParameters.printDebugMessage("Save error: " + e.getMessage(), BurpExtensionSharedParameters.DebugLevels.VerboseAndPrefsRW.getValue());
+                    if(e.getMessage().contains("has not been registered")){
+                        sharedParameters.printDebugMessage("Registering: " + settingName, BurpExtensionSharedParameters.DebugLevels.VerboseAndPrefsRW.getValue());
+                        registerSetting(settingName, value.getClass(), visibility);
+                    }
                     sharedParameters.printDebugMessage("Save error: " + e.getMessage(), BurpExtensionSharedParameters.DebugLevels.VerboseAndPrefsRW.getValue());
                     if (sharedParameters.debugLevel == BurpExtensionSharedParameters.DebugLevels.VeryVerbose.getValue())
                         e.printStackTrace(sharedParameters.stderr);
@@ -56,9 +61,13 @@ public class ExtendedPreferences extends Preferences {
             result = getSetting(settingName);
         } catch (Exception e) {
             if (sharedParameters != null) {
-                sharedParameters.printDebugMessage("Get error: " + e.getMessage());
-                if (sharedParameters.debugLevel == BurpExtensionSharedParameters.DebugLevels.VeryVerbose.getValue())
-                    e.printStackTrace(sharedParameters.stderr);
+                if(e.getMessage().contains("has not been registered")) {
+                    sharedParameters.printDebugMessage("The " + settingName + " setting has not been registered, going to use the default value.");
+                }else{
+                    sharedParameters.printDebugMessage("Get error: " + e.getMessage());
+                    if (sharedParameters.debugLevel == BurpExtensionSharedParameters.DebugLevels.VeryVerbose.getValue())
+                        e.printStackTrace(sharedParameters.stderr);
+                }
             }
         }
         return result;

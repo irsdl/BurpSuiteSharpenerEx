@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     compileOnly "net.portswigger.burp.extensions:montoya-api:2023.10" //https://central.sonatype.com/artifact/net.portswigger.burp.extensions/montoya-api/
-    implementation "com.github.CoreyD97:Burp-Montoya-Utilities:86c912a" //https://jitpack.io/com/github/CoreyD97/Burp-Montoya-Utilities/86c912a/
+    implementation "com.github.CoreyD97:Burp-Montoya-Utilities:54678c64" //https://jitpack.io/com/github/CoreyD97/Burp-Montoya-Utilities/86c912a/
     //implementation "com.google.code.gson:gson:2.10.1" //https://mvnrepository.com/artifact/com.google.code.gson/gson
     implementation "com.google.guava:guava:32.1.2-jre" //https://mvnrepository.com/artifact/com.google.guava/guava
     implementation "org.apache.commons:commons-lang3:3.13.0" //https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
