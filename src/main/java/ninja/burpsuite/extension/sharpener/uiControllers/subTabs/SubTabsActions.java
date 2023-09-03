@@ -1108,7 +1108,7 @@ public class SubTabsActions {
 
         BurpUITools.MainTabs tool = currentSubTabsContainerHandler.currentToolTab;
 
-        if (sharedParameters.subTabSupportedTabs.contains(tool)) {
+        if (sharedParameters.getAccessibleSubTabSupportedTabs().contains(tool)) {
             if (sharedParameters.burpMajorVersion < 2022
                     || (sharedParameters.burpMajorVersion == 2022 && sharedParameters.burpMinorVersion < 6)) { // hidden from version 2022.6
                 JCheckBoxMenuItem toolSubTabPaneScrollableLayout = new JCheckBoxMenuItem("Scrollable " + tool + " Tabs");

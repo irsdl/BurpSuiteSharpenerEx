@@ -20,6 +20,8 @@ dependencies {
     implementation "org.apache.commons:commons-lang3:3.13.0" //https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation "com.formdev:flatlaf:3.2" //https://mvnrepository.com/artifact/com.formdev/flatlaf
     implementation "org.springframework:spring-core:6.0.11" //https://mvnrepository.com/artifact/org.springframework/spring-core
+    implementation "com.fifesoft:rsyntaxtextarea:3.3.4" //https://mvnrepository.com/artifact/com.fifesoft/rsyntaxtextarea/
+    implementation "com.fifesoft:autocomplete:3.3.1" //https://mvnrepository.com/artifact/com.fifesoft/autocomplete
 }
 
 jar{
@@ -33,6 +35,10 @@ jar{
         exclude "META-INF/*.RSA"
         exclude "META-INF/*.txt"
     }
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:unchecked"
 }
 
 tasks.withType(Jar) {

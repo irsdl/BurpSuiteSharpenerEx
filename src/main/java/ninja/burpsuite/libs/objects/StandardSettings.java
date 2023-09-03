@@ -54,7 +54,7 @@ public abstract class StandardSettings {
                 //already registered setting
                 sharedParameters.printDebugMessage(e.getMessage());
                 if (sharedParameters.debugLevel == BurpExtensionSharedParameters.DebugLevels.VeryVerbose.getValue())
-                    e.printStackTrace(sharedParameters.stderr);
+                    sharedParameters.montoyaApi.logging().logToError(e);
             }
         }
     }
@@ -70,7 +70,7 @@ public abstract class StandardSettings {
             } catch (Exception e) {
                 sharedParameters.printDebugMessage(e.getMessage());
                 if (sharedParameters.debugLevel == BurpExtensionSharedParameters.DebugLevels.VeryVerbose.getValue())
-                    e.printStackTrace(sharedParameters.stderr);
+                    sharedParameters.montoyaApi.logging().logToError(e);
             }
         }
     }

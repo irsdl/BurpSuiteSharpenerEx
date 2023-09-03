@@ -9,7 +9,6 @@ package ninja.burpsuite.extension.sharpener.uiControllers.subTabs;
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
 import ninja.burpsuite.libs.burp.generic.BurpUITools;
 import ninja.burpsuite.libs.generic.MouseAdapterExtensionHandler;
-import ninja.burpsuite.libs.generic.UIHelper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,8 +19,6 @@ import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.function.Consumer;
-
-import static ninja.burpsuite.libs.burp.generic.BurpUITools.getBurpSuiteToolName;
 
 public class SubTabsListenersV2 {
     private final Consumer<MouseEvent> mouseEventConsumer;
@@ -69,7 +66,7 @@ public class SubTabsListenersV2 {
         sharedParameters.printDebugMessage("addSubTabListener");
         accessibleTabs = new ArrayList<>();
 
-        for(BurpUITools.MainTabs supportedTab : sharedParameters.subTabSupportedTabs){
+        for(BurpUITools.MainTabs supportedTab : sharedParameters.getAllSubTabSupportedTabs()){
             addListenerToSupportedTabbedPanels(supportedTab);
         }
     }
@@ -78,7 +75,7 @@ public class SubTabsListenersV2 {
         sharedParameters.printDebugMessage("removeSubTabListener");
         accessibleTabs = new ArrayList<>();
 
-        for(BurpUITools.MainTabs supportedTab : sharedParameters.subTabSupportedTabs){
+        for(BurpUITools.MainTabs supportedTab : sharedParameters.getAllSubTabSupportedTabs()){
             removeListenerFromTabbedPanels(supportedTab);
         }
 
@@ -311,7 +308,7 @@ public class SubTabsListenersV2 {
             return;
         }
 
-        if (!sharedParameters.subTabSupportedTabs.contains(toolName)) return;
+        if (!sharedParameters.getAllSubTabSupportedTabs().contains(toolName)) return;
 
         accessibleTabs.add(toolName);
 

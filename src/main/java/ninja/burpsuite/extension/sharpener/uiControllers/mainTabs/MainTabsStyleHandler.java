@@ -70,7 +70,7 @@ public class MainTabsStyleHandler {
                             tabComponent.add(jLabel);
                             tabComponent.add(jTextField);
                         } catch (Exception e) {
-                            e.printStackTrace(sharedParameters.stderr);
+                            sharedParameters.montoyaApi.logging().logToError(e);
                         }
 
                     }

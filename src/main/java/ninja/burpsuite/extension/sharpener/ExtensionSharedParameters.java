@@ -24,7 +24,7 @@ import java.util.*;
 public class ExtensionSharedParameters extends BurpExtensionSharedParameters {
     public TopMenu topMenuBar;
     public HashMap<BurpUITools.MainTabs, ArrayList<SubTabsContainerHandler>> allSubTabContainerHandlers = new HashMap<>();
-    public Set<BurpUITools.MainTabs> subTabSupportedTabs = new HashSet<>();
+    private Set<BurpUITools.MainTabs> subTabSupportedTabs = new HashSet<>();
     public HashMap<BurpUITools.MainTabs, HashMap<String, TabFeaturesObject>> supportedTools_SubTabs = new HashMap<>();
     public TabFeaturesObjectStyle defaultTabFeaturesObjectStyle = null;
     public ExtensionGeneralSettings allSettings;
@@ -65,6 +65,23 @@ public class ExtensionSharedParameters extends BurpExtensionSharedParameters {
             subTabPreviouslySelectedIndexHistory.put(supportedTabs, new LinkedList<>());
             subTabNextlySelectedIndexHistory.put(supportedTabs, new LinkedList<>());
         }
+    }
+
+    // A method to get list of subTabSupportedTabs which are accessible
+    public Set<BurpUITools.MainTabs> getAccessibleSubTabSupportedTabs() {
+        Set<BurpUITools.MainTabs> finalSubTabSupportedTabs = new HashSet<>();
+        // for each item in subTabSupportedTabs check if it is accessible
+        for (BurpUITools.MainTabs tool : subTabSupportedTabs) {
+            if (get_toolTabbedPane(tool) != null) {
+                finalSubTabSupportedTabs.add(tool);
+            }
+        }
+        return finalSubTabSupportedTabs;
+    }
+
+    // A method to get list of all subTabSupportedTabs regardless of their accessibility
+    public Set<BurpUITools.MainTabs> getAllSubTabSupportedTabs() {
+        return subTabSupportedTabs;
     }
 
     public boolean isFiltered(BurpUITools.MainTabs toolTabName) {
@@ -114,7 +131,8 @@ public class ExtensionSharedParameters extends BurpExtensionSharedParameters {
                         toolTabbedPane = (JTabbedPane) tabComponent;
                     } catch (Exception e1) {
                         try {
-                            toolTabbedPane = (JTabbedPane) tabComponent.getComponentAt(0, 0);
+                            toolTabbedPane = (JTabbedPane) ((JComponent) tabComponent).getComponents()[0];
+                            //toolTabbedPane = (JTabbedPane) tabComponent.getComponentAt(0, 0); // this is not working when repeater or intruder do not have any tabs
                         } catch (Exception e2) {
                             hasSubTabs = false;
                             printDebugMessage("The " + componentTitle + " tool seems to be empty or different. Cannot find the tabs.");
@@ -139,7 +157,7 @@ public class ExtensionSharedParameters extends BurpExtensionSharedParameters {
                                 UiSpecObject uiSpecObject = new UiSpecObject(JTabbedPane.class);
                                 uiSpecObject.set_isJComponent(true);
                                 uiSpecObject.set_isShowing(true);
-                                uiSpecObject.set_minJComponentCount(1);
+
                                 Component tempComponent = UIWalker.findUIObjectInSubComponents(window.getComponents()[0], 6, uiSpecObject);
                                 // after finding the first JTabbedPane, we need to look again in its children and exclude itself to find the one that includes Repeater or Intruder tabs
                                 Component tempComponent2 = UIWalker.findUIObjectInSubComponentsWithExclusions(tempComponent, 1, uiSpecObject, new Component[]{tempComponent});

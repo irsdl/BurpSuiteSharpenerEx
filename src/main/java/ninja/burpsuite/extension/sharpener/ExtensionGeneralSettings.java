@@ -14,7 +14,6 @@ import ninja.burpsuite.extension.sharpener.uiControllers.subTabs.SubTabsSettings
 import ninja.burpsuite.extension.sharpener.uiSelf.contextMenu.ContextMenuSettings;
 import ninja.burpsuite.extension.sharpener.uiSelf.suiteTab.SuiteTabSettings;
 import ninja.burpsuite.extension.sharpener.uiSelf.topMenu.TopMenuSettings;
-import ninja.burpsuite.libs.burp.generic.BurpUITools;
 import ninja.burpsuite.libs.objects.PreferenceObject;
 import ninja.burpsuite.libs.objects.StandardSettings;
 

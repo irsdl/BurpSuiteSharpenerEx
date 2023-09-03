@@ -35,7 +35,7 @@ public class TopMenuSettings extends StandardSettings {
         try {
 
         } catch (Exception e) {
-            sharedParameters.stderr.println("Error in creating the top menu: " + e.getMessage());
+            sharedParameters.montoyaApi.logging().logToError("Error in creating the top menu: " + e.getMessage());
         }
     }
 

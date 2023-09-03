@@ -12,6 +12,8 @@ import burp.api.montoya.extension.ExtensionUnloadingHandler;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import ninja.burpsuite.extension.sharpener.capabilities.pwnFox.PwnFoxProxyRequestHandler;
 import ninja.burpsuite.extension.sharpener.uiSelf.contextMenu.ContextMenu;
+import ninja.burpsuite.extension.sharpener.uiSelf.httpRequestResponseEditor.ExtensionHttpRequestEditorProvider;
+import ninja.burpsuite.extension.sharpener.uiSelf.httpRequestResponseEditor.ExtensionHttpResponseEditorProvider;
 import ninja.burpsuite.extension.sharpener.uiSelf.suiteTab.SuiteTab;
 import ninja.burpsuite.extension.sharpener.uiSelf.topMenu.TopMenu;
 import ninja.burpsuite.libs.burp.generic.BurpUITools;
@@ -34,6 +36,7 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
     @Override
     public void initialize(MontoyaApi api) {
         this.sharedParameters = new ExtensionSharedParameters(this, api, "/extension.properties");
+
         // set our extension name
         api.extension().setName(sharedParameters.extensionName);
         // registering itself to handle unloading
@@ -69,7 +72,17 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
                 sharedParameters.topMenuBar = new TopMenu(sharedParameters);
                 sharedParameters.extensionTopMenuRegistration = api.userInterface().menuBar().registerMenu(sharedParameters.topMenuBar);
             }
+
+            if(sharedParameters.features.hasHttpRequestEditor){
+                api.userInterface().registerHttpRequestEditorProvider(new ExtensionHttpRequestEditorProvider(sharedParameters));
+            }
+
+            if(sharedParameters.features.hasHttpResponseEditor){
+                api.userInterface().registerHttpResponseEditorProvider(new ExtensionHttpResponseEditorProvider(sharedParameters));
+            }
+
             load(false);
+
             sharedParameters.printlnOutput(sharedParameters.extensionName + " has been loaded successfully.");
         });
     }
@@ -185,7 +198,7 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
                 } catch (Exception e) {
                     sharedParameters.printlnError("An error has occurred when unloading the " + sharedParameters.extensionName + " extension.");
                     sharedParameters.printDebugMessage(e.getMessage());
-                    e.printStackTrace(sharedParameters.stderr);
+                    sharedParameters.montoyaApi.logging().logToError(e);
                     UIHelper.showWarningMessage(sharedParameters.extensionName + " extension has been closed with an error.\r\n" +
                                     "You may need to restart Burp Suite.\r\n" +
                                     "Please consider looking at the error and reporting it to the GitHub repository:\r\n" +

@@ -49,7 +49,7 @@ public class SubTabsSettings extends StandardSettings {
     @Override
     public Collection<PreferenceObject> definePreferenceObjectCollection() {
         Collection<PreferenceObject> preferenceObjectCollection = new ArrayList<>();
-        for (BurpUITools.MainTabs tool : sharedParameters.subTabSupportedTabs) {
+        for (BurpUITools.MainTabs tool : sharedParameters.getAllSubTabSupportedTabs()) {
             PreferenceObject preferenceObject = new PreferenceObject("TabFeaturesObject_Array_" + tool, new TypeToken<HashMap<String, TabFeaturesObject>>() {
             }.getType(), null, Preferences.Visibility.PROJECT);
             preferenceObjectCollection.add(preferenceObject);
@@ -102,7 +102,7 @@ public class SubTabsSettings extends StandardSettings {
 
             if(updateInProgressLock.tryLock(5, TimeUnit.SECONDS)){
                 try{
-                    for (BurpUITools.MainTabs tool : sharedParameters.subTabSupportedTabs) {
+                    for (BurpUITools.MainTabs tool : sharedParameters.getAccessibleSubTabSupportedTabs()) {
                         if (currentMainTab != null && tool != currentMainTab) {
                             continue;
                         }
@@ -177,7 +177,7 @@ public class SubTabsSettings extends StandardSettings {
                                 //already registered setting
                                 sharedParameters.printDebugMessage(e.getMessage());
                                 if (sharedParameters.debugLevel == BurpExtensionSharedParameters.DebugLevels.VeryVerbose.getValue())
-                                    e.printStackTrace(sharedParameters.stderr);
+                                    sharedParameters.montoyaApi.logging().logToError(e);
                             }
                         }
 
@@ -253,7 +253,7 @@ public class SubTabsSettings extends StandardSettings {
 
             if(updateInProgressLock.tryLock(5, TimeUnit.SECONDS)){
                 try{
-                    for (BurpUITools.MainTabs tool : sharedParameters.subTabSupportedTabs) {
+                    for (BurpUITools.MainTabs tool : sharedParameters.getAccessibleSubTabSupportedTabs()) {
                         if (currentMainTab != null && currentMainTab != tool) {
                             continue;
                         }
@@ -321,7 +321,7 @@ public class SubTabsSettings extends StandardSettings {
 
             if(updateInProgressLock.tryLock(5, TimeUnit.SECONDS)){
                 try{
-                    for (BurpUITools.MainTabs tool : sharedParameters.subTabSupportedTabs) {
+                    for (BurpUITools.MainTabs tool : sharedParameters.getAccessibleSubTabSupportedTabs()) {
                         if (!sharedParameters.isSubTabScrollSupportedByDefault) {
                             if (sharedParameters.preferences.safeGetBooleanSetting("isScrollable_" + tool)) {
                                 var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(tool);
@@ -384,7 +384,7 @@ public class SubTabsSettings extends StandardSettings {
 
             if(updateInProgressLock.tryLock(5, TimeUnit.SECONDS)){
                 try{
-                    for (BurpUITools.MainTabs tool : sharedParameters.subTabSupportedTabs) {
+                    for (BurpUITools.MainTabs tool : sharedParameters.getAccessibleSubTabSupportedTabs()) {
                         if (currentMainTab != null && currentMainTab != tool) {
                             continue;
                         }

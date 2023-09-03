@@ -43,7 +43,7 @@ public class ExtendedPreferences extends Preferences {
                     }
                     sharedParameters.printDebugMessage("Save error: " + e.getMessage(), BurpExtensionSharedParameters.DebugLevels.VerboseAndPrefsRW.getValue());
                     if (sharedParameters.debugLevel == BurpExtensionSharedParameters.DebugLevels.VeryVerbose.getValue())
-                        e.printStackTrace(sharedParameters.stderr);
+                        sharedParameters.montoyaApi.logging().logToError(e);
                 }
             }
 
@@ -66,7 +66,7 @@ public class ExtendedPreferences extends Preferences {
                 }else{
                     sharedParameters.printDebugMessage("Get error: " + e.getMessage());
                     if (sharedParameters.debugLevel == BurpExtensionSharedParameters.DebugLevels.VeryVerbose.getValue())
-                        e.printStackTrace(sharedParameters.stderr);
+                        sharedParameters.montoyaApi.logging().logToError(e);
                 }
             }
         }

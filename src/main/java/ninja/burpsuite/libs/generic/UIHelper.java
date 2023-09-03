@@ -6,11 +6,8 @@ package ninja.burpsuite.libs.generic;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 public class UIHelper {

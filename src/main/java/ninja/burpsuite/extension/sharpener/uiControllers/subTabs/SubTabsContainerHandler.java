@@ -633,7 +633,7 @@ public class SubTabsContainerHandler {
                             parentTabbedPane.repaint();
                         }
                     } catch (Exception err) {
-                        err.printStackTrace(sharedParameters.stderr);
+                        sharedParameters.montoyaApi.logging().logToError(err);
                     }
                 }
 

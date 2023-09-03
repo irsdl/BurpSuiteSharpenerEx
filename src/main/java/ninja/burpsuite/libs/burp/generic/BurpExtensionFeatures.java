@@ -7,6 +7,8 @@ public class BurpExtensionFeatures {
     public boolean hasSuiteTab = false;
     public boolean hasContextMenu = false;
     public boolean hasTopMenu = false;
+    public boolean hasHttpRequestEditor = false;
+    public boolean hasHttpResponseEditor = false;
     public boolean isCommunityVersionCompatible = true;
     public double minSupportedMajorVersionInclusive = 0.0;
     public double maxSupportedMajorVersionInclusive = 0.0;

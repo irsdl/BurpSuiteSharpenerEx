@@ -2,6 +2,7 @@
 // Developed by Soroush Dalili (@irsdl)
 
 package ninja.burpsuite.libs.burp.generic;
+
 import burp.api.montoya.BurpExtension;
 import burp.api.montoya.MontoyaApi;
 import burp.api.montoya.core.Registration;
@@ -17,7 +18,6 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -33,8 +33,6 @@ public class BurpExtensionSharedParameters {
     public Integer debugLevel = null;
     public BurpExtension burpExtender;
     public Class extensionClass = null; // this is useful when trying to load a resource such as an image
-    public PrintWriter stdout = null;
-    public PrintWriter stderr = null;
     public MontoyaApi montoyaApi = null;
     public BurpExtensionFeatures features = new BurpExtensionFeatures();
     public ExtendedPreferences preferences; // to use the ability of this project: https://github.com/CoreyD97/BurpExtenderUtilities
@@ -139,6 +137,8 @@ public class BurpExtensionSharedParameters {
         features.hasTopMenu = Boolean.parseBoolean(properties.getProperty("hasTopMenu"));
         features.hasHttpHandler = Boolean.parseBoolean(properties.getProperty("hasHttpHandler"));
         features.hasProxyHandler = Boolean.parseBoolean(properties.getProperty("hasProxyHandler"));
+        features.hasHttpRequestEditor = Boolean.parseBoolean(properties.getProperty("hasHttpRequestEditor"));
+        features.hasHttpResponseEditor = Boolean.parseBoolean(properties.getProperty("hasHttpResponseEditor"));
         features.isCommunityVersionCompatible = Boolean.parseBoolean(properties.getProperty("isCommunityVersionCompatible"));
         features.minSupportedMajorVersionInclusive = NumberUtils.toDouble(properties.getProperty("minSupportedMajorVersionInclusive"),2);
         features.minSupportedMinorVersionInclusive = NumberUtils.toDouble(properties.getProperty("minSupportedMinorVersionInclusive"),2023);
@@ -157,10 +157,6 @@ public class BurpExtensionSharedParameters {
         this.burpExtender = burpExtenderObj;
         this.montoyaApi = montoyaApi;
         this.features = burpExtensionFeatures;
-
-        // obtain our output stream
-        this.stdout = new PrintWriter(montoyaApi.logging().output(), true);
-        this.stderr = new PrintWriter(montoyaApi.logging().error(), true);
 
         this.printlnOutput(extensionName + " is being loaded...");
 
@@ -301,7 +297,7 @@ public class BurpExtensionSharedParameters {
                 fullMessage += "Timestamp: " + strDate + "\r\n\tMessage: " + message;
             System.out.println(fullMessage);
             if (!alreadyPrinted) {
-                this.stdout.println(fullMessage);
+                montoyaApi.logging().logToOutput(fullMessage);
             }
         }
     }
@@ -329,10 +325,10 @@ public class BurpExtensionSharedParameters {
 
     public void printException(Exception error) {
         if(error != null) {
-            this.stderr.println(error.getMessage());
+            montoyaApi.logging().logToError(error.getMessage());
 
             for (StackTraceElement elem : error.getStackTrace()) {
-                this.stderr.println(elem);
+                montoyaApi.logging().logToError(elem.toString());
             }
 
             error.printStackTrace();
@@ -340,28 +336,28 @@ public class BurpExtensionSharedParameters {
     }
     public void printlnError(String message) {
         if(!message.isEmpty()){
-            this.stderr.println(message);
+            montoyaApi.logging().logToError(message);
             printDebugMessage(message, "printlnError", true);
         }
     }
 
     public void printError(String message) {
         if(!message.isEmpty()){
-            this.stderr.print(message);
+            montoyaApi.logging().logToError(message);
             printDebugMessage(message, "printError", true);
         }
     }
 
     public void printlnOutput(String message) {
         if(!message.isEmpty()){
-            this.stdout.println(message);
+            montoyaApi.logging().logToOutput(message);
             printDebugMessage(message, "printlnOutput", true);
         }
     }
 
     public void printOutput(String message) {
         if(!message.isEmpty()){
-            this.stdout.print(message);
+            montoyaApi.logging().logToOutput(message);
             printDebugMessage(message, "printOutput", true);
         }
     }

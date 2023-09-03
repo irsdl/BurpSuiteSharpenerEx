@@ -96,7 +96,7 @@ public class SubTabsListeners implements ContainerListener {
         ArrayList<String> result = new ArrayList<>();
 
         if (accessibleTabs != null) {
-            for (BurpUITools.MainTabs supportedTabs : sharedParameters.subTabSupportedTabs) {
+            for (BurpUITools.MainTabs supportedTabs : sharedParameters.getAllSubTabSupportedTabs()) {
                 if (!accessibleTabs.contains(supportedTabs)) {
                     result.add(supportedTabs.toString());
                 }
@@ -132,7 +132,7 @@ public class SubTabsListeners implements ContainerListener {
 
         final BurpUITools.MainTabs toolName = BurpUITools.getMainTabsObjFromString(tabbedPane.getTitleAt(componentIndex));
 
-        if (!sharedParameters.subTabSupportedTabs.contains(toolName)) return;
+        if (!sharedParameters.getAllSubTabSupportedTabs().contains(toolName)) return;
 
         sharedParameters.printDebugMessage("Adding listener to " + toolName);
 
@@ -367,7 +367,7 @@ public class SubTabsListeners implements ContainerListener {
 
         BurpUITools.MainTabs toolName = BurpUITools.getMainTabsObjFromString(tabbedPane.getTitleAt(componentIndex));
 
-        if (!sharedParameters.subTabSupportedTabs.contains(toolName)) return;
+        if (!sharedParameters.getAllSubTabSupportedTabs().contains(toolName)) return;
 
         accessibleTabs.add(toolName);
 
