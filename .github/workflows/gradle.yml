@@ -19,11 +19,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up JDK 17
+      - name: Set up JDK 19
         uses: actions/setup-java@v3
         with:
           distribution: 'oracle'
-          java-version: '17'
+          java-version: '19'
           cache: 'gradle'
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -37,13 +37,13 @@ jobs:
           path: ./releases/*.jar
           name: Downloadable Extension File
       - name: Delete older releases
-        uses: dev-drprasad/delete-older-releases@v0.2.0
+        uses: irsdl/delete-older-releases@v0.2.1
         with:
           keep_latest: 0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Release
-        uses: ncipollo/release-action@v1
+        uses: irsdl/release-action@v1
         with:
           tag: "latest_build_by_github"
           body: "This jar file has been built by GitHub automatically.\nYou can view the latest version number in the [extension.properties](../../blob/main/src/main/resources/extension.properties) file."
