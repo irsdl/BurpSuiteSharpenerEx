@@ -123,4 +123,3 @@ Perhaps the best features can be imported from different open-source extensions 
 * Bruno Demarche (for initial Swing hack inspiration)
 
 Please feel free to report bugs, suggest features, or send pull requests.
-
