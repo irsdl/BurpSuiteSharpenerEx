@@ -20,7 +20,7 @@ public class TabFeaturesObjectStyle implements Serializable {
     public int iconSize = 0;
     public String colorCode = "";
 
-    public TabFeaturesObjectStyle(){
+    public TabFeaturesObjectStyle() {
 
     }
 

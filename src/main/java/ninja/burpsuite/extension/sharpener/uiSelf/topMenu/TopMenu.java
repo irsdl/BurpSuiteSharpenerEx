@@ -57,7 +57,7 @@ public class TopMenu extends javax.swing.JMenu {
                 public void actionPerformed(ActionEvent actionEvent) {
                     for (BurpUITools.MainTabs tool : BurpUITools.MainTabs.values()) {
                         sharedParameters.preferences.safeSetSetting("isUnique_" + tool, true, Preferences.Visibility.GLOBAL);
-                        MainTabsStyleHandler.setMainTabsStyle(sharedParameters, tool);
+                        MainTabsStyleHandler.setMainTabsStyle_noUiLock(sharedParameters, tool);
                     }
                     updateTopMenuBar();
                 }
@@ -68,7 +68,7 @@ public class TopMenu extends javax.swing.JMenu {
                 public void actionPerformed(ActionEvent actionEvent) {
                     for (BurpUITools.MainTabs tool : BurpUITools.MainTabs.values()) {
                         sharedParameters.preferences.safeSetSetting("isUnique_" + tool, false, Preferences.Visibility.GLOBAL);
-                        MainTabsStyleHandler.unsetMainTabsStyle(sharedParameters, tool);
+                        MainTabsStyleHandler.unsetMainTabsStyle_noUiLock(sharedParameters, tool);
                     }
                     updateTopMenuBar();
                 }
@@ -90,7 +90,7 @@ public class TopMenu extends javax.swing.JMenu {
                     if (chosenOne.equalsIgnoreCase("none"))
                         chosenOne = "";
                     sharedParameters.preferences.safeSetSetting("ToolsThemeName", chosenOne, Preferences.Visibility.GLOBAL);
-                    MainTabsStyleHandler.resetMainTabsStylesFromSettings(sharedParameters);
+                    MainTabsStyleHandler.resetMainTabsStylesFromSettings_noUiLock(sharedParameters);
                 });
                 themeGroup.add(toolStyleTheme);
                 toolsUniqueStyleThemeMenu.add(toolStyleTheme);
@@ -109,7 +109,7 @@ public class TopMenu extends javax.swing.JMenu {
                 } else {
                     updateTopMenuBar();
                 }
-                MainTabsStyleHandler.resetMainTabsStylesFromSettings(sharedParameters);
+                MainTabsStyleHandler.resetMainTabsStylesFromSettings_noUiLock(sharedParameters);
             });
             themeGroup.add(toolStyleThemeCustom);
             toolsUniqueStyleThemeMenu.add(toolStyleThemeCustom);
@@ -126,7 +126,7 @@ public class TopMenu extends javax.swing.JMenu {
                 toolIconSize.addActionListener((e) -> {
                     String chosenOne = definedIconSize;
                     sharedParameters.preferences.safeSetSetting("ToolsIconSize", chosenOne, Preferences.Visibility.GLOBAL);
-                    MainTabsStyleHandler.resetMainTabsStylesFromSettings(sharedParameters);
+                    MainTabsStyleHandler.resetMainTabsStylesFromSettings_noUiLock(sharedParameters);
                 });
                 iconSizeGroup.add(toolIconSize);
                 toolsUniqueStyleIconSizeMenu.add(toolIconSize);
@@ -139,15 +139,15 @@ public class TopMenu extends javax.swing.JMenu {
                 if (tool.toString().equalsIgnoreCase("none"))
                     continue;
 
-                if(sharedParameters.burpMajorVersion >= 2023 && (
+                if (sharedParameters.burpMajorVersion >= 2023 && (
                         tool.equals(BurpUITools.MainTabs.Extender) ||
                                 tool.equals(BurpUITools.MainTabs.UserOptions) ||
                                 tool.equals(BurpUITools.MainTabs.ProjectOptions)
-                )){
+                )) {
                     continue;
-                }else if(sharedParameters.burpMajorVersion < 2023 && (
+                } else if (sharedParameters.burpMajorVersion < 2023 && (
                         tool.equals(BurpUITools.MainTabs.Extensions)
-                )){
+                )) {
                     continue;
                 }
 
@@ -159,10 +159,10 @@ public class TopMenu extends javax.swing.JMenu {
                     Boolean currentSetting = sharedParameters.preferences.safeGetBooleanSetting("isUnique_" + tool);
                     if (currentSetting) {
                         sharedParameters.preferences.safeSetSetting("isUnique_" + tool, false, Preferences.Visibility.GLOBAL);
-                        MainTabsStyleHandler.unsetMainTabsStyle(sharedParameters, tool);
+                        MainTabsStyleHandler.unsetMainTabsStyle_noUiLock(sharedParameters, tool);
                     } else {
                         sharedParameters.preferences.safeSetSetting("isUnique_" + tool, true, Preferences.Visibility.GLOBAL);
-                        MainTabsStyleHandler.setMainTabsStyle(sharedParameters, tool);
+                        MainTabsStyleHandler.setMainTabsStyle_noUiLock(sharedParameters, tool);
                     }
                 });
                 toolsUniqueStyleMenu.add(toolStyleOption);
@@ -225,20 +225,23 @@ public class TopMenu extends javax.swing.JMenu {
 
 
             JMenu supportedCapabilitiesMenu = new JMenu("Supported Capabilities");
-
-            JCheckBoxMenuItem pwnFoxSupportCapability = new JCheckBoxMenuItem("PwnFox Highlighter");
-            pwnFoxSupportCapability.setToolTipText("Useful when PwnFox extension is enabled in Firefox");
-            if (sharedParameters.preferences.safeGetBooleanSetting("pwnFoxSupportCapability")) {
-                pwnFoxSupportCapability.setSelected(true);
-            }
-            pwnFoxSupportCapability.addActionListener((e) -> {
-                if (sharedParameters.preferences.safeGetBooleanSetting("pwnFoxSupportCapability")) {
-                    sharedParameters.preferences.safeSetSetting("pwnFoxSupportCapability", false, Preferences.Visibility.GLOBAL);
-                } else {
-                    sharedParameters.preferences.safeSetSetting("pwnFoxSupportCapability", true, Preferences.Visibility.GLOBAL);
+            // iterate through all capabilities and add them to the menu
+            for (var capabilitySetting : sharedParameters.allSettings.capabilitySettingsList) {
+                var capability = capabilitySetting.capability;
+                JCheckBoxMenuItem capabilityOption = new JCheckBoxMenuItem(capability.name);
+                capabilityOption.setToolTipText(capability.description);
+                if (capabilitySetting.isEnabled()) {
+                    capabilityOption.setSelected(true);
                 }
-            });
-            supportedCapabilitiesMenu.add(pwnFoxSupportCapability);
+                capabilityOption.addActionListener((e) -> {
+                    if (capabilitySetting.isEnabled()) {
+                        capabilitySetting.setEnabled(false);
+                    } else {
+                        capabilitySetting.setEnabled(true);
+                    }
+                });
+                supportedCapabilitiesMenu.add(capabilityOption);
+            }
 
             globalMenu.add(supportedCapabilitiesMenu);
 
@@ -246,7 +249,7 @@ public class TopMenu extends javax.swing.JMenu {
             JMenu debugMenu = new JMenu("Debug Settings");
             ButtonGroup debugButtonGroup = new ButtonGroup();
 
-            for(var item : BurpExtensionSharedParameters.DebugLevels.values()){
+            for (var item : BurpExtensionSharedParameters.DebugLevels.values()) {
                 JRadioButtonMenuItem debugOption = new JRadioButtonMenuItem(new AbstractAction(item.getName()) {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -275,7 +278,7 @@ public class TopMenu extends javax.swing.JMenu {
                     String newTitle = UIHelper.showPlainInputMessage("Change Burp Suite Title String To:", "Change Burp Suite Title", sharedParameters.get_mainFrameUsingMontoya().getTitle(), sharedParameters.get_mainFrameUsingMontoya());
                     if (newTitle != null && !newTitle.trim().isEmpty()) {
                         if (!sharedParameters.get_mainFrameUsingMontoya().getTitle().equals(newTitle)) {
-                            BurpTitleAndIcon.setTitle(sharedParameters, newTitle);
+                            BurpTitleAndIcon.setTitle_noUiLock(sharedParameters, newTitle);
                             sharedParameters.preferences.safeSetSetting("BurpTitle", newTitle, Preferences.Visibility.PROJECT);
                         }
                     }
@@ -409,19 +412,6 @@ public class TopMenu extends javax.swing.JMenu {
             });
             add(unloadExtension);
 
-            JMenuItem reloadAllSettings = new JMenuItem(new AbstractAction("Reload All Settings") {
-                @Override
-                public void actionPerformed(ActionEvent actionEvent) {
-                    new Thread(() -> {
-                        MainTabsStyleHandler.resetMainTabsStylesFromSettings(sharedParameters);
-                        ExtensionMainClass sharpenerBurpExtension = (ExtensionMainClass) sharedParameters.burpExtender;
-                        sharpenerBurpExtension.load(true);
-
-                    }).start();
-                }
-            });
-            add(reloadAllSettings);
-
             JMenuItem resetAllSettings = new JMenuItem(new AbstractAction("Remove All Settings & Unload") {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
@@ -493,7 +483,7 @@ public class TopMenu extends javax.swing.JMenu {
                 logoImg = ImageHelper.scaleImageToWidth(ImageHelper.loadImageResource(sharedParameters.extensionClass, "/sharpener_rotated_small.png"), 59);
             }
             ImageIcon logoIcon = new ImageIcon(logoImg);
-            JMenuItem logoMenu = new JMenuItem("About " + sharedParameters.extensionName,logoIcon);
+            JMenuItem logoMenu = new JMenuItem("About " + sharedParameters.extensionName, logoIcon);
             logoMenu.setPreferredSize(new Dimension(100, 46));
 
             logoMenu.setToolTipText("About this extension");
@@ -524,7 +514,7 @@ public class TopMenu extends javax.swing.JMenu {
             // so the menu is there!
             try {
                 sharedParameters.printDebugMessage("removing the menu bar the dirty way!");
-                BurpUITools.removeMenuBarByName(sharedParameters.extensionName, sharedParameters.get_mainMenuBarUsingMontoya(), repaintUI);
+                BurpUITools.removeMenuBarByName_noUiLock(sharedParameters.extensionName, sharedParameters.get_mainMenuBarUsingMontoya(), repaintUI);
             } catch (Exception e) {
                 sharedParameters.printlnError("Error in removing the top menu the dirty way: " + e.getMessage());
             }

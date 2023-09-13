@@ -49,4 +49,3 @@ jobs:
           body: "This jar file has been built by GitHub automatically.\nYou can view the latest version number in the [extension.properties](../../blob/main/src/main/resources/extension.properties) file."
           allowUpdates: true
           artifacts: "releases/*.jar"
-          

@@ -305,7 +305,7 @@ public class HTTPMessageHelper {
     // get the first value of a header
     public static String getFirstHeaderValueByNameFromHeaders(List<String> headers, String headerName, boolean isCaseSensitive) {
         String result = "";
-        if(!isCaseSensitive)
+        if (!isCaseSensitive)
             headerName = headerName.toLowerCase();
 
         for (String item : headers) {

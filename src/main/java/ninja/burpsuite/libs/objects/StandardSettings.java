@@ -15,17 +15,17 @@ public abstract class StandardSettings {
     protected StandardSettings(ExtensionSharedParameters sharedParameters) {
         boolean isError = false;
         this.sharedParameters = sharedParameters;
-        try{
+        try {
             init();
             this._preferenceObjectCollection = definePreferenceObjectCollection();
             registerSettings();
             loadSettings();
-        }catch(Exception e){
+        } catch (Exception e) {
             isError = true;
             sharedParameters.printException(e);
         }
 
-        if(isError){
+        if (isError) {
             sharedParameters.printlnError("A fatal error has occurred in loading the settings. The extension is going to be unloaded.");
             sharedParameters.montoyaApi.extension().unload();
         }

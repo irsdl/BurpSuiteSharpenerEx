@@ -14,7 +14,7 @@ public class RSyntaxUtils {
     public static void applyThemeToRSyntaxTextArea(RSyntaxTextArea area, String themeName, ExtensionSharedParameters sharedParameters) {
         try {
             Theme theme = Theme.load(RSyntaxUtils.class.getResourceAsStream(
-                    "/org/fife/ui/rsyntaxtextarea/themes/"+themeName+".xml"));
+                    "/org/fife/ui/rsyntaxtextarea/themes/" + themeName + ".xml"));
             theme.apply(area);
         } catch (IOException ioe) {
             sharedParameters.printException(ioe);
@@ -30,7 +30,7 @@ public class RSyntaxUtils {
 
     public static void configureRSyntaxArea(RSyntaxTextArea area, ExtensionSharedParameters sharedParameters) {
         //area.setLineWrap(true);
-        if(sharedParameters.montoyaApi.userInterface().currentTheme().name().equalsIgnoreCase("dark")) {
+        if (sharedParameters.montoyaApi.userInterface().currentTheme().name().equalsIgnoreCase("dark")) {
             RSyntaxUtils.applyThemeToRSyntaxTextArea(area, "dark", sharedParameters);
         }
         sharedParameters.montoyaApi.userInterface().applyThemeToComponent(area);

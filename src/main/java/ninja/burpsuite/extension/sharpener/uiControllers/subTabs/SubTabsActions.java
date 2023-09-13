@@ -100,7 +100,7 @@ public class SubTabsActions {
             int currentSelection = tabbedPane.getSelectedIndex();
             SubTabsContainerHandler subTabsContainerHandler = getSubTabContainerHandlerFromSharedParameters(sharedParameters, tabbedPane, currentSelection);
 
-            if(subTabsContainerHandler == null)
+            if (subTabsContainerHandler == null)
                 return;
 
             if (e.isControlDown()) {
@@ -144,7 +144,7 @@ public class SubTabsActions {
                             components[1] = (JComponent) tabbedPane.getComponentAt(currentSelection + 1);
                             tabComponents[1] = (JComponent) tabbedPane.getTabComponentAt(currentSelection + 1);
 
-    //*
+                            //*
                             try {
                                 tabbedPane.remove(currentSelection + 1);
                             } catch (Exception err) {
@@ -173,7 +173,7 @@ public class SubTabsActions {
                             } finally {
                                 tabbedPane.setTabComponentAt(currentSelection + 1, tabComponents[0]);
                             }
-    //*/
+                            //*/
 
                             /*
 
@@ -219,7 +219,7 @@ public class SubTabsActions {
                         if (currentSelection > 0) {
                             components[1] = (JComponent) tabbedPane.getComponentAt(currentSelection - 1);
                             tabComponents[1] = (JComponent) tabbedPane.getTabComponentAt(currentSelection - 1);
-    //*
+                            //*
                             try {
                                 tabbedPane.remove(currentSelection);
                             } catch (Exception err) {
@@ -328,13 +328,13 @@ public class SubTabsActions {
 
         };
         var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(currentToolTab);
-        if(currentToolTabbedPane != null)
+        if (currentToolTabbedPane != null)
             currentToolTabbedPane.addMouseWheelListener(mwl);
     }
 
     public static void removeMouseWheelFromJTabbedPane(ExtensionSharedParameters sharedParameters, BurpUITools.MainTabs currentToolTab, boolean onlyRemoveLast) {
         var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(currentToolTab);
-        if(currentToolTabbedPane != null) {
+        if (currentToolTabbedPane != null) {
             MouseWheelListener[] mwlArr = currentToolTabbedPane.getMouseWheelListeners();
             for (int i = mwlArr.length - 1; i >= 0; i--) {
                 currentToolTabbedPane.removeMouseWheelListener(mwlArr[i]);
@@ -590,7 +590,7 @@ public class SubTabsActions {
             changeTabIcon.add(noneIconImage);
 
             for (Resource resourceIcon : resourceIcons) {
-                if(resourceIcon == null)
+                if (resourceIcon == null)
                     continue;
 
                 String resourcePath = "/subtabicons/" + resourceIcon.getFilename();
@@ -1233,7 +1233,7 @@ public class SubTabsActions {
             // should have already been loaded but just in case something has changed
             // hopefully it has not been tainted already!
             var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(currentToolTab);
-            if(currentToolTabbedPane == null){
+            if (currentToolTabbedPane == null) {
                 sharedParameters.printDebugMessage("Error in getting the current tool tabs: " + currentToolTab);
                 return false;
             }
@@ -1392,7 +1392,7 @@ public class SubTabsActions {
             return;
 
         var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(currentSubTabsContainerHandler.currentToolTab);
-        if(currentToolTabbedPane == null)
+        if (currentToolTabbedPane == null)
             return;
 
         if (sharedParameters.isFiltered(currentSubTabsContainerHandler.currentToolTab)) {
@@ -1425,7 +1425,7 @@ public class SubTabsActions {
             return;
 
         var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(currentSubTabsContainerHandler.currentToolTab);
-        if(currentToolTabbedPane == null)
+        if (currentToolTabbedPane == null)
             return;
 
         currentSubTabsContainerHandler.setVisible(!currentSubTabsContainerHandler.getVisible());
@@ -1485,7 +1485,7 @@ public class SubTabsActions {
             return;
 
         var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(currentSubTabsContainerHandler.currentToolTab);
-        if(currentToolTabbedPane == null)
+        if (currentToolTabbedPane == null)
             return;
 
         // creating popup menu
@@ -1508,7 +1508,7 @@ public class SubTabsActions {
     }
 
     public static void defineRegExPopupForSearchAndJump(ExtensionSharedParameters sharedParameters, SubTabsContainerHandler currentSubTabsContainerHandler) {
-        if(currentSubTabsContainerHandler != null)
+        if (currentSubTabsContainerHandler != null)
             defineRegExPopupForSearchAndJump(sharedParameters, currentSubTabsContainerHandler.currentToolTab);
     }
 
@@ -1757,19 +1757,18 @@ public class SubTabsActions {
 
             if (
                     sharedParameters.subTabPreviouslySelectedIndexHistory.get(currentSubTabsContainerHandler.currentToolTab).size() <= 0
-                    ||
-                    (
-                        sharedParameters.subTabPreviouslySelectedIndexHistory.get(currentSubTabsContainerHandler.currentToolTab).getLast() != indexNumber
-                        &&
-                        (
-                                currentSubTabsContainerHandler.parentTabbedPane.getTabCount() - 1 != indexNumber || sharedParameters.isTabGroupSupportedByDefault
-                        )
-                    )
-                )
-            {
+                            ||
+                            (
+                                    sharedParameters.subTabPreviouslySelectedIndexHistory.get(currentSubTabsContainerHandler.currentToolTab).getLast() != indexNumber
+                                            &&
+                                            (
+                                                    currentSubTabsContainerHandler.parentTabbedPane.getTabCount() - 1 != indexNumber || sharedParameters.isTabGroupSupportedByDefault
+                                            )
+                            )
+            ) {
                 sharedParameters.subTabPreviouslySelectedIndexHistory.get(currentSubTabsContainerHandler.currentToolTab).add(indexNumber);
             }
-            if(shouldJump)
+            if (shouldJump)
                 currentSubTabsContainerHandler.parentTabbedPane.setSelectedIndex(indexNumber);
         }
     }
@@ -1792,6 +1791,7 @@ public class SubTabsActions {
                 );
         sharedParameters.printDebugMessage("Title has been copied to clipboard");
     }
+
     public static void pasteTitle(ExtensionSharedParameters sharedParameters, ActionEvent event) {
         pasteTitle(sharedParameters, getSubTabContainerHandlerFromEvent(sharedParameters, event));
     }

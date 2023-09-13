@@ -66,7 +66,7 @@ public class SubTabsListenersV2 {
         sharedParameters.printDebugMessage("addSubTabListener");
         accessibleTabs = new ArrayList<>();
 
-        for(BurpUITools.MainTabs supportedTab : sharedParameters.getAllSubTabSupportedTabs()){
+        for (BurpUITools.MainTabs supportedTab : sharedParameters.getAllSubTabSupportedTabs()) {
             addListenerToSupportedTabbedPanels(supportedTab);
         }
     }
@@ -75,7 +75,7 @@ public class SubTabsListenersV2 {
         sharedParameters.printDebugMessage("removeSubTabListener");
         accessibleTabs = new ArrayList<>();
 
-        for(BurpUITools.MainTabs supportedTab : sharedParameters.getAllSubTabSupportedTabs()){
+        for (BurpUITools.MainTabs supportedTab : sharedParameters.getAllSubTabSupportedTabs()) {
             removeListenerFromTabbedPanels(supportedTab);
         }
 
@@ -83,7 +83,7 @@ public class SubTabsListenersV2 {
 
     private void addListenerToSupportedTabbedPanels(BurpUITools.MainTabs toolName) {
         var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(toolName);
-        if(currentToolTabbedPane == null) {
+        if (currentToolTabbedPane == null) {
             sharedParameters.printDebugMessage("addListenerToSupportedTabbedPanels: Listener could not be added for " + toolName.toString());
             return;
         }
@@ -181,10 +181,9 @@ public class SubTabsListenersV2 {
     }
 
 
-
     private void addSubTabsListener(BurpUITools.MainTabs toolName) {
         var toolTabbedPane = sharedParameters.get_toolTabbedPane(toolName);
-        if(toolTabbedPane == null) {
+        if (toolTabbedPane == null) {
             sharedParameters.printDebugMessage("addSubTabsListener: Listener could not be added for " + toolName.toString());
             return;
         }
@@ -303,7 +302,7 @@ public class SubTabsListenersV2 {
 
     private void removeListenerFromTabbedPanels(BurpUITools.MainTabs toolName) {
         var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(toolName);
-        if(currentToolTabbedPane == null) {
+        if (currentToolTabbedPane == null) {
             sharedParameters.printDebugMessage("removeListenerFromTabbedPanels: Listener could not be removed for " + toolName.toString());
             return;
         }

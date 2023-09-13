@@ -41,7 +41,7 @@ public class BurpUITools {
         private final String text;
 
         MainTabs(final String text) {
-            this.text = text.replaceAll("Extension: *","Extension> ");
+            this.text = text.replaceAll("Extension: *", "Extension> ");
         }
 
         /* (non-Javadoc)
@@ -120,21 +120,23 @@ public class BurpUITools {
 
     // This is case-insensitive to prevent confusion
     public static void removeMenuBarByName(String toolbarName, JMenuBar menuBar, boolean repaintUI) {
+        for (int i = 0; i < menuBar.getMenuCount(); i++) {
+            JMenuItem item = menuBar.getMenu(i);
+            if (item.getText().trim().equalsIgnoreCase(toolbarName.trim())) {
+                menuBar.remove(i);
+                // break; // we may have more than one menu so this line needs to be commented
+            }
+        }
+
+        if (repaintUI) {
+            menuBar.revalidate();
+            menuBar.repaint();
+        }
+    }
+
+    public static void removeMenuBarByName_noUiLock(String toolbarName, JMenuBar menuBar, boolean repaintUI) {
         SwingUtilities.invokeLater(() -> {
-
-            for (int i = 0; i < menuBar.getMenuCount(); i++) {
-                JMenuItem item = menuBar.getMenu(i);
-                if (item.getText().trim().equalsIgnoreCase(toolbarName.trim())) {
-                    menuBar.remove(i);
-                    // break; // we may have more than one menu so this line needs to be commented
-                }
-            }
-
-            if (repaintUI) {
-                menuBar.revalidate();
-                menuBar.repaint();
-            }
-
+            removeMenuBarByName(toolbarName, menuBar, repaintUI);
         });
     }
 

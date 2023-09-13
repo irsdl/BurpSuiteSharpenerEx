@@ -49,7 +49,7 @@ public class ExtensionSharedParameters extends BurpExtensionSharedParameters {
         loadingChecks();
     }
 
-    private void loadingChecks(){
+    private void loadingChecks() {
         // do stuff such as setting an initial parameter based on Burp suite version or its title etc.
         if ((burpMajorVersion >= 2022 && burpMinorVersion >= 6) || burpMajorVersion >= 2023) {
             this.isTabGroupSupportedByDefault = true;
@@ -180,7 +180,7 @@ public class ExtensionSharedParameters extends BurpExtensionSharedParameters {
             }
         }
 
-        if(toolTabbedPane == null){
+        if (toolTabbedPane == null) {
             printDebugMessage("subTabbedPane is null for " + toolTabName + ". This can cause an error if not handled gracefully.");
         }
 

@@ -40,7 +40,7 @@ public class MainTabsListeners implements ContainerListener {
                         @Override
                         public void run() {
                             SwingUtilities.invokeLater(() -> {
-                                MainTabsStyleHandler.resetMainTabsStylesFromSettings(sharedParameters);
+                                MainTabsStyleHandler.resetMainTabsStylesFromSettings_noUiLock(sharedParameters);
                                 setResetInProgress(false);
                             });
                         }

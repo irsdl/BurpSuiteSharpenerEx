@@ -7,8 +7,8 @@ import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
 
 public class ExtensionHttpRequestEditorProvider implements HttpRequestEditorProvider {
     ExtensionSharedParameters sharedParameters;
-    public ExtensionHttpRequestEditorProvider(ExtensionSharedParameters sharedParameters)
-    {
+
+    public ExtensionHttpRequestEditorProvider(ExtensionSharedParameters sharedParameters) {
         this.sharedParameters = sharedParameters;
     }
 

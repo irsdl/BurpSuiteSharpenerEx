@@ -15,19 +15,17 @@ public class ExtensionHttpRequestEditor implements ExtensionProvidedHttpRequestE
     private HttpRequestResponse requestResponse;
     private final SharpenerMessageTabPanelGUI requestEditor;
 
-    ExtensionHttpRequestEditor(ExtensionSharedParameters sharedParameters, EditorCreationContext creationContext)
-    {
+    ExtensionHttpRequestEditor(ExtensionSharedParameters sharedParameters, EditorCreationContext creationContext) {
         this.sharedParameters = sharedParameters;
 
-        if (creationContext.editorMode() == EditorMode.READ_ONLY)
-        {
+        if (creationContext.editorMode() == EditorMode.READ_ONLY) {
             requestEditor = new SharpenerMessageTabPanelGUI(sharedParameters, true);
-        }
-        else {
+        } else {
             requestEditor = new SharpenerMessageTabPanelGUI(sharedParameters, false);
         }
 
     }
+
     /**
      * @return An instance of {@link HttpRequest} derived from the content of the HTTP request editor.
      */
@@ -35,13 +33,11 @@ public class ExtensionHttpRequestEditor implements ExtensionProvidedHttpRequestE
     public HttpRequest getRequest() {
         HttpRequest request;
 
-        if (requestEditor.isModified())
-        {
-            request = requestResponse.request().withAddedHeader("test1","demo1");
-        }
-        else
-        {
-            request = requestResponse.request().withAddedHeader("test2","demo2");;
+        if (requestEditor.isModified()) {
+            request = requestResponse.request().withAddedHeader("test1", "demo1");
+        } else {
+            request = requestResponse.request().withAddedHeader("test2", "demo2");
+            ;
         }
 
         return request;

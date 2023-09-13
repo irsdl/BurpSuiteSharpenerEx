@@ -35,6 +35,7 @@ public class SubTabsSettings extends StandardSettings {
     private Lock updateInProgressLock = new ReentrantLock();
 
     private SubTabsListeners subTabsListeners;
+
     public SubTabsSettings(ExtensionSharedParameters sharedParameters) {
         super(sharedParameters);
         sharedParameters.printDebugMessage("SubTabsSettings");
@@ -95,13 +96,13 @@ public class SubTabsSettings extends StandardSettings {
     }
 
     public void loadSettings(BurpUITools.MainTabs currentMainTab) {
-        try{
+        try {
             sharedParameters.printDebugMessage("loadSettings");
-            if(updateInProgressLock == null)
+            if (updateInProgressLock == null)
                 updateInProgressLock = new ReentrantLock();
 
-            if(updateInProgressLock.tryLock(5, TimeUnit.SECONDS)){
-                try{
+            if (updateInProgressLock.tryLock(5, TimeUnit.SECONDS)) {
+                try {
                     for (BurpUITools.MainTabs tool : sharedParameters.getAccessibleSubTabSupportedTabs()) {
                         if (currentMainTab != null && tool != currentMainTab) {
                             continue;
@@ -120,9 +121,9 @@ public class SubTabsSettings extends StandardSettings {
                                                         @Override
                                                         public void run() {
                                                             var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(tool);
-                                                            if(currentToolTabbedPane != null){
+                                                            if (currentToolTabbedPane != null) {
                                                                 currentToolTabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-                                                            }else{
+                                                            } else {
                                                                 sharedParameters.printDebugMessage("Error in getting the current tool tabs: " + tool);
                                                             }
 
@@ -206,28 +207,28 @@ public class SubTabsSettings extends StandardSettings {
                             SubTabsActions.tabClicked(mouseEvent, sharedParameters);
                         });
                     }
-                }finally {
+                } finally {
                     updateInProgressLock.unlock();
                 }
             }
-        }catch (Exception err){
+        } catch (Exception err) {
             sharedParameters.printlnError("Lock timeout in SubTabsSettings.loadSettings");
         }
     }
 
     public void updateSubTabsUI(BurpUITools.MainTabs currentMainTab) {
-        try{
+        try {
             sharedParameters.printDebugMessage("updateSubTabsUI");
-            if(updateInProgressLock == null)
+            if (updateInProgressLock == null)
                 updateInProgressLock = new ReentrantLock();
 
-            if(updateInProgressLock.tryLock(5, TimeUnit.SECONDS)){
-                try{
+            if (updateInProgressLock.tryLock(5, TimeUnit.SECONDS)) {
+                try {
                     if (sharedParameters.supportedTools_SubTabs.get(currentMainTab).size() > 0) {
                         ArrayList<SubTabsContainerHandler> subTabsContainerHandlers = sharedParameters.allSubTabContainerHandlers.get(currentMainTab);
                         for (SubTabsContainerHandler subTabsContainerHandler : subTabsContainerHandlers) {
                             TabFeaturesObject currentTabFeaturesObject = sharedParameters.supportedTools_SubTabs.get(currentMainTab).get(subTabsContainerHandler.getLowercaseTrimmedTabTitle());
-                            if(currentTabFeaturesObject == null){
+                            if (currentTabFeaturesObject == null) {
                                 // backward compatibility when titles were case-sensitive and not trimmed
                                 currentTabFeaturesObject = sharedParameters.supportedTools_SubTabs.get(currentMainTab).get(subTabsContainerHandler.getTabTitle());
                             }
@@ -236,23 +237,23 @@ public class SubTabsSettings extends StandardSettings {
                             }
                         }
                     }
-                }finally {
+                } finally {
                     updateInProgressLock.unlock();
                 }
             }
-        }catch (Exception err){
+        } catch (Exception err) {
             sharedParameters.printlnError("Lock timeout in SubTabsSettings.updateSubTabsUI");
         }
     }
 
     public void updateAllSubTabContainerHandlersObj(BurpUITools.MainTabs currentMainTab) {
-        try{
+        try {
             sharedParameters.printDebugMessage("updateAllSubTabContainerHandlersObj");
-            if(updateInProgressLock == null)
+            if (updateInProgressLock == null)
                 updateInProgressLock = new ReentrantLock();
 
-            if(updateInProgressLock.tryLock(5, TimeUnit.SECONDS)){
-                try{
+            if (updateInProgressLock.tryLock(5, TimeUnit.SECONDS)) {
+                try {
                     for (BurpUITools.MainTabs tool : sharedParameters.getAccessibleSubTabSupportedTabs()) {
                         if (currentMainTab != null && currentMainTab != tool) {
                             continue;
@@ -304,28 +305,28 @@ public class SubTabsSettings extends StandardSettings {
                         }
 
                     }
-                }finally {
+                } finally {
                     updateInProgressLock.unlock();
                 }
             }
-        }catch (Exception err){
+        } catch (Exception err) {
             sharedParameters.printlnError("Lock timeout in SubTabsSettings.updateAllSubTabContainerHandlersObj");
         }
     }
 
     private void unsetSubTabsStyle() {
-        try{
+        try {
             sharedParameters.printDebugMessage("unsetSubTabsStyle");
-            if(updateInProgressLock == null)
+            if (updateInProgressLock == null)
                 updateInProgressLock = new ReentrantLock();
 
-            if(updateInProgressLock.tryLock(5, TimeUnit.SECONDS)){
-                try{
+            if (updateInProgressLock.tryLock(5, TimeUnit.SECONDS)) {
+                try {
                     for (BurpUITools.MainTabs tool : sharedParameters.getAccessibleSubTabSupportedTabs()) {
                         if (!sharedParameters.isSubTabScrollSupportedByDefault) {
                             if (sharedParameters.preferences.safeGetBooleanSetting("isScrollable_" + tool)) {
                                 var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(tool);
-                                if(currentToolTabbedPane!=null){
+                                if (currentToolTabbedPane != null) {
                                     currentToolTabbedPane.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
                                 }
                             }
@@ -351,7 +352,7 @@ public class SubTabsSettings extends StandardSettings {
                             // Step2 of filter and Fixed FTab Position removal
                             if (sharedParameters.originalSubTabbedPaneUI.get(tool) != null) {
                                 var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(tool);
-                                if(currentToolTabbedPane!=null){
+                                if (currentToolTabbedPane != null) {
                                     currentToolTabbedPane.updateUI();
                                     currentToolTabbedPane.revalidate();
                                     currentToolTabbedPane.repaint();
@@ -361,11 +362,11 @@ public class SubTabsSettings extends StandardSettings {
                         sharedParameters.allSubTabContainerHandlers.get(tool).clear();
                         sharedParameters.supportedTools_SubTabs.get(tool).clear();
                     }
-                }finally {
+                } finally {
                     updateInProgressLock.unlock();
                 }
             }
-        }catch (Exception err){
+        } catch (Exception err) {
             sharedParameters.printlnError("Lock timeout in SubTabsSettings.unsetSubTabsStyle");
         }
     }
@@ -377,13 +378,13 @@ public class SubTabsSettings extends StandardSettings {
 
     // This saves the setting in the preferences by reading them from SubTabsContainerHandler lists
     public void saveSettings(BurpUITools.MainTabs currentMainTab) {
-        try{
+        try {
             sharedParameters.printDebugMessage("saveSettings using BurpUITools.MainTabs");
-            if(updateInProgressLock == null)
+            if (updateInProgressLock == null)
                 updateInProgressLock = new ReentrantLock();
 
-            if(updateInProgressLock.tryLock(5, TimeUnit.SECONDS)){
-                try{
+            if (updateInProgressLock.tryLock(5, TimeUnit.SECONDS)) {
+                try {
                     for (BurpUITools.MainTabs tool : sharedParameters.getAccessibleSubTabSupportedTabs()) {
                         if (currentMainTab != null && currentMainTab != tool) {
                             continue;
@@ -404,18 +405,18 @@ public class SubTabsSettings extends StandardSettings {
 
                         // The issue here is that do not know whether there has been a hick up or the user really deleted all the styles
                         // We currently assume is it ok to lose them all if equal or less than 5 tab had the style previously
-                        if(!tabFeaturesObjectHashMap.isEmpty() || sharedParameters.supportedTools_SubTabs.get(tool).size() <= 5){
+                        if (!tabFeaturesObjectHashMap.isEmpty() || sharedParameters.supportedTools_SubTabs.get(tool).size() <= 5) {
                             sharedParameters.supportedTools_SubTabs.get(tool).clear();
                         }
 
                         sharedParameters.supportedTools_SubTabs.get(tool).putAll(tabFeaturesObjectHashMap);
                         sharedParameters.preferences.safeSetSetting("TabFeaturesObject_Array_" + tool, tabFeaturesObjectHashMap, Preferences.Visibility.PROJECT);
                     }
-                }finally {
+                } finally {
                     updateInProgressLock.unlock();
                 }
             }
-        }catch (Exception err){
+        } catch (Exception err) {
             sharedParameters.printlnError("Lock timeout in SubTabsSettings.saveSettings");
         }
     }

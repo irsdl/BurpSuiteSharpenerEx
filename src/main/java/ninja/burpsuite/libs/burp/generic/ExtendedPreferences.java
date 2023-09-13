@@ -37,7 +37,7 @@ public class ExtendedPreferences extends Preferences {
             } catch (Exception e) {
                 if (sharedParameters != null) {
                     sharedParameters.printDebugMessage("Save error: " + e.getMessage(), BurpExtensionSharedParameters.DebugLevels.VerboseAndPrefsRW.getValue());
-                    if(e.getMessage().contains("has not been registered")){
+                    if (e.getMessage().contains("has not been registered")) {
                         sharedParameters.printDebugMessage("Registering: " + settingName, BurpExtensionSharedParameters.DebugLevels.VerboseAndPrefsRW.getValue());
                         registerSetting(settingName, value.getClass(), visibility);
                     }
@@ -61,9 +61,9 @@ public class ExtendedPreferences extends Preferences {
             result = getSetting(settingName);
         } catch (Exception e) {
             if (sharedParameters != null) {
-                if(e.getMessage().contains("has not been registered")) {
+                if (e.getMessage().contains("has not been registered")) {
                     sharedParameters.printDebugMessage("The " + settingName + " setting has not been registered, going to use the default value.");
-                }else{
+                } else {
                     sharedParameters.printDebugMessage("Get error: " + e.getMessage());
                     if (sharedParameters.debugLevel == BurpExtensionSharedParameters.DebugLevels.VeryVerbose.getValue())
                         sharedParameters.montoyaApi.logging().logToError(e);

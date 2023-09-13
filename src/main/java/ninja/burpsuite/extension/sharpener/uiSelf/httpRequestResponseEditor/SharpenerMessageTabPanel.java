@@ -9,7 +9,8 @@ import java.awt.*;
 
 public class SharpenerMessageTabPanel extends JPanel {
     ExtensionSharedParameters sharedParameters;
-    public SharpenerMessageTabPanel(ExtensionSharedParameters sharedParameters, boolean readOnly){
+
+    public SharpenerMessageTabPanel(ExtensionSharedParameters sharedParameters, boolean readOnly) {
         super(new GridBagLayout());
         this.sharedParameters = sharedParameters;
 
@@ -25,7 +26,7 @@ public class SharpenerMessageTabPanel extends JPanel {
 
         // this is to update the UI using the idea from https://github.com/hackvertor/hackvertor/blob/master/src/main/java/burp/ui/HackvertorPanel.java
         // probably I should use the same approach as in https://github.com/hackvertor/hackvertor/blob/master/src/main/java/burp/ui/HackvertorInput.java
-        RSyntaxUtils.configureRSyntaxArea(textArea,  sharedParameters);
+        RSyntaxUtils.configureRSyntaxArea(textArea, sharedParameters);
 
         RSyntaxUtils.fixRSyntaxAreaBurp();
 

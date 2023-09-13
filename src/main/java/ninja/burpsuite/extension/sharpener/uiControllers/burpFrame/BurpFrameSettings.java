@@ -78,7 +78,7 @@ public class BurpFrameSettings extends StandardSettings {
 
         String newTitle = sharedParameters.preferences.safeGetStringSetting("BurpTitle");
         if (!newTitle.isBlank()) {
-            BurpTitleAndIcon.setTitle(sharedParameters, newTitle);
+            BurpTitleAndIcon.setTitle_noUiLock(sharedParameters, newTitle);
         }
 
         String newIconPath = sharedParameters.preferences.safeGetStringSetting("BurpIconCustomPath");
@@ -93,15 +93,15 @@ public class BurpFrameSettings extends StandardSettings {
         boolean useLastScreenPositionAndSize = sharedParameters.preferences.safeGetBooleanSetting("useLastScreenPositionAndSize");
         //boolean detectOffScreenPosition = sharedParameters.preferences.safeGetBooleanSetting("detectOffScreenPosition");
 
-        if(useLastScreenPositionAndSize){
+        if (useLastScreenPositionAndSize) {
             Point lastApplicationPosition = sharedParameters.preferences.safeGetSetting("lastApplicationPosition", null);
             Dimension lastApplicationSize = sharedParameters.preferences.safeGetSetting("lastApplicationSize", null);
 
-            if(lastApplicationPosition != null){
+            if (lastApplicationPosition != null) {
                 sharedParameters.get_mainFrameUsingMontoya().setLocation(lastApplicationPosition);
             }
 
-            if(lastApplicationSize != null){
+            if (lastApplicationSize != null) {
                 sharedParameters.get_mainFrameUsingMontoya().setSize(lastApplicationSize);
             }
         }
@@ -113,7 +113,7 @@ public class BurpFrameSettings extends StandardSettings {
     public void unloadSettings() {
         sharedParameters.printDebugMessage("reset Burp title and icon");
 
-        if(burpFrameListeners!=null){
+        if (burpFrameListeners != null) {
             burpFrameListeners.removeBurpFrameListener(sharedParameters.get_mainFrameUsingMontoya());
         }
 

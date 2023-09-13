@@ -10,7 +10,10 @@ import burp.api.montoya.BurpExtension;
 import burp.api.montoya.MontoyaApi;
 import burp.api.montoya.extension.ExtensionUnloadingHandler;
 import burp.api.montoya.http.message.requests.HttpRequest;
-import ninja.burpsuite.extension.sharpener.capabilities.pwnFox.PwnFoxProxyRequestHandler;
+import burp.api.montoya.proxy.http.ProxyRequestHandler;
+import burp.api.montoya.proxy.http.ProxyResponseHandler;
+import burp.api.montoya.proxy.websocket.ProxyWebSocketCreationHandler;
+import ninja.burpsuite.extension.sharpener.capabilities.objects.CapabilityGroup;
 import ninja.burpsuite.extension.sharpener.uiSelf.contextMenu.ContextMenu;
 import ninja.burpsuite.extension.sharpener.uiSelf.httpRequestResponseEditor.ExtensionHttpRequestEditorProvider;
 import ninja.burpsuite.extension.sharpener.uiSelf.httpRequestResponseEditor.ExtensionHttpResponseEditorProvider;
@@ -42,7 +45,7 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
         // registering itself to handle unloading
         api.extension().registerUnloadingHandler(this);
 
-        if(!sharedParameters.isCompatibleWithCurrentBurpVersion){
+        if (!sharedParameters.isCompatibleWithCurrentBurpVersion) {
             // This is not a compatible extension, what should we do?
             UIHelper.showWarningMessage("The " + sharedParameters.extensionName +
                     " extension is not compatible with the current version or edition of Burp Suite" +
@@ -50,42 +53,56 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
             api.extension().unload();
         }
 
-        if(sharedParameters.features.hasHttpHandler){
-            PwnFoxProxyRequestHandler pwnFoxProxyRequestHandler = new PwnFoxProxyRequestHandler(sharedParameters);
-            api.proxy().registerRequestHandler(pwnFoxProxyRequestHandler);
+        furtherLoadingChecks();
+
+        if (sharedParameters.features.hasHttpHandler) {
+            // register our HTTP handlers - the condition above will always be true in the Sharpener extension
+            for (var capabilitySettings : sharedParameters.allSettings.capabilitySettingsList) {
+                if (capabilitySettings.capability.capabilityGroupList.contains(CapabilityGroup.PROXY_REQUEST_HANDLER)) {
+                    // we need to register a proxy request handler using the item.capability.createCapabilityHandler() object
+                    api.proxy().registerRequestHandler((ProxyRequestHandler) capabilitySettings.capability.createCapabilityObject(sharedParameters, capabilitySettings));
+                }
+
+                if (capabilitySettings.capability.capabilityGroupList.contains(CapabilityGroup.PROXY_RESPONSE_HANDLER)) {
+                    // we need to register a proxy request handler using the item.capability.createCapabilityHandler() object
+                    api.proxy().registerResponseHandler((ProxyResponseHandler) capabilitySettings.capability.createCapabilityObject(sharedParameters, capabilitySettings));
+                }
+
+                if (capabilitySettings.capability.capabilityGroupList.contains(CapabilityGroup.WEBSOCKET_CREATION_HANDLER)) {
+                    // we need to register a proxy request handler using the item.capability.createCapabilityHandler() object
+                    api.proxy().registerWebSocketCreationHandler((ProxyWebSocketCreationHandler) capabilitySettings.capability.createCapabilityObject(sharedParameters, capabilitySettings));
+                }
+            }
         }
 
         // create our UI
-        SwingUtilities.invokeLater(() -> {
-            // we no longer need to create an extension GUI tab to get access to the jFrame - Montoya can give us access
-            if(sharedParameters.features.hasSuiteTab){
-                sharedParameters.extensionSuiteTab = new SuiteTab(sharedParameters);
-                sharedParameters.extensionSuiteTabRegistration = api.userInterface().registerSuiteTab(sharedParameters.extensionName, sharedParameters.extensionSuiteTab);
-            }
+        // we no longer need to create an extension GUI tab to get access to the jFrame - Montoya can give us access
+        if (sharedParameters.features.hasSuiteTab) {
+            sharedParameters.extensionSuiteTab = new SuiteTab(sharedParameters);
+            sharedParameters.extensionSuiteTabRegistration = api.userInterface().registerSuiteTab(sharedParameters.extensionName, sharedParameters.extensionSuiteTab);
+        }
 
-            if(sharedParameters.features.hasContextMenu){
-                sharedParameters.extensionMainContextMenu = new ContextMenu(sharedParameters);
-                sharedParameters.extensionContextMenuRegistration = api.userInterface().registerContextMenuItemsProvider(sharedParameters.extensionMainContextMenu);
-            }
+        if (sharedParameters.features.hasContextMenu) {
+            sharedParameters.extensionMainContextMenu = new ContextMenu(sharedParameters);
+            sharedParameters.extensionContextMenuRegistration = api.userInterface().registerContextMenuItemsProvider(sharedParameters.extensionMainContextMenu);
+        }
 
-            if(sharedParameters.features.hasTopMenu){
-                sharedParameters.topMenuBar = new TopMenu(sharedParameters);
-                sharedParameters.extensionTopMenuRegistration = api.userInterface().menuBar().registerMenu(sharedParameters.topMenuBar);
-            }
+        if (sharedParameters.features.hasTopMenu) {
+            sharedParameters.topMenuBar = new TopMenu(sharedParameters);
+            sharedParameters.extensionTopMenuRegistration = api.userInterface().menuBar().registerMenu(sharedParameters.topMenuBar);
+        }
 
-            if(sharedParameters.features.hasHttpRequestEditor){
-                api.userInterface().registerHttpRequestEditorProvider(new ExtensionHttpRequestEditorProvider(sharedParameters));
-            }
+        if (sharedParameters.features.hasHttpRequestEditor) {
+            api.userInterface().registerHttpRequestEditorProvider(new ExtensionHttpRequestEditorProvider(sharedParameters));
+        }
 
-            if(sharedParameters.features.hasHttpResponseEditor){
-                api.userInterface().registerHttpResponseEditorProvider(new ExtensionHttpResponseEditorProvider(sharedParameters));
-            }
+        if (sharedParameters.features.hasHttpResponseEditor) {
+            api.userInterface().registerHttpResponseEditorProvider(new ExtensionHttpResponseEditorProvider(sharedParameters));
+        }
 
-            load(false);
-
-            sharedParameters.printlnOutput(sharedParameters.extensionName + " has been loaded successfully.");
-        });
+        sharedParameters.printlnOutput(sharedParameters.extensionName + " has been loaded successfully.");
     }
+
     public boolean getIsActive() {
         if (this.isActive == null)
             setIsActive(false);
@@ -101,35 +118,22 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
         unload();
     }
 
-    public void load(boolean isDirty) {
-        sharedParameters.printDebugMessage("load - isDirty: " + isDirty);
-        try{
-            if (!isDirty) {
-                sharedParameters.printDebugMessage("is not dirty: setUIParametersUsingMontoya");
-                sharedParameters.setUIParametersUsingMontoya(10);
-            } else {
-                sharedParameters.printDebugMessage("is dirty: unload");
-                unload();
-            }
+    private void initializeSettings() {
+        sharedParameters.printDebugMessage("Loading all settings!");
+        // Loading all settings!
+        sharedParameters.allSettings = new ExtensionGeneralSettings(sharedParameters);
+    }
 
-            if (sharedParameters.get_isUILoaded() || isDirty) {
-                if (!BurpUITools.isMenuBarLoaded(sharedParameters.extensionName, sharedParameters.get_mainMenuBarUsingMontoya()) || isDirty) {
+    public void furtherLoadingChecks() {
+        sharedParameters.printDebugMessage("Performing further loading checks!");
+        try {
+            sharedParameters.setUIParametersUsingMontoya(10);
 
-                    /*
-                    // reattaching related tools before working on them!
-                    if (BurpUITools.reattachTools(sharedParameters.subTabSupportedTabs, sharedParameters.get_mainMenuBarUsingMontoya())) {
-                        try {
-                            // to make sure UI has been updated
-                            sharedParameters.printlnOutput("Detached windows were found. We need to wait for a few seconds after reattaching the tabs.");
-                            Thread.sleep(3000);
-                        } catch (Exception e) {
-                            sharedParameters.printDebugMessage("Error in SharpenerGeneralSettings.loadSettings(): " + e.getMessage());
-                        }
-                    }
-                    */
-                    sharedParameters.printDebugMessage("Loading all settings!");
-                    // Loading all settings!
-                    sharedParameters.allSettings = new ExtensionGeneralSettings(sharedParameters);
+            // This needs to be initialized after the UI is accessible
+            initializeSettings();
+
+            if (sharedParameters.get_isUILoaded()) {
+                if (!BurpUITools.isMenuBarLoaded(sharedParameters.extensionName, sharedParameters.get_mainMenuBarUsingMontoya())) {
 
                     // This is a dirty hack when LookAndFeel changes in the middle, and we lose the style!
                     lookAndFeelPropChangeListener = evt -> {
@@ -165,7 +169,7 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
                 sharedParameters.printlnError("UI cannot be loaded... try again");
                 sharedParameters.montoyaApi.extension().unload();
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             sharedParameters.printlnError("Fatal error in loading the extension");
             sharedParameters.printException(e);
         }
@@ -173,7 +177,7 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
 
     public void unload() {
         sharedParameters.printDebugMessage("unload");
-        try{
+        try {
             /*
             // reattaching related tools before working on them!
             if (BurpUITools.reattachTools(sharedParameters.subTabSupportedTabs, sharedParameters.get_mainMenuBarUsingMontoya())) {
@@ -195,6 +199,10 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
 
                     sharedParameters.allSettings.unloadSettings();
 
+                    // this is a very bad hack but sometimes the UI is still being updated because of SwingUtilities.invokeLater
+                    // so we need to wait for a few seconds before unloading the extension
+                    Thread.sleep(1000);
+
                 } catch (Exception e) {
                     sharedParameters.printlnError("An error has occurred when unloading the " + sharedParameters.extensionName + " extension.");
                     sharedParameters.printDebugMessage(e.getMessage());
@@ -208,7 +216,7 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
             }
 
             sharedParameters.printDebugMessage("UI changes have been removed.");
-        }catch (Exception e){
+        } catch (Exception e) {
             sharedParameters.printlnError("Fatal error in unloading the extension");
             sharedParameters.printException(e);
         }
@@ -218,7 +226,7 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
     public void checkForUpdate() {
         // we need to see whether the extension is up-to-date by reading the propertiesFileUrl link
         new Thread(() -> {
-            try{
+            try {
                 boolean isError = true;
 
                 var buildGradleFileResponse = sharedParameters.montoyaApi.http().sendRequest(HttpRequest.httpRequestFromUrl(sharedParameters.extensionPropertiesUrl));
@@ -262,7 +270,7 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
                 if (isError) {
                     sharedParameters.printlnError("Could not check for update from " + sharedParameters.extensionPropertiesUrl);
                 }
-            }catch(Exception e){
+            } catch (Exception e) {
                 sharedParameters.printlnError("Fatal error in checkForUpdate()");
                 sharedParameters.printException(e);
             }

@@ -15,13 +15,13 @@ import java.awt.*;
 
 
 public class MainTabsStyleHandler {
-    public static void setMainTabsStyle(ExtensionSharedParameters sharedParameters, BurpUITools.MainTabs toolName) {
+    public static void setMainTabsStyle_noUiLock(ExtensionSharedParameters sharedParameters, BurpUITools.MainTabs toolName) {
         SwingUtilities.invokeLater(() -> {
 
             sharedParameters.printDebugMessage("setToolTabStyle for " + toolName);
             String themeName = sharedParameters.preferences.safeGetStringSetting("ToolsThemeName");
             String themeCustomPath = sharedParameters.preferences.safeGetStringSetting("ToolsThemeCustomPath");
-            String iconSizeStr = sharedParameters.preferences.safeGetSetting("ToolsIconSize" , "16");
+            String iconSizeStr = sharedParameters.preferences.safeGetSetting("ToolsIconSize", "16");
             int iconSize = Integer.parseInt(iconSizeStr);
 
             JTabbedPane tabbedPane = sharedParameters.get_rootTabbedPaneUsingMontoya();
@@ -43,7 +43,7 @@ public class MainTabsStyleHandler {
                             Image myImg;
                             if (!themeName.equalsIgnoreCase("custom")) {
                                 myImg = ImageHelper.scaleImageToWidth(ImageHelper.loadImageResource(sharedParameters.extensionClass, "/themes/" + themeName + "/" + toolName + ".png"), iconSize);
-                                if(myImg==null){
+                                if (myImg == null) {
                                     // is this an extension?
                                     myImg = ImageHelper.scaleImageToWidth(ImageHelper.loadImageResource(sharedParameters.extensionClass, "/themes/extensions/" + toolName + ".png"), iconSize);
                                 }
@@ -84,7 +84,7 @@ public class MainTabsStyleHandler {
 
     }
 
-    public static void resetMainTabsStylesFromSettings(ExtensionSharedParameters sharedParameters) {
+    public static void resetMainTabsStylesFromSettings_noUiLock(ExtensionSharedParameters sharedParameters) {
         sharedParameters.printDebugMessage("resetToolTabStylesFromSettings");
         //unsetAllToolTabStyles(sharedParameters);
         //setToolTabStylesFromSettings(sharedParameters);
@@ -100,58 +100,57 @@ public class MainTabsStyleHandler {
 
             for (BurpUITools.MainTabs tool : BurpUITools.MainTabs.values()) {
                 if (sharedParameters.preferences.safeGetBooleanSetting("isUnique_" + tool)) {
-                    MainTabsStyleHandler.unsetMainTabsStyle(sharedParameters, tool);
-                    MainTabsStyleHandler.setMainTabsStyle(sharedParameters, tool);
+                    MainTabsStyleHandler.unsetMainTabsStyle_noUiLock(sharedParameters, tool);
+                    MainTabsStyleHandler.setMainTabsStyle_noUiLock(sharedParameters, tool);
                 }
             }
         });
     }
 
     public static void unsetAllMainTabsStyles(ExtensionSharedParameters sharedParameters) {
+        sharedParameters.printDebugMessage("unsetAllToolTabStyles");
+        if (!sharedParameters.isSubTabScrollSupportedByDefault) {
+            if (sharedParameters.preferences.safeGetBooleanSetting("isToolTabPaneScrollable")) {
+                sharedParameters.get_rootTabbedPaneUsingMontoya().setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
+            }
+        }
+
+        for (BurpUITools.MainTabs tool : BurpUITools.MainTabs.values()) {
+            MainTabsStyleHandler.unsetMainTabsStyle(sharedParameters, tool);
+        }
+    }
+
+    //_withUiLock
+    public static void unsetMainTabsStyle_noUiLock(ExtensionSharedParameters sharedParameters, BurpUITools.MainTabs toolName) {
         SwingUtilities.invokeLater(() -> {
-
-            sharedParameters.printDebugMessage("unsetAllToolTabStyles");
-            if (!sharedParameters.isSubTabScrollSupportedByDefault) {
-                if (sharedParameters.preferences.safeGetBooleanSetting("isToolTabPaneScrollable")) {
-                    sharedParameters.get_rootTabbedPaneUsingMontoya().setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
-                }
-            }
-
-            for (BurpUITools.MainTabs tool : BurpUITools.MainTabs.values()) {
-                MainTabsStyleHandler.unsetMainTabsStyle(sharedParameters, tool);
-            }
-
+            unsetMainTabsStyle(sharedParameters, toolName);
         });
     }
 
     public static void unsetMainTabsStyle(ExtensionSharedParameters sharedParameters, BurpUITools.MainTabs toolName) {
-        SwingUtilities.invokeLater(() -> {
-
-            JTabbedPane tabbedPane = sharedParameters.get_rootTabbedPaneUsingMontoya();
-            for (Component component : tabbedPane.getComponents()) {
-                int componentIndex = tabbedPane.indexOfComponent(component);
-                if (componentIndex == -1) {
-                    continue;
-                }
-
-                String componentTitle = tabbedPane.getTitleAt(componentIndex);
-                if (componentTitle == null)
-                    continue;
-
-                if (componentTitle.equalsIgnoreCase(toolName.toString())) {
-                    JComponent tabComponent = (JComponent) tabbedPane.getTabComponentAt(componentIndex);
-                    if (tabComponent.getComponent(0) instanceof JLabel) {
-                        tabComponent.remove(0);
-                        JTextField jTextField = (JTextField) tabComponent.getComponent(0);
-                        jTextField.setFont(jTextField.getFont().deriveFont(Font.PLAIN));
-                        jTextField.setOpaque(false);
-                        jTextField.setBorder(BorderFactory.createEmptyBorder());
-                        tabComponent.setSize(jTextField.getWidth(), jTextField.getHeight());
-                    }
-                    break;
-                }
+        JTabbedPane tabbedPane = sharedParameters.get_rootTabbedPaneUsingMontoya();
+        for (Component component : tabbedPane.getComponents()) {
+            int componentIndex = tabbedPane.indexOfComponent(component);
+            if (componentIndex == -1) {
+                continue;
             }
 
-        });
+            String componentTitle = tabbedPane.getTitleAt(componentIndex);
+            if (componentTitle == null)
+                continue;
+
+            if (componentTitle.equalsIgnoreCase(toolName.toString())) {
+                JComponent tabComponent = (JComponent) tabbedPane.getTabComponentAt(componentIndex);
+                if (tabComponent.getComponent(0) instanceof JLabel) {
+                    tabComponent.remove(0);
+                    JTextField jTextField = (JTextField) tabComponent.getComponent(0);
+                    jTextField.setFont(jTextField.getFont().deriveFont(Font.PLAIN));
+                    jTextField.setOpaque(false);
+                    jTextField.setBorder(BorderFactory.createEmptyBorder());
+                    tabComponent.setSize(jTextField.getWidth(), jTextField.getHeight());
+                }
+                break;
+            }
+        }
     }
 }

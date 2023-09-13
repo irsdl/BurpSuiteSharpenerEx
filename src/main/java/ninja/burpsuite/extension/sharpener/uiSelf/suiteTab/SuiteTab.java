@@ -10,8 +10,7 @@ import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
 
 import javax.swing.*;
 
-public class SuiteTab extends JComponent
-{
+public class SuiteTab extends JComponent {
     ExtensionSharedParameters sharedParameters;
 
     public SuiteTab(ExtensionSharedParameters sharedParameters) {

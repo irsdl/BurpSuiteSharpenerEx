@@ -20,6 +20,7 @@ import java.util.List;
 public class ContextMenu implements ContextMenuItemsProvider {
 
     ExtensionSharedParameters sharedParameters;
+
     public ContextMenu(ExtensionSharedParameters sharedParameters) {
         this.sharedParameters = sharedParameters;
     }
@@ -27,8 +28,7 @@ public class ContextMenu implements ContextMenuItemsProvider {
     @Override
     public List<Component> provideMenuItems(ContextMenuEvent event) {
 
-        if (event.isFromTool(ToolType.PROXY, ToolType.TARGET, ToolType.REPEATER))
-        {
+        if (event.isFromTool(ToolType.PROXY, ToolType.TARGET, ToolType.REPEATER)) {
             List<Component> menuItemList = new ArrayList<>();
 
             JMenuItem retrieveRequestItem = new JMenuItem("Print request");
@@ -39,8 +39,7 @@ public class ContextMenu implements ContextMenuItemsProvider {
             retrieveRequestItem.addActionListener(l -> sharedParameters.montoyaApi.logging().logToOutput("Request is:\r\n" + requestResponse.request().toString()));
             menuItemList.add(retrieveRequestItem);
 
-            if (requestResponse.response() != null)
-            {
+            if (requestResponse.response() != null) {
                 retrieveResponseItem.addActionListener(l -> sharedParameters.montoyaApi.logging().logToOutput("Response is:\r\n" + requestResponse.response().toString()));
                 menuItemList.add(retrieveResponseItem);
             }

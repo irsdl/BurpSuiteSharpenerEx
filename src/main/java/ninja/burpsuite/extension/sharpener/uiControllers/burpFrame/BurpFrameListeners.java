@@ -33,18 +33,19 @@ public class BurpFrameListeners implements ComponentListener {
     private boolean isRecenterInProgress = false;
     private boolean isResizedFrameCheckInProgress = false;
     private boolean isMovedFrameCheckInProgress = false;
-    public BurpFrameListeners(ExtensionSharedParameters sharedParameters){
+
+    public BurpFrameListeners(ExtensionSharedParameters sharedParameters) {
         this.sharedParameters = sharedParameters;
         addBurpFrameListener(sharedParameters.get_mainFrameUsingMontoya());
         boolean detectOffScreenPosition = sharedParameters.preferences.safeGetBooleanSetting("detectOffScreenPosition");
-        if(detectOffScreenPosition && !isRecenterInProgress){
-            checkAndCenterOffScreen(sharedParameters.get_mainFrameUsingMontoya() , 0.1, true);
+        if (detectOffScreenPosition && !isRecenterInProgress) {
+            checkAndCenterOffScreen(sharedParameters.get_mainFrameUsingMontoya(), 0.1, true);
         }
     }
 
     public void addBurpFrameListener(JFrame jframe) {
         sharedParameters.printDebugMessage("addBurpFrameListener");
-        try{
+        try {
             jframe.addComponentListener(this);
             clearInputMap(jframe.getRootPane());
 
@@ -57,7 +58,7 @@ public class BurpFrameListeners implements ComponentListener {
                     UIHelper.moveFrameToCenter(jframe);
                 }
             });
-        }catch(Exception e){
+        } catch (Exception e) {
             sharedParameters.printDebugMessage("Error in BurpFrameListeners.addBurpFrameListener");
         }
 
@@ -65,40 +66,40 @@ public class BurpFrameListeners implements ComponentListener {
 
     public void removeBurpFrameListener(JFrame jframe) {
         sharedParameters.printDebugMessage("removeBurpFrameListener");
-        try{
+        try {
             jframe.removeComponentListener(this);
             clearInputMap(jframe.getRootPane());
-        }catch (Exception e) {
+        } catch (Exception e) {
             sharedParameters.printDebugMessage("Error in BurpFrameListeners.removeBurpFrameListener");
         }
     }
 
     @Override
     public void componentResized(ComponentEvent e) {
-        if(!isResizedFrameCheckInProgress){
+        if (!isResizedFrameCheckInProgress) {
             try {
-                if(resizedFrameLock == null)
+                if (resizedFrameLock == null)
                     resizedFrameLock = new ReentrantLock();
 
                 if (resizedFrameLock.tryLock(5, TimeUnit.SECONDS)) {
-                    try{
+                    try {
                         isResizedFrameCheckInProgress = true;
                         new java.util.Timer().schedule(
                                 new java.util.TimerTask() {
                                     @Override
                                     public void run() {
-                                        try{
+                                        try {
                                             Dimension newSize = e.getComponent().getBounds().getSize();
                                             Point newLocation = e.getComponent().getBounds().getLocation();
                                             sharedParameters.preferences.safeSetSetting("lastApplicationSize", newSize, Preferences.Visibility.GLOBAL);
                                             sharedParameters.preferences.safeSetSetting("lastApplicationPosition", newLocation, Preferences.Visibility.GLOBAL);
                                             boolean detectOffScreenPosition = sharedParameters.preferences.safeGetBooleanSetting("detectOffScreenPosition");
-                                            if(detectOffScreenPosition && !isRecenterInProgress){
+                                            if (detectOffScreenPosition && !isRecenterInProgress) {
                                                 checkAndCenterOffScreen(sharedParameters.get_mainFrameUsingMontoya(), 0.8, false);
                                             }
-                                        }catch(Exception e){
+                                        } catch (Exception e) {
                                             sharedParameters.printDebugMessage("Error in BurpFrameListeners.componentResized");
-                                        }finally {
+                                        } finally {
                                             isResizedFrameCheckInProgress = false;
 
                                         }
@@ -106,11 +107,11 @@ public class BurpFrameListeners implements ComponentListener {
                                 },
                                 2000 // 2 seconds delay to decrease the amount of checking process
                         );
-                    }finally {
+                    } finally {
                         resizedFrameLock.unlock();
                     }
                 }
-            }catch(Exception err){
+            } catch (Exception err) {
                 isResizedFrameCheckInProgress = false;
             }
         }
@@ -118,13 +119,13 @@ public class BurpFrameListeners implements ComponentListener {
 
     @Override
     public void componentMoved(ComponentEvent e) {
-        if(!isMovedFrameCheckInProgress) {
+        if (!isMovedFrameCheckInProgress) {
             try {
-                if(movedFrameLock == null)
+                if (movedFrameLock == null)
                     movedFrameLock = new ReentrantLock();
 
                 if (movedFrameLock.tryLock(5, TimeUnit.SECONDS)) {
-                    try{
+                    try {
                         isMovedFrameCheckInProgress = true;
                         new java.util.Timer().schedule(
                                 new java.util.TimerTask() {
@@ -139,9 +140,9 @@ public class BurpFrameListeners implements ComponentListener {
                                             if (detectOffScreenPosition && !isRecenterInProgress) {
                                                 checkAndCenterOffScreen(sharedParameters.get_mainFrameUsingMontoya(), 0.8, false);
                                             }
-                                        }catch(Exception e){
+                                        } catch (Exception e) {
                                             sharedParameters.printDebugMessage("Error in BurpFrameListeners.componentMoved");
-                                        }finally {
+                                        } finally {
                                             isMovedFrameCheckInProgress = false;
                                         }
 
@@ -149,11 +150,11 @@ public class BurpFrameListeners implements ComponentListener {
                                 },
                                 1000 // 1 second delay to decrease the amount of checking process
                         );
-                    }finally {
+                    } finally {
                         movedFrameLock.unlock();
                     }
                 }
-            }catch(Exception err){
+            } catch (Exception err) {
                 isMovedFrameCheckInProgress = false;
             }
         }
@@ -169,27 +170,27 @@ public class BurpFrameListeners implements ComponentListener {
 
     }
 
-    public void checkAndCenterOffScreen(JFrame jframe, double offScreenMargin, boolean isChoice){
-        if(!isRecenterInProgress) {
+    public void checkAndCenterOffScreen(JFrame jframe, double offScreenMargin, boolean isChoice) {
+        if (!isRecenterInProgress) {
             try {
-                if(recenterLock == null)
+                if (recenterLock == null)
                     recenterLock = new ReentrantLock();
 
                 if (recenterLock.tryLock(5, TimeUnit.SECONDS)) {
-                    try{
+                    try {
                         isRecenterInProgress = true;
                         new java.util.Timer().schedule(
                                 new java.util.TimerTask() {
                                     @Override
                                     public void run() {
                                         if (jframe != null && UIHelper.isFrameOutOffScreen(jframe, offScreenMargin)) {
-                                            if(isChoice){
-                                                int response = UIHelper.askConfirmMessage(sharedParameters.extensionName + ": Off Screen Window", "Burp Suite is "+(int) (offScreenMargin*100) +"% outside the screen, do you want to bring it to the center?", new String[]{"Yes", "No"}, null);
+                                            if (isChoice) {
+                                                int response = UIHelper.askConfirmMessage(sharedParameters.extensionName + ": Off Screen Window", "Burp Suite is " + (int) (offScreenMargin * 100) + "% outside the screen, do you want to bring it to the center?", new String[]{"Yes", "No"}, null);
                                                 if (response == 0) {
                                                     UIHelper.moveFrameToCenter(jframe);
                                                 }
-                                            }else{
-                                                UIHelper.showWarningMessage(sharedParameters.extensionName + ": Burp Suite was at least "+(int) (offScreenMargin*100) +"% outside the screen, therefore, it's been moved to the center!", null);
+                                            } else {
+                                                UIHelper.showWarningMessage(sharedParameters.extensionName + ": Burp Suite was at least " + (int) (offScreenMargin * 100) + "% outside the screen, therefore, it's been moved to the center!", null);
                                                 UIHelper.moveFrameToCenter(jframe);
                                             }
                                         }
@@ -198,21 +199,21 @@ public class BurpFrameListeners implements ComponentListener {
                                 },
                                 1000 // 1 second delay to decrease the amount of checking process
                         );
-                    }finally {
+                    } finally {
                         recenterLock.unlock();
                     }
                 }
-            }catch(Exception err){
+            } catch (Exception err) {
                 isRecenterInProgress = false;
             }
         }
     }
 
     private void clearInputMap(JComponent jc) {
-        try{
+        try {
             burpFrameShortcutMappings.forEach((k, v) -> jc.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
                     KeyStroke.getKeyStroke(k), "none"));
-        }catch(Exception e){
+        } catch (Exception e) {
             sharedParameters.printDebugMessage("Error in BurpFrameListeners.clearInputMap");
         }
 

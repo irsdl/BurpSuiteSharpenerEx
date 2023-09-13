@@ -115,7 +115,7 @@ public class UIWalker {
 
     public static Component findUIObjectInComponentsWithExclusions(Component[] arrayOfComponents, UiSpecObject uiSpecObject, Component[] arrayOfExcludedComponents) {
         Component foundObject = null;
-        for(Component currentComponent:arrayOfComponents){
+        for (Component currentComponent : arrayOfComponents) {
             if (uiSpecObject.isCompatible(currentComponent) && !containsComponent(arrayOfExcludedComponents, currentComponent)) {
                 foundObject = currentComponent;
                 break;
@@ -125,7 +125,7 @@ public class UIWalker {
     }
 
     public static boolean containsComponent(Component[] components, Component target) {
-        if(components != null && target != null){
+        if (components != null && target != null) {
             for (Component comp : components) {
                 if (comp == target) {
                     return true;

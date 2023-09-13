@@ -105,9 +105,9 @@ public class SubTabsListeners implements ContainerListener {
 
         if (!result.isEmpty()) {
             String message = "The following tool(s) could not be accessed: " + String.join(", ", result) + ".\r\nConsider attaching all the tools before reloading the " + sharedParameters.extensionName + " extension.";
-            if(!sharedParameters.get_isUILoaded() || sharedParameters.allSettings.subTabsSettings.isFirstLoad){
+            if (!sharedParameters.get_isUILoaded() || sharedParameters.allSettings.subTabsSettings.isFirstLoad) {
                 UIHelper.showWarningMessage(message, sharedParameters.get_mainFrameUsingMontoya());
-            }else{
+            } else {
                 sharedParameters.printOutput(message);
             }
         }

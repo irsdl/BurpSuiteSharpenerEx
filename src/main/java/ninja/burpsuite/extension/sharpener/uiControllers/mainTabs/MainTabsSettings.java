@@ -17,6 +17,7 @@ import java.util.Collection;
 
 public class MainTabsSettings extends StandardSettings {
     private MainTabsListeners mainTabsListeners;
+
     public MainTabsSettings(ExtensionSharedParameters sharedParameters) {
         super(sharedParameters);
         sharedParameters.printDebugMessage("ToolsTabSettings");
@@ -55,7 +56,7 @@ public class MainTabsSettings extends StandardSettings {
     @Override
     public void loadSettings() {
         sharedParameters.printDebugMessage("loadSettings");
-        MainTabsStyleHandler.resetMainTabsStylesFromSettings(sharedParameters);
+        MainTabsStyleHandler.resetMainTabsStylesFromSettings_noUiLock(sharedParameters);
         // Adding listeners to Main Tool Tabs
         if (sharedParameters.get_rootTabbedPaneUsingMontoya() != null) {
             sharedParameters.printDebugMessage("Adding listeners to main tools' tabs");

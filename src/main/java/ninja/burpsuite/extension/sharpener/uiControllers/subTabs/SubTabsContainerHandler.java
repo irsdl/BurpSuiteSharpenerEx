@@ -319,7 +319,7 @@ public class SubTabsContainerHandler {
             // this is because Burp does use the default colour when an item is changed - we have a workaround for that but
             // the workaround stops reset to default to change the colour as well, so we need another workaround!!!
             TabFeaturesObjectStyle tfosDefault = sharedParameters.defaultTabFeaturesObjectStyle;
-            if(tfosDefault!=null){
+            if (tfosDefault != null) {
                 if (!sharedParameters.isDarkMode) {
                     // light mode workaround
                     tfosDefault.setColor(Color.decode("#010101"));
@@ -362,7 +362,7 @@ public class SubTabsContainerHandler {
                 maxIndex += 1;
 
             for (int index = 0; index < maxIndex; index++) {
-                if(parentTabbedPane.getTitleAt(index) != null){
+                if (parentTabbedPane.getTitleAt(index) != null) {
                     if (isCaseSensitive) {
                         cachedTabTitles.add(parentTabbedPane.getTitleAt(index).trim());
                     } else {
@@ -397,7 +397,7 @@ public class SubTabsContainerHandler {
     }
 
     public String[] getTitleHistory() {
-        if(titleHistory == null){
+        if (titleHistory == null) {
             titleHistory = new ArrayList<>();
         }
 
@@ -432,7 +432,7 @@ public class SubTabsContainerHandler {
         }
     }
 
-    public void makeUniqueTitle(){
+    public void makeUniqueTitle() {
         String title = getTabTitle().trim();
         if (!isCurrentTitleUnique(false)) {
             // We need to rename its title to become unique
@@ -441,7 +441,7 @@ public class SubTabsContainerHandler {
             while (newTitle.isEmpty() || !isNewTitleUnique(newTitle, false)) {
                 // we need to add a number to the title to make it a unique title
                 i++;
-                newTitle = "#" + i + " " + title ;
+                newTitle = "#" + i + " " + title;
             }
 
             TabFeaturesObject originalFO = sharedParameters.supportedTools_SubTabs.get(currentToolTab).get(title.toLowerCase().trim());
@@ -451,16 +451,16 @@ public class SubTabsContainerHandler {
                 updateByTabFeaturesObject(originalFO, false, true);
             } else {
                 // the original item has no style
-                setTabTitle(newTitle, false,true);
+                setTabTitle(newTitle, false, true);
             }
         }
     }
 
-    public String getLowercaseTrimmedTabTitle(){
+    public String getLowercaseTrimmedTabTitle() {
         return getTabTitle().toLowerCase().trim();
     }
 
-    public String getTabTitle(){
+    public String getTabTitle() {
         String title = "";
         if (getTabIndex() != -1)
             title = parentTabbedPane.getTitleAt(getTabIndex());
@@ -475,13 +475,14 @@ public class SubTabsContainerHandler {
             if (!ignoreHasChanges)
                 setHasChanges(true);
             title = StringUtils.abbreviate(title.trim(), 100);
-            if(keepHistory){
+            if (keepHistory) {
                 addTitleHistory(title, true);
             }
             parentTabbedPane.setTitleAt(getTabIndex(), title);
             refreshLocalTitleCache(false);
         }
     }
+
     public void setTabTitle(String title, boolean ignoreHasChanges) {
         setTabTitle(title, ignoreHasChanges, true);
     }
@@ -492,7 +493,7 @@ public class SubTabsContainerHandler {
         if (sharedParameters.isTabGroupSupportedByDefault)
             maxIndex += 1;
         for (int index = 0; index < maxIndex; index++) {
-            if(parentTabbedPane.getTitleAt(index) != null){
+            if (parentTabbedPane.getTitleAt(index) != null) {
                 if (isCaseSensitive) {
                     cachedTabTitles.add(parentTabbedPane.getTitleAt(index).trim());
                 } else {
@@ -809,16 +810,16 @@ public class SubTabsContainerHandler {
     public int getGroupCount() {
         int result = -1;
 
-        if(isGroupContainerTab()){
+        if (isGroupContainerTab()) {
             UiSpecObject groupCountLabelUSO = new UiSpecObject(JLabel.class);
             groupCountLabelUSO.set_isPartialName(true);
             groupCountLabelUSO.set_isCaseSensitiveName(false);
             groupCountLabelUSO.set_name("group");
             var currentTabGroupCountLabel = (JLabel) UIWalker.findUIObjectInSubComponents(currentTabContainer, 1, groupCountLabelUSO);
-            if(currentTabGroupCountLabel != null){
-                try{
+            if (currentTabGroupCountLabel != null) {
+                try {
                     result = Integer.parseInt(currentTabGroupCountLabel.getText());
-                }catch(Exception e){
+                } catch (Exception e) {
                     // Label was not numerical
                     result = 0;
                 }

@@ -21,37 +21,43 @@ public class BurpTitleAndIcon {
         removeMainFrameWindowFocusListener(sharedParameters);
     }
 
-    public static void changeTitleAndIcon(BurpExtensionSharedParameters sharedParameters, String title, Image img) {
-        setTitle(sharedParameters, title);
-        setIcon(sharedParameters, img);
+    public static void changeTitleAndIcon_noUiLock(BurpExtensionSharedParameters sharedParameters, String title, Image img) {
+        setTitle_noUiLock(sharedParameters, title);
+        setIcon_noUiLock(sharedParameters, img);
     }
 
     public static void setTitle(BurpExtensionSharedParameters sharedParameters, String title) {
+        sharedParameters.get_mainFrameUsingMontoya().setTitle(title);
+        sharedParameters.printDebugMessage("Burp Suite title was changed to: " + title);
+    }
+
+    public static void setTitle_noUiLock(BurpExtensionSharedParameters sharedParameters, String title) {
         SwingUtilities.invokeLater(() -> {
-            sharedParameters.get_mainFrameUsingMontoya().setTitle(title);
-            sharedParameters.printDebugMessage("Burp Suite title was changed to: " + title);
+            setTitle(sharedParameters, title);
         });
     }
 
     private static void setIcon(BurpExtensionSharedParameters sharedParameters, Image img) {
         if (img != null) {
-            SwingUtilities.invokeLater(() -> {
-
-                java.util.List<Image> iconList = new ArrayList<>();
-                iconList.add(img);
-                for (Window window : Window.getWindows()) {
-                    window.setIconImages(iconList);
-                }
+            java.util.List<Image> iconList = new ArrayList<>();
+            iconList.add(img);
+            for (Window window : Window.getWindows()) {
+                window.setIconImages(iconList);
+            }
                 /* another way?
                     for (Frame frame : Frame.getFrames()) {
                         frame.setIconImages(iconList);
                     }
                     sharedParameters.get_mainFrame().setIconImage(img);
                 */
-                sharedParameters.printDebugMessage("Burp Suite icon has been updated");
-
-            });
+            sharedParameters.printDebugMessage("Burp Suite icon has been updated");
         }
+    }
+
+    private static void setIcon_noUiLock(BurpExtensionSharedParameters sharedParameters, Image img) {
+        SwingUtilities.invokeLater(() -> {
+            setIcon(sharedParameters, img);
+        });
     }
 
     private static void removeMainFrameWindowFocusListener(BurpExtensionSharedParameters sharedParameters) {
@@ -74,7 +80,7 @@ public class BurpTitleAndIcon {
         }
 
         if (loadedImg != null) {
-            setIcon(sharedParameters, loadedImg);
+            setIcon_noUiLock(sharedParameters, loadedImg);
 
             if (sharedParameters.addedIconListener) {
                 removeMainFrameWindowFocusListener(sharedParameters);
@@ -84,12 +90,12 @@ public class BurpTitleAndIcon {
 
                 @Override
                 public void windowGainedFocus(WindowEvent e) {
-                    setIcon(sharedParameters, loadedImg);
+                    setIcon_noUiLock(sharedParameters, loadedImg);
                 }
 
                 @Override
                 public void windowLostFocus(WindowEvent e) {
-                    setIcon(sharedParameters, loadedImg);
+                    setIcon_noUiLock(sharedParameters, loadedImg);
                 }
             };
 

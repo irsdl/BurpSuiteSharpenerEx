@@ -17,7 +17,7 @@ public class TabFeaturesObject extends TabFeaturesObjectStyle {
     //public LinkedHashSet<String> titleHistory = new LinkedHashSet<>(); // https://github.com/CoreyD97/BurpExtenderUtilities/issues/7 we still can't keep the order using LinkedHashSet
     private String[] titleHistory = new String[]{};
 
-    public TabFeaturesObject(){
+    public TabFeaturesObject() {
         super();
     }
 

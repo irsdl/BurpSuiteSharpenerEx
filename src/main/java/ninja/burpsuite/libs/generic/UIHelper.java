@@ -31,7 +31,7 @@ public class UIHelper {
             output = defaultValue;
         }
 
-        if(output == null)
+        if (output == null)
             output = "";
 
         return output;
@@ -56,7 +56,7 @@ public class UIHelper {
                 output[i] = ((JTextField) strMessagesObjectList.get(i * 2 + 1)).getText();
             }
         }
-        if(output == null)
+        if (output == null)
             output = new String[strMessages.length];
         return output;
     }
@@ -71,7 +71,7 @@ public class UIHelper {
                 null,
                 msgOptions,
                 msgOptions[0]);
-        if(output == null)
+        if (output == null)
             output = -1;
         return output;
     }
@@ -129,16 +129,16 @@ public class UIHelper {
             filePath = _fileChooser.getSelectedFile().getAbsolutePath();
         }
 
-        if(filePath == null)
+        if (filePath == null)
             filePath = "";
 
         return filePath;
     }
 
-    public static boolean isFrameOutOffScreen(JFrame jframe, double offScreenMargin){
+    public static boolean isFrameOutOffScreen(JFrame jframe, double offScreenMargin) {
         boolean result = false;
-        try{
-            if(offScreenMargin > 1 || offScreenMargin < 0)
+        try {
+            if (offScreenMargin > 1 || offScreenMargin < 0)
                 offScreenMargin = 0;
 
             Rectangle bounds = new Rectangle(0, 0, 0, 0);
@@ -151,24 +151,24 @@ public class UIHelper {
             Rectangle frameBounds = jframe.getBounds();
             double widthOffset = offScreenMargin * frameBounds.getWidth();
             double heightOffset = offScreenMargin * frameBounds.getHeight();
-            Rectangle boundsWithThreshold = new Rectangle((int)(bounds.getX() - widthOffset),
-                    (int)(bounds.getY() - heightOffset),
-                    (int)(bounds.getWidth() + 2 * widthOffset),
-                    (int)(bounds.getHeight() + 2 * heightOffset)
+            Rectangle boundsWithThreshold = new Rectangle((int) (bounds.getX() - widthOffset),
+                    (int) (bounds.getY() - heightOffset),
+                    (int) (bounds.getWidth() + 2 * widthOffset),
+                    (int) (bounds.getHeight() + 2 * heightOffset)
             );
 
             result = !boundsWithThreshold.contains(frameBounds);
-        }catch(Exception e){
+        } catch (Exception e) {
             System.err.println("Error in isFrameOutOffScreen, it has been ignored");
         }
         return result;
     }
 
-    public static void moveFrameToCenter(JFrame jframe){
-        try{
+    public static void moveFrameToCenter(JFrame jframe) {
+        try {
             Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-            jframe.setLocation(dim.width/2-jframe.getSize().width/2, dim.height/2-jframe.getSize().height/2);
-        }catch(Exception e){
+            jframe.setLocation(dim.width / 2 - jframe.getSize().width / 2, dim.height / 2 - jframe.getSize().height / 2);
+        } catch (Exception e) {
             System.err.println("Error in moveFrameToCenter, it has been ignored");
         }
 

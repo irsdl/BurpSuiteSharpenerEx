@@ -110,15 +110,15 @@ public class UiSpecObject {
             return false;
         }
 
-        if (get_hasMouseListener() != null && get_hasMouseListener() != (((JComponent) component).getMouseListeners().length > 0)){
+        if (get_hasMouseListener() != null && get_hasMouseListener() != (((JComponent) component).getMouseListeners().length > 0)) {
             return false;
         }
 
-        if(get_hasToolTipText() != null && get_hasToolTipText() != (((JComponent) component).getToolTipText() != null)){
+        if (get_hasToolTipText() != null && get_hasToolTipText() != (((JComponent) component).getToolTipText() != null)) {
             return false;
         }
 
-        if(get_toolTipText() != null && !get_toolTipText().equals(((JComponent) component).getToolTipText())){
+        if (get_toolTipText() != null && !get_toolTipText().equals(((JComponent) component).getToolTipText())) {
             return false;
         }
 
@@ -254,7 +254,7 @@ public class UiSpecObject {
     }
 
     public Boolean get_hasToolTipText() {
-        if(_toolTipText != null){
+        if (_toolTipText != null) {
             this._hasToolTipText = true;
         }
         return _hasToolTipText;

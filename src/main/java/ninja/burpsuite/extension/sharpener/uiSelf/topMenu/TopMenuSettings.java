@@ -19,6 +19,7 @@ public class TopMenuSettings extends StandardSettings {
         super(sharedParameters);
         sharedParameters.printDebugMessage("TopMenuSettings");
     }
+
     @Override
     public void init() {
 
