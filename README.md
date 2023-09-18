@@ -1,6 +1,6 @@
 # Burp Suite Sharpener
-This extension should add a number of UI and functional features to Burp Suite to make working with it a bit easier.
-The latest version of this extension is only compatible with Burp Suite version 2023.10-22956 and above.
+This extension enhances Burp Suite by adding several UI and functional features, making it more user-friendly. 
+Refer to the "Burp Suite Compatibility" sections for detailed information on compatibility.
 
 <pre>
  ___  _                                      
@@ -14,7 +14,7 @@ The latest version of this extension is only compatible with Burp Suite version 
 
 # Installation
 * Download the latest jar file built by GitHub from [/releases/latest](https://github.com/irsdl/BurpSuiteSharpenerEx/releases/latest), or by going through the [Workflows' Artifacts](https://github.com/irsdl/BurpSuiteSharpenerEx/actions).
-* Add it to Burp Suite using the Extender tab
+* Add it to Burp Suite using the `Extensions` tab
 
 # Features
 * Making main tools' tabs more distinguishable by choosing a theme
@@ -36,12 +36,15 @@ The latest version of this extension is only compatible with Burp Suite version 
 * Support for PwnFox Firefox extension highlighter
 * Ability to save the last size and position of Burp Suite to move it to the same location next time
 * Ability to detect off-screen Burp Suite window to bring it to the centre
+* Ability to highlight HTTP and WebSocket requests in proxy by detecting the "tempcolorCOLORNAME" pattern and removing it
+* Ability to highlight HTTP and WebSocket requests and responses in proxy by detecting the "permcolorCOLORNAME" pattern
 
 # Burp Suite Compatibility and Reporting Errors
-As PortSwigger has a plan to update Burp Suite UI in a near future, some features in this extension may become redundant or unreliable.
-While we use this extension ourselves we can see potential errors from time to time, as an open source project, it relies on the community feedback for improvements and to fix the issues. Please report any errors in [issues](https://github.com/irsdl/BurpSuiteSharpenerEx/issues).
+This extension was last tested with the pro version 2023.10.1.1, the most recent stable release at the time of this documentation. It should also be compatible with the community edition.
 
-This extension has been tested against the latest early edition of pro version which was 2023.1 at the time of writing this document. It should however be also compatible with the community edition.
+For those keen on using the latest updates, the early-adapter branch is available.
+
+We actively use this extension and occasionally observe potential errors, particularly when Burp Suite updates its core functionalities or UI. As an open-source project, we heavily rely on community feedback for enhancements and bug fixes. If you encounter any issues, kindly report them on our [issues page](https://github.com/irsdl/BurpSuiteSharpenerEx/issues). Additionally, if you value our work, please consider [sponsoring](https://github.com/sponsors/irsdl) this project.
 
 # Using the Legacy Extension
 In the latest version of this extension, only the most recent version of Burp Suite is supported, as noted above. For older versions of Burp Suite, you can use the legacy version of the extension or refer to the original repository.
