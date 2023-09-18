@@ -58,7 +58,7 @@ jobs:
       - name: Release
         uses: irsdl/release-action@v1.12.0
         with:
-          tag: ${{ steps.vars.outputs.release_tag }}
+          tag: $RELEASE_TAG
           body: "This jar file has been built by GitHub automatically.\nYou can view the latest version number in the [extension.properties](../../blob/main/src/main/resources/extension.properties) file."
           allowUpdates: true
           artifacts: "releases/*.jar"
