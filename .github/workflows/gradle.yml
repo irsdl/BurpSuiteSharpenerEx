@@ -14,10 +14,11 @@ on:
 
 jobs:
   build:
+    if: github.event_name != 'pull_request' || github.head_ref != 'early-adopter' || github.base_ref != 'main'
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up JDK 19
         uses: actions/setup-java@v3
         with:
@@ -58,10 +59,11 @@ jobs:
       - name: Delete the previous tag
         if: env.PREVIOUS_TAG != ''
         run: |
-          curl -X DELETE \
-               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-               "https://api.github.com/repos/${{ github.repository }}/git/refs/tags/${{ env.PREVIOUS_TAG }}"
-      - name: Extract version
+          gh release delete ${{ env.PREVIOUS_TAG }} -y
+          git push origin --delete ${{ env.PREVIOUS_TAG }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract new version
         id: get_version
         run: |
           VERSION=$(grep "^version=" src/main/resources/extension.properties | awk -F'=' '{print $2}')
@@ -70,15 +72,15 @@ jobs:
         id: vars
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "RELEASE_TAG=main_${VERSION}_by_github" >> $GITHUB_ENV
+            echo "RELEASE_TAG=main_${VERSION}" >> $GITHUB_ENV
           else
-            echo "RELEASE_TAG=early_adopter_${VERSION}_by_github" >> $GITHUB_ENV
+            echo "RELEASE_TAG=early_adopter_${VERSION}" >> $GITHUB_ENV
           fi
-      - name: Release
-        uses: irsdl/release-action@v1.12.0
-        with:
-          tag: ${{ env.RELEASE_TAG }}
-          body: "This jar file has been built by GitHub automatically.\nYou can view the latest version number in the [extension.properties](../../blob/main/src/main/resources/extension.properties) file."
-          allowUpdates: true
-          artifacts: "releases/*.jar"
-          draft: false
+      - name: Create Release using GitHub CLI
+        run: |
+          gh release create ${{ env.RELEASE_TAG }} ./releases/*.jar \
+            --title "Release ${{ env.RELEASE_TAG }}" \
+            --notes "This jar file has been built by GitHub automatically." \
+            --repo ${{ github.repository }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
