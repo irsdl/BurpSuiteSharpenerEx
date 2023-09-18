@@ -70,15 +70,18 @@ jobs:
         id: vars
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "RELEASE_TAG=main_${VERSION}_by_github" >> $GITHUB_ENV
+            echo "RELEASE_TAG=main_${VERSION}" >> $GITHUB_ENV
           else
-            echo "RELEASE_TAG=early_adopter_${VERSION}_by_github" >> $GITHUB_ENV
+            echo "RELEASE_TAG=early_adopter_${VERSION}" >> $GITHUB_ENV
           fi
-      - name: Release
-        uses: irsdl/release-action@v1.12.0
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Provided by GitHub, no need to set up
         with:
-          tag: ${{ env.RELEASE_TAG }}
-          body: "This jar file has been built by GitHub automatically.\nYou can view the latest version number in the [extension.properties](../../blob/main/src/main/resources/extension.properties) file."
-          allowUpdates: true
-          artifacts: "releases/*.jar"
+          tag_name: ${{ env.RELEASE_TAG }}
+          release_name: Release ${{ env.RELEASE_TAG }}
+          body: |
+            This jar file has been built by GitHub automatically.
           draft: false
+          prerelease: false
