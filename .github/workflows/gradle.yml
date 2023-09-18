@@ -59,9 +59,10 @@ jobs:
       - name: Delete the previous tag
         if: env.PREVIOUS_TAG != ''
         run: |
-          curl -X DELETE \
-               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-               "https://api.github.com/repos/${{ github.repository }}/git/refs/tags/${{ env.PREVIOUS_TAG }}"
+          gh release delete ${{ env.PREVIOUS_TAG }} -y
+          git push origin --delete ${{ env.PREVIOUS_TAG }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Extract new version
         id: get_version
         run: |
@@ -75,12 +76,11 @@ jobs:
           else
             echo "RELEASE_TAG=early_adopter_${VERSION}" >> $GITHUB_ENV
           fi
-      - name: Release
-        uses: irsdl/release-action@v1.13.0
-        with:
-          tag: ${{ env.RELEASE_TAG }}
-          body: "This jar file has been built by GitHub automatically."
-          allowUpdates: true
-          artifacts: "releases/*.jar"
-          draft: false
-          prerelease: false
+      - name: Create Release using GitHub CLI
+        run: |
+          gh release create ${{ env.RELEASE_TAG }} ./releases/*.jar \
+            --title "Release ${{ env.RELEASE_TAG }}" \
+            --notes "This jar file has been built by GitHub automatically." \
+            --repo ${{ github.repository }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
