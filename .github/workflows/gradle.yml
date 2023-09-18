@@ -4,6 +4,10 @@
 name: Java CI with Gradle
 
 on:
+  push:
+    branches:
+      - main
+      - early-adapter
   pull_request:
     branches:
       - main
