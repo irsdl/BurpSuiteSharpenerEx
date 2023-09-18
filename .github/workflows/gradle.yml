@@ -36,14 +36,6 @@ jobs:
         with:
           path: ./releases/*.jar
           name: Downloadable Extension File
-      - name: Delete older releases
-        uses: irsdl/delete-older-releases@v0.2.1
-        with:
-          repo: irsdl/BurpSuiteSharpenerEx
-          keep_latest: 0
-          delete_tags: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Set release tag based on branch
         id: vars
         run: |
@@ -52,6 +44,12 @@ jobs:
           else
             echo "::set-output name=release_tag::early_adapter_latest_build_by_github"
           fi
+      - name: Delete the tag
+        run: |
+          TAG_TO_DELETE=${{ steps.vars.outputs.release_tag }}
+          curl -X DELETE \
+               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+               "https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$TAG_TO_DELETE"
       - name: Release
         uses: irsdl/release-action@v1.12.0
         with:
