@@ -44,9 +44,9 @@ jobs:
         id: vars
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "::set-output name=release_tag::main_latest_build"
+            echo "::set-output name=release_tag::main_latest_build_by_github"
           else
-            echo "::set-output name=release_tag::early_adapter_latest_build"
+            echo "::set-output name=release_tag::early_adapter_latest_build_by_github"
           fi
       - name: Release
         uses: irsdl/release-action@v1.12.0
