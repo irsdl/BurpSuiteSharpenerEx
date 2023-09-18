@@ -117,8 +117,8 @@ public class ManualHighlighterRequestResponseHandler implements ProxyRequestHand
     @Override
     public ProxyResponseReceivedAction handleResponseReceived(InterceptedResponse interceptedResponse) {
         if (capabilitySettings.isEnabled()) {
-            var responseString =
-                    sharedParameters.montoyaApi.utilities().byteUtils().convertToString(interceptedResponse.toByteArray().getBytes());
+            var responseString = interceptedResponse.toString();
+                    //sharedParameters.montoyaApi.utilities().byteUtils().convertToString(interceptedResponse.toByteArray().getBytes());
             Matcher highlightMatcherStay = highlightPatternStayPattern.matcher(responseString);
             if (highlightMatcherStay.find()) {
                 String color = highlightMatcherStay.group(1);
