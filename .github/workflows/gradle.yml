@@ -61,7 +61,7 @@ jobs:
           curl -X DELETE \
                -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                "https://api.github.com/repos/${{ github.repository }}/git/refs/tags/${{ env.PREVIOUS_TAG }}"
-      - name: Extract version
+      - name: Extract new version
         id: get_version
         run: |
           VERSION=$(grep "^version=" src/main/resources/extension.properties | awk -F'=' '{print $2}')
@@ -78,7 +78,7 @@ jobs:
         uses: irsdl/release-action@v1.13.0
         with:
           tag: ${{ env.RELEASE_TAG }}
-          body: "This jar file has been built by GitHub automatically.\nYou can view the latest version number in the [extension.properties](../../blob/main/src/main/resources/extension.properties) file."
+          body: "This jar file has been built by GitHub automatically."
           allowUpdates: true
           artifacts: "releases/*.jar"
           draft: false
