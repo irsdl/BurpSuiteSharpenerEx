@@ -4,14 +4,10 @@
 name: Java CI with Gradle
 
 on:
-  push:
-    branches: [ main ]
-    tags:
-      - 'v*'
   pull_request:
-    branches: [ main ]
-    tags:
-      - 'v*'
+    branches:
+      - main
+      - early-adapter
 
 jobs:
   build:
@@ -39,13 +35,23 @@ jobs:
       - name: Delete older releases
         uses: irsdl/delete-older-releases@v0.2.1
         with:
+          repo: irsdl/BurpSuiteSharpenerEx
           keep_latest: 0
+          delete_tags: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set release tag based on branch
+        id: vars
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "::set-output name=release_tag::main_latest_build"
+          else
+            echo "::set-output name=release_tag::early_adapter_latest_build"
+          fi
       - name: Release
         uses: irsdl/release-action@v1.12.0
         with:
-          tag: "latest_build_by_github"
+          tag: ${{ steps.vars.outputs.release_tag }}
           body: "This jar file has been built by GitHub automatically.\nYou can view the latest version number in the [extension.properties](../../blob/main/src/main/resources/extension.properties) file."
           allowUpdates: true
           artifacts: "releases/*.jar"
