@@ -7,7 +7,7 @@ on:
   push:
     branches:
       - main
-      - early-adapter
+      - early-adopter
   pull_request:
     branches:
       - main
@@ -41,7 +41,7 @@ jobs:
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             PREFIX="main_"
           else
-            PREFIX="early_adapter_"
+            PREFIX="early_adopter_"
           fi
           PREVIOUS_TAG=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                              https://api.github.com/repos/${{ github.repository }}/git/refs/tags \
@@ -72,7 +72,7 @@ jobs:
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "RELEASE_TAG=main_${VERSION}_by_github" >> $GITHUB_ENV
           else
-            echo "RELEASE_TAG=early_adapter_${VERSION}_by_github" >> $GITHUB_ENV
+            echo "RELEASE_TAG=early_adopter_${VERSION}_by_github" >> $GITHUB_ENV
           fi
       - name: Release
         uses: irsdl/release-action@v1.12.0
