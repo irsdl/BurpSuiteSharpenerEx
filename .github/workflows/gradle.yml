@@ -5,13 +5,13 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ main ]
-    tags:
-      - 'v*'
+    branches:
+      - main
+      - early-adapter
   pull_request:
-    branches: [ main ]
-    tags:
-      - 'v*'
+    branches:
+      - main
+      - early-adapter
 
 jobs:
   build:
@@ -36,16 +36,29 @@ jobs:
         with:
           path: ./releases/*.jar
           name: Downloadable Extension File
-      - name: Delete older releases
-        uses: irsdl/delete-older-releases@v0.2.1
-        with:
-          keep_latest: 0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract version
+        id: get_version
+        run: |
+          VERSION=$(grep "^version=" src/main/resources/extension.properties | awk -F'=' '{print $2}')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - name: Set release tag based on branch
+        id: vars
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "RELEASE_TAG=main_${VERSION}_by_github" >> $GITHUB_ENV
+          else
+            echo "RELEASE_TAG=early_adapter_${VERSION}_by_github" >> $GITHUB_ENV
+          fi
+      - name: Delete the tag
+        run: |
+          TAG_TO_DELETE=$RELEASE_TAG
+          curl -X DELETE \
+               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+               "https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$TAG_TO_DELETE"
       - name: Release
         uses: irsdl/release-action@v1.12.0
         with:
-          tag: "latest_build_by_github"
+          tag: ${{ env.RELEASE_TAG }}
           body: "This jar file has been built by GitHub automatically.\nYou can view the latest version number in the [extension.properties](../../blob/main/src/main/resources/extension.properties) file."
           allowUpdates: true
           artifacts: "releases/*.jar"
