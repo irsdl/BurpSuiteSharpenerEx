@@ -36,13 +36,18 @@ jobs:
         with:
           path: ./releases/*.jar
           name: Downloadable Extension File
+      - name: Extract version
+        id: get_version
+        run: |
+          VERSION=$(grep "^version=" src/main/resources/extension.properties | awk -F'=' '{print $2}')
+          echo "::set-output name=version::$VERSION"
       - name: Set release tag based on branch
         id: vars
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "::set-output name=release_tag::main_latest_build_by_github"
+            echo "::set-output name=release_tag::main_${{ steps.get_version.outputs.version }}_by_github"
           else
-            echo "::set-output name=release_tag::early_adapter_latest_build_by_github"
+            echo "::set-output name=release_tag::early_adapter_${{ steps.get_version.outputs.version }}_by_github"
           fi
       - name: Delete the tag
         run: |
