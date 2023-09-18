@@ -7,11 +7,10 @@ on:
   push:
     branches:
       - main
-      - early-adapter
+      - early-adopter
   pull_request:
     branches:
       - main
-      - early-adapter
 
 jobs:
   build:
@@ -36,6 +35,32 @@ jobs:
         with:
           path: ./releases/*.jar
           name: Downloadable Extension File
+      - name: Get previous tag for the branch
+        id: get_previous_tag
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            PREFIX="main_"
+          else
+            PREFIX="early_adopter_"
+          fi
+          PREVIOUS_TAG=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                             https://api.github.com/repos/${{ github.repository }}/git/refs/tags \
+                             | jq -r ".[] | select(.ref | startswith(\"refs/tags/${PREFIX}\")) | .ref" \
+                             | sort -V | tail -n 1 | sed "s|refs/tags/||")
+          
+          # Check if we found a tag
+          if [[ -z "$PREVIOUS_TAG" ]]; then
+              echo "No previous tag found for prefix ${PREFIX}."
+              echo "PREVIOUS_TAG=" >> $GITHUB_ENV
+          else
+              echo "PREVIOUS_TAG=$PREVIOUS_TAG" >> $GITHUB_ENV
+          fi
+      - name: Delete the previous tag
+        if: env.PREVIOUS_TAG != ''
+        run: |
+          curl -X DELETE \
+               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+               "https://api.github.com/repos/${{ github.repository }}/git/refs/tags/${{ env.PREVIOUS_TAG }}"
       - name: Extract version
         id: get_version
         run: |
@@ -47,14 +72,8 @@ jobs:
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "RELEASE_TAG=main_${VERSION}_by_github" >> $GITHUB_ENV
           else
-            echo "RELEASE_TAG=early_adapter_${VERSION}_by_github" >> $GITHUB_ENV
+            echo "RELEASE_TAG=early_adopter_${VERSION}_by_github" >> $GITHUB_ENV
           fi
-      - name: Delete the tag
-        run: |
-          TAG_TO_DELETE=$RELEASE_TAG
-          curl -X DELETE \
-               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-               "https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$TAG_TO_DELETE"
       - name: Release
         uses: irsdl/release-action@v1.12.0
         with:
