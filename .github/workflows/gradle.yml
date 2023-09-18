@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up JDK 19
         uses: actions/setup-java@v3
         with:
@@ -74,14 +74,12 @@ jobs:
           else
             echo "RELEASE_TAG=early_adopter_${VERSION}" >> $GITHUB_ENV
           fi
-      - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Provided by GitHub, no need to set up
+      - name: Release
+        uses: irsdl/release-action@v1.13.0
         with:
-          tag_name: ${{ env.RELEASE_TAG }}
-          release_name: Release ${{ env.RELEASE_TAG }}
-          body: |
-            This jar file has been built by GitHub automatically.
+          tag: ${{ env.RELEASE_TAG }}
+          body: "This jar file has been built by GitHub automatically.\nYou can view the latest version number in the [extension.properties](../../blob/main/src/main/resources/extension.properties) file."
+          allowUpdates: true
+          artifacts: "releases/*.jar"
           draft: false
           prerelease: false
