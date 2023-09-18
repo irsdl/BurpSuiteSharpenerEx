@@ -1,5 +1,6 @@
 # Burp Suite Sharpener
 This extension enhances Burp Suite by adding several UI and functional features, making it more user-friendly. 
+
 Refer to the "Burp Suite Compatibility" sections for detailed information on compatibility.
 
 <pre>
