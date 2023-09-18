@@ -57,7 +57,7 @@ public class BurpFrameSettings extends StandardSettings {
             }
         }
 
-        PreferenceObject preferenceObject = new PreferenceObject("useLastScreenPositionAndSize", boolean.class, true, Preferences.Visibility.GLOBAL);
+        PreferenceObject preferenceObject = new PreferenceObject("useLastScreenPositionAndSize", boolean.class, false, Preferences.Visibility.GLOBAL);
         preferenceObjectCollection.add(preferenceObject);
 
         preferenceObject = new PreferenceObject("detectOffScreenPosition", boolean.class, true, Preferences.Visibility.GLOBAL);

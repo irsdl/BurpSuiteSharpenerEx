@@ -21,6 +21,8 @@ import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BurpExtensionSharedParameters {
 
@@ -169,8 +171,29 @@ public class BurpExtensionSharedParameters {
             if (montoyaApi.burpSuite().version().edition().name().toLowerCase().contains("professional"))
                 this.isBurpPro = true;
 
-            this.burpMajorVersion = Double.parseDouble(montoyaApi.burpSuite().version().major());
-            this.burpMinorVersion = Double.parseDouble(montoyaApi.burpSuite().version().minor());
+            try{
+                this.burpMajorVersion = Double.parseDouble(montoyaApi.burpSuite().version().major());
+            }catch(Exception e){
+                // this means the major version now cannot be converted to numbers!
+                // a regular expression to match the numbers with an optional decimal pointer following by two digits
+                String regex = "\\b(\\d+\\.\\d{1,2}|\\d+)\\b";
+                Matcher m = Pattern.compile(regex).matcher(montoyaApi.burpSuite().version().major());
+                if (m.find()) {
+                    this.burpMajorVersion = Double.parseDouble(m.group(1));
+                }
+            }
+
+            try{
+                this.burpMinorVersion = Double.parseDouble(montoyaApi.burpSuite().version().minor());
+            }catch(Exception e){
+                // this means the major version now cannot be converted to numbers!
+                // a regular expression to match the numbers with an optional decimal pointer following by two digits
+                String regex = "\\b(\\d+\\.\\d{1,2}|\\d+)\\b";
+                Matcher m = Pattern.compile(regex).matcher(montoyaApi.burpSuite().version().minor());
+                if (m.find()) {
+                    this.burpMinorVersion = Double.parseDouble(m.group(1));
+                }
+            }
 
         } catch (Exception e) {
             printlnError(e.getMessage());
