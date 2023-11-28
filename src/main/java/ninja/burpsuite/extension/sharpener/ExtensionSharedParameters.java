@@ -38,6 +38,7 @@ public class ExtensionSharedParameters extends BurpExtensionSharedParameters {
     public boolean isTitleFilterNegative = false;
     public boolean isTabGroupSupportedByDefault = false;
     public boolean isSubTabScrollSupportedByDefault = false;
+    public String burpSupportedColorNames = "Red|Orange|Yellow|Green|Cyan|Blue|Pink|Magenta|Gray"; // from burp.api.montoya.core.HighlightColor
     public HashMap<BurpUITools.MainTabs, Integer> filterOperationMode = new HashMap<>();
     public HashMap<BurpUITools.MainTabs, LinkedList<Integer>> subTabPreviouslySelectedIndexHistory = new HashMap<>();
     public HashMap<BurpUITools.MainTabs, LinkedList<Integer>> subTabNextlySelectedIndexHistory = new HashMap<>();

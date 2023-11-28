@@ -172,6 +172,7 @@ public class BurpExtensionSharedParameters {
                 this.isBurpPro = true;
 
             try{
+                //TODO: replace this and minor version with the new method in MontoyaApi (buildNumber() --> its format is like YYYY_MM_RR_PPP_BBBBBB (Year, month, release, patch, build number)
                 this.burpMajorVersion = Double.parseDouble(montoyaApi.burpSuite().version().major());
             }catch(Exception e){
                 // this means the major version now cannot be converted to numbers!

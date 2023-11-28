@@ -13,16 +13,16 @@ repositories {
 }
 
 dependencies {
-    compileOnly "net.portswigger.burp.extensions:montoya-api:2023.10.3" //https://central.sonatype.com/artifact/net.portswigger.burp.extensions/montoya-api/
+    compileOnly "net.portswigger.burp.extensions:montoya-api:2023.10.4" //https://central.sonatype.com/artifact/net.portswigger.burp.extensions/montoya-api/
     implementation "com.github.CoreyD97:Burp-Montoya-Utilities:54678c64" //https://jitpack.io/com/github/CoreyD97/Burp-Montoya-Utilities/
     //implementation "com.google.code.gson:gson:2.10.1" //https://mvnrepository.com/artifact/com.google.code.gson/gson
-    implementation "com.google.guava:guava:32.1.2-jre" //https://mvnrepository.com/artifact/com.google.guava/guava
-    implementation "org.apache.commons:commons-lang3:3.13.0" //https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
-    implementation "com.formdev:flatlaf:3.2.1" //https://mvnrepository.com/artifact/com.formdev/flatlaf
-    implementation "org.springframework:spring-core:6.0.12" //https://mvnrepository.com/artifact/org.springframework/spring-core
+    implementation "com.google.guava:guava:32.1.3-jre" //https://mvnrepository.com/artifact/com.google.guava/guava
+    implementation "org.apache.commons:commons-lang3:3.14.0" //https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    implementation "com.formdev:flatlaf:3.2.5" //https://mvnrepository.com/artifact/com.formdev/flatlaf
+    implementation "org.springframework:spring-core:6.0.14" //https://mvnrepository.com/artifact/org.springframework/spring-core
     implementation "com.fifesoft:rsyntaxtextarea:3.3.4" //https://mvnrepository.com/artifact/com.fifesoft/rsyntaxtextarea/
     implementation "com.fifesoft:autocomplete:3.3.1" //https://mvnrepository.com/artifact/com.fifesoft/autocomplete
-    implementation "org.reflections:reflections:0.10.2" // https://mvnrepository.com/artifact/org.reflections/reflections/0.10.2
+    implementation "org.reflections:reflections:0.10.2" // https://mvnrepository.com/artifact/org.reflections/reflections/
 
 }
 

@@ -24,14 +24,19 @@ public class ManualHighlighterRequestResponseHandler implements ProxyRequestHand
     CapabilitySettings capabilitySettings;
 
     // the shortest color is red and the longest is magenta in Burp Suite HighlightColor
-    String highlightPatternToBeRemovedStr = "tempcolor([a-z]{3,7}+)";
-    String highlightPatternStayStr = "permcolor([a-z]{3,7}+)";
-    Pattern highlightPatternToBeRemoved = Pattern.compile(highlightPatternToBeRemovedStr, Pattern.CASE_INSENSITIVE);
-    Pattern highlightPatternStayPattern = Pattern.compile(highlightPatternStayStr, Pattern.CASE_INSENSITIVE);
+    String highlightPatternToBeRemovedStr = "";
+    String highlightPatternStayStr = "";
+    Pattern highlightPatternToBeRemoved;
+    Pattern highlightPatternStayPattern;
 
     public ManualHighlighterRequestResponseHandler(ExtensionSharedParameters sharedParameters, CapabilitySettings capabilitySettings) {
         this.sharedParameters = sharedParameters;
         this.capabilitySettings = capabilitySettings;
+
+        highlightPatternToBeRemovedStr = "tempcolor("+sharedParameters.burpSupportedColorNames+")";
+        highlightPatternStayStr = "permcolor("+sharedParameters.burpSupportedColorNames+")";
+        highlightPatternToBeRemoved = Pattern.compile(highlightPatternToBeRemovedStr, Pattern.CASE_INSENSITIVE);
+        highlightPatternStayPattern = Pattern.compile(highlightPatternStayStr, Pattern.CASE_INSENSITIVE);
     }
 
     // REQUEST
