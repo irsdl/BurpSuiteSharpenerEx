@@ -172,6 +172,7 @@ public class BurpExtensionSharedParameters {
                 this.isBurpPro = true;
 
             try{
+                //TODO: replace this and minor version with the new method in MontoyaApi (buildNumber() --> its format is like YYYY_MM_RR_PPP_BBBBBB (Year, month, release, patch, build number)
                 this.burpMajorVersion = Double.parseDouble(montoyaApi.burpSuite().version().major());
             }catch(Exception e){
                 // this means the major version now cannot be converted to numbers!
@@ -427,18 +428,34 @@ public class BurpExtensionSharedParameters {
         if (this._rootTabbedPane == null) {
             try {
                 JRootPane rootPane = ((JFrame) montoyaApi.userInterface().swingUtils().suiteFrame()).getRootPane();
-                set_rootTabbedPane((JTabbedPane) rootPane.getContentPane().getComponent(0));
+                Component firstComponent = rootPane.getContentPane().getComponent(0);
+
+                if (firstComponent instanceof JTabbedPane) {
+                    set_rootTabbedPane((JTabbedPane) firstComponent);
+                } else {
+                    // fix for version 2023.12.1-25776
+                    set_rootTabbedPane((JTabbedPane)  ((JLayeredPane) firstComponent).getComponent(1));
+                }
             } catch (Exception e) {
                 // This is to find the root of the Burp Suite frame when the above fails
                 // We should not really be here
                 printlnError("A failure in get_rootTabbedPaneUsingMontoya() has occurred. Hopefully this will be recovered now.");
                 // Defining how our Burp Suite frame is
-                UiSpecObject uiSpecObject = new UiSpecObject();
-                uiSpecObject.set_objectType(JFrame.class);
-                uiSpecObject.set_isShowing(true);
+                UiSpecObject uiSpecObject_for_rootPane = new UiSpecObject();
+                uiSpecObject_for_rootPane.set_objectType(JFrame.class);
+                uiSpecObject_for_rootPane.set_isShowing(true);
 
-                JRootPane rootPane = ((JFrame) UIWalker.findUIObjectInComponents(JFrame.getWindows(), uiSpecObject)).getRootPane();
-                set_rootTabbedPane((JTabbedPane) rootPane.getContentPane().getComponent(0));
+                JRootPane rootPane = ((JFrame) UIWalker.findUIObjectInComponents(JFrame.getWindows(), uiSpecObject_for_rootPane)).getRootPane();
+
+                UiSpecObject uiSpecObject_for_JTabbedPane = new UiSpecObject();
+                uiSpecObject_for_JTabbedPane.set_objectType(JTabbedPane.class);
+                uiSpecObject_for_JTabbedPane.set_isShowing(true);
+                uiSpecObject_for_JTabbedPane.set_isJComponent(true);
+                uiSpecObject_for_JTabbedPane.set_minJComponentCount(2);
+
+                JTabbedPane jTabbedPane = ((JTabbedPane) UIWalker.findUIObjectInSubComponents(rootPane, 4, uiSpecObject_for_JTabbedPane));
+
+                set_rootTabbedPane(jTabbedPane);
             }
         }
         return this._rootTabbedPane;

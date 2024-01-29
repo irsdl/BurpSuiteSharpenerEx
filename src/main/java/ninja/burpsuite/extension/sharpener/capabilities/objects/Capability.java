@@ -13,19 +13,20 @@ public class Capability implements Serializable {
     public List<CapabilityGroup> capabilityGroupList = new ArrayList<>();
     public String implementationClassName = ""; // this is used when loading the capability
     public int order = 100000; // this is used when sorting the capabilities
-
+    public boolean enabledByDefault = false; // this is used when sorting the capabilities
     // constructor for the capability
     public Capability(String name, String description, String settingName, List<CapabilityGroup> capabilityGroupList, String implementationClassName) {
-        this(name, description, settingName, capabilityGroupList, implementationClassName, 100000);
+        this(name, description, settingName, capabilityGroupList, implementationClassName, 100000, false);
     }
 
-    public Capability(String name, String description, String settingName, List<CapabilityGroup> capabilityGroupList, String implementationClassName, int order) {
+    public Capability(String name, String description, String settingName, List<CapabilityGroup> capabilityGroupList, String implementationClassName, int order, boolean enabledByDefault) {
         this.name = name;
         this.description = description;
         this.settingName = settingName;
         this.capabilityGroupList = capabilityGroupList;
         this.implementationClassName = implementationClassName;
         this.order = order;
+        this.enabledByDefault = enabledByDefault;
     }
 
     // create the class object for the implemented capability using implementationClassName and reflection

@@ -23,7 +23,7 @@ public class PwnFoxSettings extends CapabilitySettings {
                         "pwnFoxSupportCapability",
                         Arrays.asList(CapabilityGroup.PROXY_REQUEST_HANDLER),
                         "ninja.burpsuite.extension.sharpener.capabilities.implementations.PwnFoxProxyRequestHandler",
-                        50000));
+                        50000, true));
     }
 
     @Override

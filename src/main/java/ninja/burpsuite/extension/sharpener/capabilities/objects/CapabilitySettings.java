@@ -16,7 +16,7 @@ public abstract class CapabilitySettings extends StandardSettings {
 
     private void registerStateSetting() {
         try {
-            sharedParameters.preferences.registerSetting(capability.settingName, boolean.class, false, Preferences.Visibility.GLOBAL);
+            sharedParameters.preferences.registerSetting(capability.settingName, boolean.class, capability.enabledByDefault, Preferences.Visibility.GLOBAL);
         } catch (Exception e) {
             //already registered setting
             sharedParameters.printDebugMessage(e.getMessage());
@@ -25,8 +25,7 @@ public abstract class CapabilitySettings extends StandardSettings {
         }
     }
 
-    public boolean isEnabled() {
-        return sharedParameters.preferences.safeGetSetting(capability.settingName, false);
+    public boolean isEnabled() {return sharedParameters.preferences.safeGetSetting(capability.settingName, capability.enabledByDefault);
     }
 
     public void setEnabled(boolean enabled) {

@@ -23,7 +23,7 @@ public class ManualHighlighterSettings extends CapabilitySettings {
                         "manualHighlightCapability",
                         Arrays.asList(CapabilityGroup.PROXY_REQUEST_HANDLER, CapabilityGroup.PROXY_RESPONSE_HANDLER, CapabilityGroup.WEBSOCKET_CREATION_HANDLER),
                         "ninja.burpsuite.extension.sharpener.capabilities.implementations.ManualHighlighterRequestResponseHandler",
-                        10000));
+                        10000, true));
     }
 
     @Override
