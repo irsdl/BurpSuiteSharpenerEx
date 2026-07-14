@@ -9,6 +9,7 @@ package ninja.burpsuite.extension.sharpener.uiSelf.topMenu;
 import com.coreyd97.BurpExtenderUtilities.Preferences;
 import ninja.burpsuite.extension.sharpener.ExtensionMainClass;
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
+import ninja.burpsuite.extension.sharpener.capabilities.implementations.PwnFoxSettings;
 import ninja.burpsuite.extension.sharpener.uiControllers.mainTabs.MainTabsStyleHandler;
 import ninja.burpsuite.libs.burp.generic.BurpExtensionSharedParameters;
 import ninja.burpsuite.libs.burp.generic.BurpTitleAndIcon;
@@ -236,6 +237,16 @@ public class TopMenu extends javax.swing.JMenu {
                     }
                 });
                 supportedCapabilitiesMenu.add(capabilityOption);
+
+                // PwnFox sub-option: remove or keep the X-PwnFox-Color header (issue #24)
+                if (capabilitySetting instanceof PwnFoxSettings) {
+                    PwnFoxSettings pwnFoxSettings = (PwnFoxSettings) capabilitySetting;
+                    JCheckBoxMenuItem removeHeaderOption = new JCheckBoxMenuItem("PwnFox: Remove the color header");
+                    removeHeaderOption.setToolTipText("Removes the X-PwnFox-Color header before the request is sent. Untick it to keep the header for other extensions or tools.");
+                    removeHeaderOption.setSelected(pwnFoxSettings.isHeaderRemovalEnabled());
+                    removeHeaderOption.addActionListener((e) -> pwnFoxSettings.setHeaderRemovalEnabled(!pwnFoxSettings.isHeaderRemovalEnabled()));
+                    supportedCapabilitiesMenu.add(removeHeaderOption);
+                }
             }
 
             globalMenu.add(supportedCapabilitiesMenu);
