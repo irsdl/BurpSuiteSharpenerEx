@@ -36,7 +36,11 @@ jobs:
         with:
           path: ./releases/*.jar
           name: Downloadable Extension File
+      # The release steps below must only run for pushes to main or early-adopter.
+      # On pull_request events the ref is not a branch, so they would wrongly
+      # use the early_adopter_ prefix and replace a release from a PR build.
       - name: Get previous tag for the branch
+        if: github.event_name == 'push'
         id: get_previous_tag
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
@@ -57,18 +61,20 @@ jobs:
               echo "PREVIOUS_TAG=$PREVIOUS_TAG" >> $GITHUB_ENV
           fi
       - name: Delete the previous tag
-        if: env.PREVIOUS_TAG != ''
+        if: github.event_name == 'push' && env.PREVIOUS_TAG != ''
         run: |
           gh release delete ${{ env.PREVIOUS_TAG }} -y
           git push origin --delete ${{ env.PREVIOUS_TAG }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Extract new version
+        if: github.event_name == 'push'
         id: get_version
         run: |
           VERSION=$(grep "^version=" src/main/resources/extension.properties | awk -F'=' '{print $2}')
           echo "VERSION=$VERSION" >> $GITHUB_ENV
       - name: Set release tag based on branch
+        if: github.event_name == 'push'
         id: vars
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
@@ -77,6 +83,7 @@ jobs:
             echo "RELEASE_TAG=early_adopter_${VERSION}" >> $GITHUB_ENV
           fi
       - name: Create Release using GitHub CLI
+        if: github.event_name == 'push'
         run: |
           gh release create ${{ env.RELEASE_TAG }} ./releases/*.jar \
             --title "Release ${{ env.RELEASE_TAG }}" \
