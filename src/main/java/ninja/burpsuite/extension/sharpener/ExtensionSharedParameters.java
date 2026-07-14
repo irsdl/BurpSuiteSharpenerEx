@@ -38,6 +38,9 @@ public class ExtensionSharedParameters extends BurpExtensionSharedParameters {
     public boolean isTitleFilterNegative = false;
     public boolean isTabGroupSupportedByDefault = false;
     public boolean isSubTabScrollSupportedByDefault = false;
+    // Old Burp used the sub-tab background colour as the tab title text colour.
+    // New Burp paints the real tab background, so the text colour must be set on the title text field directly.
+    public boolean isTabTextColorSetByBackground = true;
     public String burpSupportedColorNames = "Red|Orange|Yellow|Green|Cyan|Blue|Pink|Magenta|Gray"; // from burp.api.montoya.core.HighlightColor
     public HashMap<BurpUITools.MainTabs, Integer> filterOperationMode = new HashMap<>();
     public HashMap<BurpUITools.MainTabs, LinkedList<Integer>> subTabPreviouslySelectedIndexHistory = new HashMap<>();
@@ -52,10 +55,11 @@ public class ExtensionSharedParameters extends BurpExtensionSharedParameters {
 
     private void loadingChecks() {
         // do stuff such as setting an initial parameter based on Burp suite version or its title etc.
-        if ((burpMajorVersion >= 2022 && burpMinorVersion >= 6) || burpMajorVersion >= 2023) {
-            this.isTabGroupSupportedByDefault = true;
-            this.isSubTabScrollSupportedByDefault = true;
-        }
+        // all supported Burp versions (2024.2 and later) have these features
+        this.isTabGroupSupportedByDefault = true;
+        this.isSubTabScrollSupportedByDefault = true;
+
+        this.isTabTextColorSetByBackground = isTabTextColorSetByBackgroundForVersion(burpMajorVersion);
 
         subTabSupportedTabs.add(BurpUITools.MainTabs.Repeater);
         subTabSupportedTabs.add(BurpUITools.MainTabs.Intruder);
@@ -66,6 +70,13 @@ public class ExtensionSharedParameters extends BurpExtensionSharedParameters {
             subTabPreviouslySelectedIndexHistory.put(supportedTabs, new LinkedList<>());
             subTabNextlySelectedIndexHistory.put(supportedTabs, new LinkedList<>());
         }
+    }
+
+    // Burp changed the sub-tab design around version 2026.
+    // Since then, the tab background colour is really painted as a background.
+    // Change this version check if the exact change point turns out to be different.
+    public static boolean isTabTextColorSetByBackgroundForVersion(double burpMajorVersion) {
+        return burpMajorVersion < 2026;
     }
 
     // A method to get list of subTabSupportedTabs which are accessible

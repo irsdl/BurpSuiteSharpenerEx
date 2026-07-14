@@ -1,0 +1,75 @@
+// Burp Suite Extension Name: Sharpener
+// Released under AGPL see LICENSE for more information
+// Developed by Soroush Dalili (@irsdl)
+// Released initially as open source by MDSec - https://www.mdsec.co.uk
+// Project link: https://github.com/mdsecresearch/BurpSuiteSharpener
+
+package ninja.burpsuite.extension.sharpener.objects;
+
+import org.junit.jupiter.api.Test;
+
+import java.awt.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TabFeaturesObjectStyleTest {
+
+    @Test
+    void colorIsStoredAsHexAndReadBack() {
+        TabFeaturesObjectStyle style = new TabFeaturesObjectStyle("test", "Dialog", 12, false, false, true, Color.RED, "", 0);
+        assertEquals("#ff0000", style.colorCode);
+        assertEquals(Color.RED, style.getColor());
+    }
+
+    @Test
+    void setColorUpdatesColorCode() {
+        TabFeaturesObjectStyle style = new TabFeaturesObjectStyle("test", "Dialog", 12, false, false, true, Color.RED, "", 0);
+        style.setColor(Color.decode("#010101"));
+        assertEquals("#010101", style.colorCode);
+        assertEquals(Color.decode("#010101"), style.getColor());
+    }
+
+    @Test
+    void invalidColorCodeFallsBackToBlack() {
+        TabFeaturesObjectStyle style = new TabFeaturesObjectStyle();
+        style.colorCode = "not-a-color";
+        assertEquals(Color.BLACK, style.getColor());
+    }
+
+    @Test
+    void equalsIgnoreColorIgnoresOnlyTheColor() {
+        TabFeaturesObjectStyle style1 = new TabFeaturesObjectStyle("a", "Dialog", 12, true, false, true, Color.RED, "", 0);
+        TabFeaturesObjectStyle style2 = new TabFeaturesObjectStyle("b", "Dialog", 12, true, false, true, Color.BLUE, "", 0);
+        assertFalse(style1.equals(style2));
+        assertTrue(style1.equalsIgnoreColor(style2));
+    }
+
+    @Test
+    void equalsComparesAllStyleValues() {
+        TabFeaturesObjectStyle style1 = new TabFeaturesObjectStyle("a", "Dialog", 12, true, false, true, Color.RED, "", 0);
+        TabFeaturesObjectStyle style2 = new TabFeaturesObjectStyle("b", "Dialog", 12, true, false, true, Color.RED, "", 0);
+        TabFeaturesObjectStyle style3 = new TabFeaturesObjectStyle("c", "Dialog", 14, true, false, true, Color.RED, "", 0);
+        assertTrue(style1.equals(style2));
+        assertFalse(style1.equals(style3));
+    }
+
+    @Test
+    void equalsComparesFontNamesByValue() {
+        // font names read from the UI are new string objects, so a value comparison is needed
+        TabFeaturesObjectStyle style1 = new TabFeaturesObjectStyle("a", new String("Dialog"), 12, true, false, true, Color.RED, "", 0);
+        TabFeaturesObjectStyle style2 = new TabFeaturesObjectStyle("b", new String("Dialog"), 12, true, false, true, Color.RED, "", 0);
+        assertTrue(style1.equals(style2));
+    }
+
+    @Test
+    void duplicateCreatesAnEqualButIndependentCopy() {
+        TabFeaturesObjectStyle original = new TabFeaturesObjectStyle("a", "Dialog", 12, true, false, true, Color.RED, "icon", 16);
+        TabFeaturesObjectStyle copy = original.duplicate();
+
+        assertTrue(original.equals(copy));
+
+        copy.setColor(Color.BLUE);
+        assertEquals(Color.RED, original.getColor());
+        assertEquals(Color.BLUE, copy.getColor());
+    }
+}

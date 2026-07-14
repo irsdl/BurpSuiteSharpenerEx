@@ -139,15 +139,10 @@ public class TopMenu extends javax.swing.JMenu {
                 if (tool.toString().equalsIgnoreCase("none"))
                     continue;
 
-                if (sharedParameters.burpMajorVersion >= 2023 && (
-                        tool.equals(BurpUITools.MainTabs.Extender) ||
-                                tool.equals(BurpUITools.MainTabs.UserOptions) ||
-                                tool.equals(BurpUITools.MainTabs.ProjectOptions)
-                )) {
-                    continue;
-                } else if (sharedParameters.burpMajorVersion < 2023 && (
-                        tool.equals(BurpUITools.MainTabs.Extensions)
-                )) {
+                // these tabs do not exist in supported Burp versions (2024.2 and later)
+                if (tool.equals(BurpUITools.MainTabs.Extender) ||
+                        tool.equals(BurpUITools.MainTabs.UserOptions) ||
+                        tool.equals(BurpUITools.MainTabs.ProjectOptions)) {
                     continue;
                 }
 
@@ -309,7 +304,7 @@ public class TopMenu extends javax.swing.JMenu {
                     burpIconImage.setSelected(true);
                 }
                 burpIconImage.addActionListener((e) -> {
-                    BurpTitleAndIcon.setIcon(sharedParameters, resourcePath, 48, true);
+                    BurpTitleAndIcon.setIcon(sharedParameters, resourcePath, true);
                     sharedParameters.preferences.safeSetSetting("BurpResourceIconName", resourcePath, Preferences.Visibility.PROJECT);
                     sharedParameters.preferences.safeSetSetting("BurpIconCustomPath", "", Preferences.Visibility.PROJECT);
                 });
@@ -329,7 +324,7 @@ public class TopMenu extends javax.swing.JMenu {
                     FileFilter imageFilter = new FileNameExtensionFilter("Image files", ImageIO.getReaderFileSuffixes());
                     String newIconPath = UIHelper.showFileDialog(lastIconPath, imageFilter, sharedParameters.get_mainFrameUsingMontoya());
                     if (newIconPath != null && !newIconPath.trim().isEmpty()) {
-                        BurpTitleAndIcon.setIcon(sharedParameters, newIconPath, 48, false);
+                        BurpTitleAndIcon.setIcon(sharedParameters, newIconPath, false);
                         sharedParameters.preferences.safeSetSetting("BurpResourceIconName", "", Preferences.Visibility.PROJECT);
                         sharedParameters.preferences.safeSetSetting("BurpIconCustomPath", newIconPath, Preferences.Visibility.PROJECT);
                         sharedParameters.preferences.safeSetSetting("LastBurpIconCustomPath", newIconPath, Preferences.Visibility.PROJECT);

@@ -359,11 +359,6 @@ public class SubTabsActions {
                         " hidden tabs) | " + message;
             }
 
-        } else {
-            if (sharedParameters.burpMajorVersion < 2022
-                    || (sharedParameters.burpMajorVersion == 2022 && sharedParameters.burpMinorVersion < 6)) { // hidden from version 2022.6
-                message = "Filter: OFF | " + message;
-            }
         }
         notificationMenuItem.setText(message);
     }
@@ -504,16 +499,6 @@ public class SubTabsActions {
             popupMenu.add(profileMenu);
 
             JMenu customStyleMenu = new JMenu("Custom Style");
-            if (sharedParameters.burpMajorVersion < 2022
-                    || (sharedParameters.burpMajorVersion == 2022 && sharedParameters.burpMinorVersion < 6)) { // This does not work in version 2022.6 for unknown reasons
-                JCheckBoxMenuItem closeButtonMenuItem = new JCheckBoxMenuItem("Remove Close Button");
-                closeButtonMenuItem.addActionListener(e -> {
-                    currentSubTabsContainerHandler.setVisibleCloseButton(!closeButtonMenuItem.isSelected(), true);
-                    sharedParameters.allSettings.subTabsSettings.saveSettings(currentSubTabsContainerHandler);
-                });
-                closeButtonMenuItem.setSelected(!currentSubTabsContainerHandler.getVisibleCloseButton());
-                customStyleMenu.add(closeButtonMenuItem);
-            }
 
             JMenu fontNameMenu = new JScrollMenu("Font Name");
             String[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
@@ -705,141 +690,6 @@ public class SubTabsActions {
         }
 
         popupMenu.add(searchAndJumpMenu);
-
-        if (sharedParameters.burpMajorVersion < 2022
-                || (sharedParameters.burpMajorVersion == 2022 && sharedParameters.burpMinorVersion < 6)) { // hidden from version 2022.6
-            JMenu filterTitleMenu = new JMenu("Filter Titles (Click > Use RegEx)");
-
-            JMenuItem removeFilterTitle = new JMenuItem("Show All");
-            if (!sharedParameters.isFiltered(currentSubTabsContainerHandler.currentToolTab)) {
-                removeFilterTitle.setEnabled(false);
-            }
-            removeFilterTitle.addActionListener(new AbstractAction() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    showAllTabTitles(sharedParameters, currentSubTabsContainerHandler);
-                }
-            });
-            filterTitleMenu.add(removeFilterTitle);
-
-            JMenuItem toggleCurrentTabVisibilityFilterTitle = new JMenuItem("Toggle Current Tab Visibility");
-            toggleCurrentTabVisibilityFilterTitle.addActionListener(new AbstractAction() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    toggleCurrentTabVisibility(sharedParameters, currentSubTabsContainerHandler);
-                }
-            });
-            filterTitleMenu.add(toggleCurrentTabVisibilityFilterTitle);
-
-            filterTitleMenu.addSeparator();
-
-            JMenuItem defineFilterTitleRegEx = new JMenuItem("Define RegEx (case insensitive)");
-            defineFilterTitleRegEx.addActionListener(new AbstractAction() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String titleKeyword = UIHelper.showPlainInputMessage("Enter a Regular Expression:", "Filter Titles", sharedParameters.titleFilterRegEx, sharedParameters.get_mainFrameUsingMontoya());
-                    if (!titleKeyword.isEmpty()) {
-                        if (Utilities.isValidRegExPattern(titleKeyword)) {
-                            showAllTabTitles(sharedParameters, currentSubTabsContainerHandler);
-                            sharedParameters.titleFilterRegEx = titleKeyword;
-                            sharedParameters.filterOperationMode.put(currentSubTabsContainerHandler.currentToolTab, 0);
-                            setTabTitleFilter(sharedParameters, currentSubTabsContainerHandler);
-                        } else {
-                            UIHelper.showWarningMessage("Regular expression was invalid.", sharedParameters.get_mainFrameUsingMontoya());
-                            sharedParameters.printlnError("invalid regex: " + titleKeyword);
-                        }
-                    }
-
-                }
-            });
-            filterTitleMenu.add(defineFilterTitleRegEx);
-
-            JMenuItem numericalFilterTitle = new JMenuItem("Numerical Titles");
-            numericalFilterTitle.addActionListener(new AbstractAction() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    showAllTabTitles(sharedParameters, currentSubTabsContainerHandler);
-                    sharedParameters.titleFilterRegEx = "^(#\\d+\\s+)?\\s*\\d+\\s*$";
-                    sharedParameters.filterOperationMode.put(currentSubTabsContainerHandler.currentToolTab, 0);
-                    setTabTitleFilter(sharedParameters, currentSubTabsContainerHandler);
-                }
-            });
-            filterTitleMenu.add(numericalFilterTitle);
-
-            JMenuItem customStylesFilterTitle = new JMenuItem("Custom Styles");
-            customStylesFilterTitle.addActionListener(new AbstractAction() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    showAllTabTitles(sharedParameters, currentSubTabsContainerHandler);
-                    sharedParameters.titleFilterRegEx = "";
-                    sharedParameters.filterOperationMode.put(currentSubTabsContainerHandler.currentToolTab, 1);
-                    setTabTitleFilter(sharedParameters, currentSubTabsContainerHandler);
-                }
-            });
-            filterTitleMenu.add(customStylesFilterTitle);
-
-            JMenuItem customStylesOrCustomNamesFilterTitle = new JMenuItem("Custom Styles or Not Numerical Titles");
-            customStylesOrCustomNamesFilterTitle.addActionListener(new AbstractAction() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    showAllTabTitles(sharedParameters, currentSubTabsContainerHandler);
-                    sharedParameters.titleFilterRegEx = "^(#\\d+\\s+)?\\s*\\d+\\s*$";
-                    sharedParameters.filterOperationMode.put(currentSubTabsContainerHandler.currentToolTab, 2);
-                    setTabTitleFilter(sharedParameters, currentSubTabsContainerHandler);
-                }
-            });
-            filterTitleMenu.add(customStylesOrCustomNamesFilterTitle);
-
-            JMenuItem webSocketFilterTitle = new JMenuItem("Websocket Tabs");
-            webSocketFilterTitle.addActionListener(new AbstractAction() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    showAllTabTitles(sharedParameters, currentSubTabsContainerHandler);
-                    sharedParameters.titleFilterRegEx = "";
-                    sharedParameters.filterOperationMode.put(currentSubTabsContainerHandler.currentToolTab, 3);
-                    setTabTitleFilter(sharedParameters, currentSubTabsContainerHandler);
-                }
-            });
-            filterTitleMenu.add(webSocketFilterTitle);
-
-            filterTitleMenu.addSeparator();
-
-
-            JCheckBoxMenuItem filterTitleMenuNegativeSearch = new JCheckBoxMenuItem("Use Negative Logic");
-            filterTitleMenuNegativeSearch.setState(sharedParameters.isTitleFilterNegative);
-
-            filterTitleMenuNegativeSearch.addActionListener(e -> {
-                sharedParameters.isTitleFilterNegative = !sharedParameters.isTitleFilterNegative;
-                showAllTabTitles(sharedParameters, currentSubTabsContainerHandler);
-                setTabTitleFilter(sharedParameters, currentSubTabsContainerHandler);
-            });
-
-            filterTitleMenu.add(filterTitleMenuNegativeSearch);
-
-            if (sharedParameters.isFiltered(currentSubTabsContainerHandler.currentToolTab)) {
-                filterTitleMenu.setText("Filter Titles (Click > Use RegEx, Right-Click > Show All)");
-                filterTitleMenu.addMouseListener(new MouseAdapterExtensionHandler(mouseEvent -> {
-                    if (SwingUtilities.isRightMouseButton(mouseEvent)) {
-                        removeFilterTitle.doClick();
-                        popupMenu.setVisible(false);
-                    } else {
-                        defineFilterTitleRegEx.doClick();
-                        popupMenu.setVisible(false);
-                    }
-                }, MouseEvent.MOUSE_CLICKED));
-            } else {
-                filterTitleMenu.addMouseListener(new MouseAdapterExtensionHandler(mouseEvent -> {
-                    if (!SwingUtilities.isRightMouseButton(mouseEvent)) {
-                        defineFilterTitleRegEx.doClick();
-                        popupMenu.setVisible(false);
-                    }
-                }, MouseEvent.MOUSE_CLICKED));
-            }
-
-
-            popupMenu.add(filterTitleMenu);
-
-        }
 
         JMenuItem copyTitleMenu = new JMenuItem("Copy Title [Ctrl+C]");
         copyTitleMenu.addActionListener(e -> {
@@ -1109,71 +959,6 @@ public class SubTabsActions {
         BurpUITools.MainTabs tool = currentSubTabsContainerHandler.currentToolTab;
 
         if (sharedParameters.getAccessibleSubTabSupportedTabs().contains(tool)) {
-            if (sharedParameters.burpMajorVersion < 2022
-                    || (sharedParameters.burpMajorVersion == 2022 && sharedParameters.burpMinorVersion < 6)) { // hidden from version 2022.6
-                JCheckBoxMenuItem toolSubTabPaneScrollableLayout = new JCheckBoxMenuItem("Scrollable " + tool + " Tabs");
-                if (sharedParameters.preferences.safeGetBooleanSetting("isScrollable_" + tool)) {
-                    toolSubTabPaneScrollableLayout.setSelected(true);
-                }
-
-                toolSubTabPaneScrollableLayout.addActionListener((e) -> {
-                    if (sharedParameters.preferences.safeGetBooleanSetting("isScrollable_" + tool)) {
-                        SwingUtilities.invokeLater(() -> currentSubTabsContainerHandler.parentTabbedPane.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT));
-                        sharedParameters.preferences.safeSetSetting("isScrollable_" + tool, false, Preferences.Visibility.PROJECT);
-                    } else {
-                        SwingUtilities.invokeLater(() -> {
-                            currentSubTabsContainerHandler.parentTabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-                            new java.util.Timer().schedule(
-                                    new java.util.TimerTask() {
-                                        @Override
-                                        public void run() {
-                                            jumpToTabIndex(sharedParameters, currentSubTabsContainerHandler, 0);
-                                            jumpToTabIndex(sharedParameters, currentSubTabsContainerHandler, currentSubTabsContainerHandler.getTabIndex());
-                                        }
-                                    },
-                                    1000
-                            );
-                        });
-                        sharedParameters.preferences.safeSetSetting("isScrollable_" + tool, true, Preferences.Visibility.PROJECT);
-                    }
-                });
-
-                popupMenu.add(toolSubTabPaneScrollableLayout);
-
-                JCheckBoxMenuItem toolSubTabPaneTabMinimizeTabSize = new JCheckBoxMenuItem("Minimize " + tool + " Tabs' Size");
-                if (sharedParameters.preferences.safeGetBooleanSetting("minimizeSize_" + tool)) {
-                    toolSubTabPaneTabMinimizeTabSize.setSelected(true);
-                }
-
-                toolSubTabPaneTabMinimizeTabSize.addActionListener((e) -> {
-                    if (sharedParameters.preferences.safeGetBooleanSetting("minimizeSize_" + tool)) {
-                        changeToolTabbedPaneUI_safe(sharedParameters, currentSubTabsContainerHandler, false);
-                        sharedParameters.preferences.safeSetSetting("minimizeSize_" + tool, false, Preferences.Visibility.PROJECT);
-                    } else {
-                        changeToolTabbedPaneUI_safe(sharedParameters, currentSubTabsContainerHandler, false);
-                        sharedParameters.preferences.safeSetSetting("minimizeSize_" + tool, true, Preferences.Visibility.PROJECT);
-                    }
-                });
-                popupMenu.add(toolSubTabPaneTabMinimizeTabSize);
-
-                JCheckBoxMenuItem toolSubTabPaneTabFixedPositionLayout = new JCheckBoxMenuItem("Fixed Tab Position for " + tool);
-                if (sharedParameters.preferences.safeGetBooleanSetting("isTabFixedPosition_" + tool)) {
-                    toolSubTabPaneTabFixedPositionLayout.setSelected(true);
-                }
-
-                toolSubTabPaneTabFixedPositionLayout.addActionListener((e) -> {
-                    if (sharedParameters.preferences.safeGetBooleanSetting("isTabFixedPosition_" + tool)) {
-                        changeToolTabbedPaneUI_safe(sharedParameters, currentSubTabsContainerHandler, false);
-                        sharedParameters.preferences.safeSetSetting("isTabFixedPosition_" + tool, false, Preferences.Visibility.PROJECT);
-                    } else {
-                        changeToolTabbedPaneUI_safe(sharedParameters, currentSubTabsContainerHandler, false);
-                        sharedParameters.preferences.safeSetSetting("isTabFixedPosition_" + tool, true, Preferences.Visibility.PROJECT);
-                    }
-                });
-                popupMenu.add(toolSubTabPaneTabFixedPositionLayout);
-
-            }
-
             JCheckBoxMenuItem toolSubTabPaneMouseWheelScroll = new JCheckBoxMenuItem("Activate Mouse Wheel: MW > Scroll, MW+Ctrl > Resize");
             if (sharedParameters.preferences.safeGetBooleanSetting("mouseWheelToScroll_" + tool)) {
                 toolSubTabPaneMouseWheelScroll.setSelected(true);
@@ -1247,9 +1032,7 @@ public class SubTabsActions {
             boolean isFixedTabPosition = (sharedParameters.preferences.safeGetBooleanSetting("isTabFixedPosition_" + currentToolTab));
             boolean isFiltered = sharedParameters.isFiltered(currentToolTab);
 
-            boolean isOriginal = shouldOriginalBeSet && !isMinimizeTabSize && !isFiltered &&
-                    (isFixedTabPosition || (!(sharedParameters.burpMajorVersion > 2022) && (sharedParameters.burpMajorVersion != 2022 || !(sharedParameters.burpMinorVersion >= 3)))) &&
-                    (!isFixedTabPosition || (!(sharedParameters.burpMajorVersion < 2022) && (sharedParameters.burpMajorVersion != 2022 || !(sharedParameters.burpMinorVersion < 3))));
+            boolean isOriginal = shouldOriginalBeSet && !isMinimizeTabSize && !isFiltered && isFixedTabPosition;
 
 
             if (isOriginal || sharedParameters.isTabGroupSupportedByDefault) {
@@ -1260,10 +1043,12 @@ public class SubTabsActions {
 
             currentToolTabbedPane.revalidate();
             currentToolTabbedPane.repaint();
-            new java.util.Timer().schedule(
+            sharedParameters.delayedTasks.schedule(
                     new java.util.TimerTask() {
                         @Override
                         public void run() {
+                            if (sharedParameters.isUnloaded())
+                                return;
                             sharedParameters.allSettings.subTabsSettings.updateSubTabsUI(currentToolTab);
                         }
                     },
@@ -1278,44 +1063,34 @@ public class SubTabsActions {
 
 
     public static void changeToolTabbedPaneUI_safe(ExtensionSharedParameters sharedParameters, BurpUITools.MainTabs currentToolTab, boolean shouldOriginalBeSet) {
-        SwingUtilities.invokeLater(() -> {
-            // sometimes we have errors when using SetUI - we use this error catching and delay mechanism to hopefully overcome this!
-            int counter = 0;
-            boolean isSuccessful = false;
-            while (counter < 3 && !isSuccessful) {
-                sharedParameters.printDebugMessage("Try number " + counter + " to update the UI");
-                if (!isSuccessful) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                isSuccessful = changeToolTabbedPaneUI_safe(sharedParameters, currentToolTab, shouldOriginalBeSet, counter);
-                counter++;
-            }
-        });
+        changeToolTabbedPaneUI_safe_withRetry(sharedParameters, currentToolTab, shouldOriginalBeSet, 0);
     }
 
     public static void changeToolTabbedPaneUI_safe(ExtensionSharedParameters sharedParameters, SubTabsContainerHandler currentSubTabsContainerHandler, boolean shouldOriginalBeSet) {
-        SwingUtilities.invokeLater(() -> {
-            // sometimes we have errors when using SetUI - we use this error catching and delay mechanism to hopefully overcome this!
-            int counter = 0;
-            boolean isSuccessful = false;
-            while (counter < 3 && !isSuccessful) {
-                sharedParameters.printDebugMessage("Try number " + counter + " to update the UI");
-                if (!isSuccessful) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                isSuccessful = changeToolTabbedPaneUI_safe(sharedParameters, currentSubTabsContainerHandler.currentToolTab, shouldOriginalBeSet, counter);
-                counter++;
-            }
+        changeToolTabbedPaneUI_safe_withRetry(sharedParameters, currentSubTabsContainerHandler.currentToolTab, shouldOriginalBeSet, 0);
+    }
 
+    // Tries the UI change up to 3 times, waiting 1 second before each attempt.
+    // A javax.swing.Timer is used instead of Thread.sleep so the EDT is never blocked,
+    // which used to make every load and reload feel sluggish. The 1 second wait before the
+    // first attempt is kept so Burp can finish installing its own tab UI first, otherwise
+    // its BurpTabbedPaneUI can throw a NullPointerException while laying out the tabs.
+    private static void changeToolTabbedPaneUI_safe_withRetry(ExtensionSharedParameters sharedParameters, BurpUITools.MainTabs currentToolTab, boolean shouldOriginalBeSet, int attempt) {
+        if (sharedParameters.isUnloaded() || attempt >= 3)
+            return;
+        // the timer fires on the EDT, so the setUI call below runs on the EDT without blocking it
+        javax.swing.Timer settleTimer = new javax.swing.Timer(1000, e -> {
+            if (sharedParameters.isUnloaded())
+                return;
+            // sometimes we have errors when using SetUI - we use this error catching and retry mechanism to hopefully overcome this!
+            sharedParameters.printDebugMessage("Try number " + attempt + " to update the UI");
+            boolean isSuccessful = changeToolTabbedPaneUI_safe(sharedParameters, currentToolTab, shouldOriginalBeSet, attempt);
+            if (!isSuccessful) {
+                changeToolTabbedPaneUI_safe_withRetry(sharedParameters, currentToolTab, shouldOriginalBeSet, attempt + 1);
+            }
         });
+        settleTimer.setRepeats(false);
+        settleTimer.start();
     }
 
     public static void setTabTitleFilter(ExtensionSharedParameters sharedParameters, SubTabsContainerHandler currentSubTabsContainerHandler) {
@@ -1432,10 +1207,12 @@ public class SubTabsActions {
 
         currentToolTabbedPane.revalidate();
         currentToolTabbedPane.repaint();
-        new java.util.Timer().schedule(
+        sharedParameters.delayedTasks.schedule(
                 new java.util.TimerTask() {
                     @Override
                     public void run() {
+                        if (sharedParameters.isUnloaded())
+                            return;
                         sharedParameters.allSettings.subTabsSettings.updateSubTabsUI(currentSubTabsContainerHandler.currentToolTab);
                     }
                 },

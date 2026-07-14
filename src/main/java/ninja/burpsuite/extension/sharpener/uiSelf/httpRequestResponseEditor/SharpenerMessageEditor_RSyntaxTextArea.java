@@ -49,6 +49,10 @@ public class SharpenerMessageEditor_RSyntaxTextArea extends RSyntaxTextArea {
         super.updateUI();
 
         SwingUtilities.invokeLater(() -> {
+            // updateUI also runs during construction, before sharedParameters is set
+            if (sharedParameters == null || sharedParameters.montoyaApi == null) {
+                return;
+            }
             if (sharedParameters.montoyaApi.userInterface().currentTheme().name().equalsIgnoreCase("dark")) {
                 RSyntaxUtils.applyThemeToRSyntaxTextArea(this, "dark", sharedParameters);
             } else {

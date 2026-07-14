@@ -35,11 +35,15 @@ public class MainTabsListeners implements ContainerListener {
     public void componentAdded(ContainerEvent e) {
         if (e.getSource() instanceof JTabbedPane && !isResetInProgress) {
             setResetInProgress(true);
-            new java.util.Timer().schedule(
+            sharedParameters.delayedTasks.schedule(
                     new java.util.TimerTask() {
                         @Override
                         public void run() {
+                            if (sharedParameters.isUnloaded())
+                                return;
                             SwingUtilities.invokeLater(() -> {
+                                if (sharedParameters.isUnloaded())
+                                    return;
                                 MainTabsStyleHandler.resetMainTabsStylesFromSettings_noUiLock(sharedParameters);
                                 setResetInProgress(false);
                             });

@@ -16,7 +16,6 @@ import java.awt.event.*;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Timer;
 import java.util.TimerTask;
 import java.util.function.Consumer;
 
@@ -58,6 +57,13 @@ public class SubTabsListenersV2 {
     public SubTabsListenersV2(ExtensionSharedParameters sharedParameters, Consumer<MouseEvent> mouseEventConsumer) {
         this.sharedParameters = sharedParameters;
         this.mouseEventConsumer = mouseEventConsumer;
+        refreshListeners();
+    }
+
+    // Removes and re-adds the tab listeners on the same object.
+    // This is reused on later loadSettings calls so a new listener object is not
+    // created every time, which used to leave stale component listeners behind.
+    public void refreshListeners() {
         removeTabListener();
         addTabListener();
     }
@@ -108,11 +114,15 @@ public class SubTabsListenersV2 {
                     delay = 10000;
                 }
 
-                new Timer().schedule(
+                sharedParameters.delayedTasks.schedule(
                         new TimerTask() {
                             @Override
                             public void run() {
+                                if (sharedParameters.isUnloaded())
+                                    return;
                                 SwingUtilities.invokeLater(() -> {
+                                    if (sharedParameters.isUnloaded())
+                                        return;
                                     set_isUpdateInProgress(true);
                                     sharedParameters.allSettings.subTabsSettings.loadSettings(toolName);
                                     sharedParameters.allSettings.subTabsSettings.saveSettings(toolName);
@@ -146,16 +156,21 @@ public class SubTabsListenersV2 {
 
             @Override
             public void componentHidden(ComponentEvent e) {
-                new Timer().schedule(
+                sharedParameters.delayedTasks.schedule(
                         new TimerTask() {
                             @Override
                             public void run() {
+                                if (sharedParameters.isUnloaded())
+                                    return;
                                 SwingUtilities.invokeLater(() -> {
+                                    if (sharedParameters.isUnloaded())
+                                        return;
                                     // This will be triggered when Burp creates items in Repeater or Intruder
                                     BurpUITools.MainTabs currentToolName = BurpUITools.getMainTabsObjFromString(sharedParameters.get_rootTabbedPaneUsingMontoya().getTitleAt(sharedParameters.get_rootTabbedPaneUsingMontoya().indexOfComponent(((Component) e.getSource()).getParent())));
                                     var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(currentToolName);
                                     if (currentToolTabbedPane != null) {
-                                        if (currentToolTabbedPane.getPropertyChangeListeners("tabPropertyChangeListener").length == 0)
+                                        // the listener is registered under the "indexForTabComponent" property, so the guard must query the same name
+                                        if (currentToolTabbedPane.getPropertyChangeListeners("indexForTabComponent").length == 0)
                                             currentToolTabbedPane.addPropertyChangeListener("indexForTabComponent", tabPropertyChangeListener);
 
                                         addSubTabsListener(currentToolName);
@@ -195,16 +210,6 @@ public class SubTabsListenersV2 {
                 subTabsContainerHandlers.add(subTabsContainerHandler);
             }
 
-            // this for dotdotdot tab!
-            if (sharedParameters.burpMajorVersion < 2022
-                    || (sharedParameters.burpMajorVersion == 2022 && sharedParameters.burpMinorVersion < 6)) { // before version 2022.6
-                SubTabsContainerHandler tempDotDotDotSubTabsContainerHandler = new SubTabsContainerHandler(sharedParameters, toolTabbedPane, toolTabbedPane.getTabCount() - 1, true);
-                if (!subTabsContainerHandlers.contains(tempDotDotDotSubTabsContainerHandler)) {
-                    // we have a new tab
-                    tempDotDotDotSubTabsContainerHandler.addSubTabWatcher();
-                    subTabsContainerHandlers.add(tempDotDotDotSubTabsContainerHandler);
-                }
-            }
             sharedParameters.allSubTabContainerHandlers.put(toolName, subTabsContainerHandlers);
         }
 
@@ -317,12 +322,11 @@ public class SubTabsListenersV2 {
             currentToolTabbedPane.removePropertyChangeListener("indexForTabComponent", pcl);
         }
 
-        /*
         // as there is no other getComponentListeners by default, we can remove them all
-        for (ComponentListener cl : toolTabbedPane.getComponentListeners()) {
-            toolTabbedPane.removeComponentListener(cl);
+        // this prevents the tab-change component listener from accumulating on every reload
+        for (ComponentListener cl : currentToolTabbedPane.getComponentListeners()) {
+            currentToolTabbedPane.removeComponentListener(cl);
         }
-        */
 
         for (MouseListener mouseListener : currentToolTabbedPane.getMouseListeners()) {
             if (mouseListener instanceof MouseAdapterExtensionHandler) {

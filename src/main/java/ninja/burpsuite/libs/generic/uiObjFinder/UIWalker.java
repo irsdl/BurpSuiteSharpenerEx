@@ -5,9 +5,13 @@ package ninja.burpsuite.libs.generic.uiObjFinder;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 
 public class UIWalker {
     public static JComponent getCurrentJComponent(Component rootUIObject) {
+        if (rootUIObject == null) {
+            return null;
+        }
         JComponent rootUIJComponent = null;
         if (rootUIObject instanceof JComponent) {
             rootUIJComponent = (JComponent) rootUIObject;
@@ -75,7 +79,7 @@ public class UIWalker {
         if (rootUIJComponent.getParent() instanceof JComponent parentComponent) {
             if (uiSpecObject.isCompatible(parentComponent) && !containsComponent(arrayOfExcludedComponents, parentComponent)) {
                 foundObject = parentComponent;
-            } else if (currentDepth < maxDepth && parentComponent instanceof JComponent) {
+            } else if (currentDepth < maxDepth) {
                 foundObject = findUIObjectInParentComponentsWithExclusions(parentComponent, maxDepth, currentDepth + 1, uiSpecObject, arrayOfExcludedComponents);
             }
         }
@@ -104,9 +108,20 @@ public class UIWalker {
     private static Component findUIObjectInNeighbourComponentsWithExclusions(JComponent rootUIJComponent, UiSpecObject uiSpecObject, Component[] arrayOfExcludedComponents) {
         Component foundObject = null;
         if (rootUIJComponent.getParent() instanceof JComponent parentComponent) {
-            foundObject = findUIObjectInSubComponentsWithExclusions(parentComponent, 1, uiSpecObject, arrayOfExcludedComponents);
+            // the parent is excluded so it cannot be returned as a neighbour
+            Component[] exclusions = appendToComponents(arrayOfExcludedComponents, parentComponent);
+            foundObject = findUIObjectInSubComponentsWithExclusions(parentComponent, 1, uiSpecObject, exclusions);
         }
         return foundObject;
+    }
+
+    private static Component[] appendToComponents(Component[] components, Component extraComponent) {
+        if (components == null) {
+            return new Component[]{extraComponent};
+        }
+        Component[] result = Arrays.copyOf(components, components.length + 1);
+        result[components.length] = extraComponent;
+        return result;
     }
 
     public static Component findUIObjectInComponents(Component[] arrayOfComponents, UiSpecObject uiSpecObject) {
@@ -114,6 +129,9 @@ public class UIWalker {
     }
 
     public static Component findUIObjectInComponentsWithExclusions(Component[] arrayOfComponents, UiSpecObject uiSpecObject, Component[] arrayOfExcludedComponents) {
+        if (arrayOfComponents == null) {
+            return null;
+        }
         Component foundObject = null;
         for (Component currentComponent : arrayOfComponents) {
             if (uiSpecObject.isCompatible(currentComponent) && !containsComponent(arrayOfExcludedComponents, currentComponent)) {

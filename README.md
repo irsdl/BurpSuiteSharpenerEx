@@ -1,7 +1,7 @@
 # Burp Suite Sharpener
 This extension enhances Burp Suite by adding several UI and functional features, making it more user-friendly. 
 
-Refer to the "Burp Suite Compatibility" sections for detailed information on compatibility.
+Refer to the "Burp Suite Compatibility and Reporting Errors" section for detailed information on compatibility.
 
 <pre>
  ___  _                                      
@@ -41,9 +41,9 @@ Refer to the "Burp Suite Compatibility" sections for detailed information on com
 * Ability to highlight HTTP and WebSocket requests and responses in proxy by detecting the "permcolorCOLORNAME" pattern
 
 # Burp Suite Compatibility and Reporting Errors
-This extension was last tested with the pro version 2023.10.1.1, the most recent stable release at the time of this documentation. It should also be compatible with the community edition.
+This extension targets the most recent Burp Suite release. It was last tested with the pro version 2026.4.3, the most recent stable release at the time of this documentation. It is also compatible with the community edition. The minimum supported version is Burp Suite 2024.2, as that is the first release that requires Java 21.
 
-For those keen on using the latest updates, the early-adapter branch is available.
+For those keen on using the latest updates, the [early-adopter branch](https://github.com/irsdl/BurpSuiteSharpenerEx/tree/early-adopter) is available.
 
 We actively use this extension and occasionally observe potential errors, particularly when Burp Suite updates its core functionalities or UI. As an open-source project, we heavily rely on community feedback for enhancements and bug fixes. If you encounter any issues, kindly report them on our [issues page](https://github.com/irsdl/BurpSuiteSharpenerEx/issues). Additionally, if you value our work, please consider [sponsoring](https://github.com/sponsors/irsdl) this project.
 
@@ -68,25 +68,25 @@ Perhaps the best features can be imported from different open-source extensions 
 # Usage Tips
 * You can use the following key combination(s) in Repeater and Intruder sub-tab menu:
 
-| Description                                      | Combinations/Shortcuts                                                                             |
-|--------------------------------------------------|----------------------------------------------------------------------------------------------------|
-| Show Context Menu for Repeater and Intruder Tabs | Mouse Middle-Click<br/>Alt + Any Mouse Key<br/>Down Arrow<br/>Ctrl + Enter<br/>Ctrl + Shift +Enter |
-| Find Tabs for Repeater and Intruder Tab          | Ctrl + Shift + F                                                                                   |
-| Find Next                                        | F3 <br/>Ctrl + F3                                                                                  |
-| Find Previous                                    | Shift + F3<br/>Ctrl + Shift + F3                                                                   |
-| Jump to the First Tab                            | Home<br/>Ctrl + Shift + Home                                                                       |
-| Jump to the last Tab                             | End<br/>Ctrl + Shift + End                                                                         |
-| Previous Tab                                     | Left Arrow<br/>Ctrl + Shift + Left                                                                 |
-| Next Tab                                         | Right Arrow<br/>Ctrl + Shift + Right<br/>Mouse Wheel                                               |
-| Back (Previously Selected Tab)                   | Alt + Left<br/>Ctrl + Alt + Left<br/>Mouse Wheel                                                   |
-| Forward                                          | Alt + Right<br/>Ctrl + Alt + Right                                                                 |
-| Copy Subtab Title                                | Ctrl + C<br/>Ctrl + Shift + C                                                                      |
-| Paste Subtab Title                               | Ctrl + V<br/>Ctrl + Shift + V                                                                      |
-| Rename Subtab Title                              | F2<br/>Ctrl + F2                                                                                   |
-| Increase Font Size                               | Ctrl + Mouse Wheel                                                                                 |
-| Increase Font Size & Bold                        | Middle Click + CTRL                                                                                |
-| Decrease Font Size & Bold                        | Middle Click + CTRL + SHIFT                                                                        |
-| Big & Red & Bold                                 | Middle Click + SHIFT                                                                               |
+| Description                                       | Combinations/Shortcuts                                                                              |
+|---------------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| Show Context Menu for Repeater and Intruder Tabs  | Mouse Middle-Click<br/>Alt + Any Mouse Key<br/>Down Arrow<br/>Ctrl + Enter<br/>Ctrl + Shift + Enter |
+| Find Tabs for Repeater and Intruder Tab           | Ctrl + Shift + F                                                                                    |
+| Find Next                                         | F3<br/>Ctrl + F3                                                                                    |
+| Find Previous                                     | Shift + F3<br/>Ctrl + Shift + F3                                                                    |
+| Jump to the First Tab                             | Home<br/>Ctrl + Shift + Home                                                                        |
+| Jump to the last Tab                              | End<br/>Ctrl + Shift + End                                                                          |
+| Previous Tab                                      | Left Arrow<br/>Ctrl + Shift + Left                                                                  |
+| Next Tab                                          | Right Arrow<br/>Ctrl + Shift + Right<br/>Mouse Wheel                                                |
+| Back (Previously Selected Tab)                    | Alt + Left<br/>Ctrl + Alt + Left<br/>Mouse Wheel                                                    |
+| Forward                                           | Alt + Right<br/>Ctrl + Alt + Right                                                                  |
+| Copy Subtab Title                                 | Ctrl + C<br/>Ctrl + Shift + C                                                                       |
+| Paste Subtab Title                                | Ctrl + V<br/>Ctrl + Shift + V                                                                       |
+| Rename Subtab Title                               | F2<br/>Ctrl + F2                                                                                    |
+| Increase Font Size                                | Ctrl + Mouse Wheel                                                                                  |
+| Increase Font Size & Bold                         | Middle Click + Ctrl                                                                                 |
+| Decrease Font Size & Bold                         | Middle Click + Ctrl + Shift                                                                         |
+| Big & Red & Bold                                  | Middle Click + Shift                                                                                |
 
 * You can use the following key combination(s) on the main window frame:
 
@@ -98,7 +98,7 @@ Perhaps the best features can be imported from different open-source extensions 
 * Alt + Any Mouse Click works on empty parts of the tabs which do not contain any text
 * Use the `Debug` option in `Global Settings` if you are reporting a bug or if you want to see what is happening
 * Check the [extension's GitHub repository](https://github.com/irsdl/BurpSuiteSharpenerEx) rather than BApp Store for the latest updates
-* A sample of icons should also be accessible in the `/` directory
+* Sample icons are available in the [burpicon-sample/](burpicon-sample/) and [hacker-sample-icons/](hacker-sample-icons/) directories
 
 ![images/img.png](images/img.png)
 

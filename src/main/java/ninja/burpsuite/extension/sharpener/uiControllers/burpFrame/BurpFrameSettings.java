@@ -85,9 +85,9 @@ public class BurpFrameSettings extends StandardSettings {
         String newIconResourcePath = sharedParameters.preferences.safeGetStringSetting("BurpResourceIconName");
         if (!newIconPath.isBlank()) {
             sharedParameters.preferences.setSetting("LastBurpIconCustomPath", newIconPath);
-            BurpTitleAndIcon.setIcon(sharedParameters, newIconPath, 48, false);
+            BurpTitleAndIcon.setIcon(sharedParameters, newIconPath, false);
         } else if (!newIconResourcePath.isBlank()) {
-            BurpTitleAndIcon.setIcon(sharedParameters, newIconResourcePath, 48, true);
+            BurpTitleAndIcon.setIcon(sharedParameters, newIconResourcePath, true);
         }
 
         boolean useLastScreenPositionAndSize = sharedParameters.preferences.safeGetBooleanSetting("useLastScreenPositionAndSize");
