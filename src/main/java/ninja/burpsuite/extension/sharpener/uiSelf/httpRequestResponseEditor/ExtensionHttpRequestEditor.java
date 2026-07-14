@@ -8,16 +8,21 @@ import burp.api.montoya.ui.editor.extension.EditorMode;
 import burp.api.montoya.ui.editor.extension.ExtensionProvidedHttpRequestEditor;
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
 
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 
 public class ExtensionHttpRequestEditor implements ExtensionProvidedHttpRequestEditor {
     ExtensionSharedParameters sharedParameters;
     private HttpRequestResponse requestResponse;
     private final SharpenerMessageTabPanelGUI requestEditor;
+    private final EditorCreationContext creationContext;
 
     ExtensionHttpRequestEditor(ExtensionSharedParameters sharedParameters, EditorCreationContext creationContext) {
         this.sharedParameters = sharedParameters;
+        this.creationContext = creationContext;
 
+        // RSyntaxTextArea registers a shared keymap that overrides Burp's own text shortcuts, so it is removed
+        JTextComponent.removeKeymap("RTextAreaKeymap");
         if (creationContext.editorMode() == EditorMode.READ_ONLY) {
             requestEditor = new SharpenerMessageTabPanelGUI(sharedParameters, true);
         } else {
@@ -51,7 +56,7 @@ public class ExtensionHttpRequestEditor implements ExtensionProvidedHttpRequestE
     @Override
     public void setRequestResponse(HttpRequestResponse httpRequestResponse) {
         this.requestResponse = httpRequestResponse;
-        //requestEditor.setContents();
+        requestEditor.sharpenerMessageEditor_RTextScrollPane.getTextArea().setText(httpRequestResponse.request().toString());
     }
 
     /**
