@@ -3,6 +3,7 @@
 
 package ninja.burpsuite.libs.generic;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
@@ -84,6 +85,35 @@ public class ImageHelper {
             }
         }
         return bufferedImage;
+    }
+
+    // Paints a component into an image without using the screen. Unlike an OS level
+    // screen capture, this also works when the session is locked, so it is useful
+    // for automated UI checks over a debugger.
+    public static BufferedImage captureComponent(Component component) {
+        if (component == null || component.getWidth() <= 0 || component.getHeight() <= 0)
+            return null;
+
+        BufferedImage bufferedImage = new BufferedImage(component.getWidth(), component.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics2D = bufferedImage.createGraphics();
+        component.paint(graphics2D);
+        graphics2D.dispose();
+        return bufferedImage;
+    }
+
+    // Captures a component and saves it as a PNG file. Returns true on success.
+    // This is one expression, so it can also be called from a debugger such as jdb.
+    public static boolean saveComponentAsPng(Component component, String filePath) {
+        try {
+            BufferedImage bufferedImage = captureComponent(component);
+            if (bufferedImage == null)
+                return false;
+
+            return ImageIO.write(bufferedImage, "png", new File(filePath));
+        } catch (Exception e) {
+            System.err.println(e.getMessage() + "\r\n" + getStackTrace(e));
+            return false;
+        }
     }
 
     // https://alvinalexander.com/java/java-copy-image-to-clipboard-example/

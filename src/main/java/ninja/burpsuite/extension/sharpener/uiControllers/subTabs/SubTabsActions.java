@@ -41,7 +41,7 @@ public class SubTabsActions {
         SubTabsContainerHandler subTabsContainerHandler = getSubTabContainerHandlerFromEvent(sharedParameters, event);
 
         if (subTabsContainerHandler == null) {
-            sharedParameters.printlnError("Object has not been loaded yet, try in a few seconds or try to drag and drop the tab or add a new tab.");
+            sharedParameters.printlnError("This tab has not been detected yet. It will be loaded shortly, please try again in a few seconds.");
         }
 
         if (subTabsContainerHandler == null || (!subTabsContainerHandler.isValid() && !subTabsContainerHandler.isDotDotDotTab()))
@@ -1249,6 +1249,12 @@ public class SubTabsActions {
                 subTabsContainerHandler = subTabsContainerHandlers.get(sharedParamIndex);
         }
 
+        if (subTabsContainerHandler == null && tempSubTabsContainerHandler.isValid()
+                && sharedParameters.allSettings != null && sharedParameters.allSettings.subTabsSettings != null) {
+            // the tab exists but it was missed by the tab change listener,
+            // a delayed reload detects it without needing a drag and drop
+            sharedParameters.allSettings.subTabsSettings.scheduleTabRescan(currentToolTab);
+        }
 
         return subTabsContainerHandler;
     }

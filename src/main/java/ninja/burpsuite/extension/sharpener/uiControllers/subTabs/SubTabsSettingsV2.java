@@ -16,9 +16,13 @@ import ninja.burpsuite.libs.objects.PreferenceObject;
 import ninja.burpsuite.libs.objects.StandardSettings;
 
 import javax.swing.*;
+import java.awt.Component;
+import java.awt.Container;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -29,6 +33,8 @@ public class SubTabsSettingsV2 extends StandardSettings {
     public String lastSavedImageLocation;
     public boolean isFirstLoad;
     private Lock updateInProgressLock = new ReentrantLock();
+    // tools with a delayed rescan waiting to run, so only one rescan is pending per tool
+    private final Set<BurpUITools.MainTabs> pendingTabRescans = ConcurrentHashMap.newKeySet();
 
     private SubTabsListenersV2 subTabsListeners;
 
@@ -84,6 +90,51 @@ public class SubTabsSettingsV2 extends StandardSettings {
         sharedParameters.printDebugMessage("undo subtabs styles");
         unsetSubTabsStyle();
 
+    }
+
+    // Delay before a rescan reads the tab styles. Reading too early can save a wrong
+    // colour because old Burp changes the tab colour shortly after a tab is created.
+    // Burp 2026+ does not change the title colour on its own, so a short delay is enough.
+    public int getTabRescanDelayMs(BurpUITools.MainTabs tool) {
+        if (!sharedParameters.isTabTextColorSetByBackground)
+            return 1000;
+
+        if (tool == BurpUITools.MainTabs.Intruder)
+            return 10000;
+
+        return 3000;
+    }
+
+    // Schedules a delayed reload of one tool so a tab that was missed by the tab change
+    // listener is detected. This is used when the user interacts with a tab that has no
+    // handler yet. Returns false when a rescan is already pending for the tool.
+    public boolean scheduleTabRescan(BurpUITools.MainTabs tool) {
+        if (tool == null || tool == BurpUITools.MainTabs.None || sharedParameters.isUnloaded())
+            return false;
+
+        if (!pendingTabRescans.add(tool))
+            return false;
+
+        sharedParameters.printDebugMessage("scheduleTabRescan: a delayed rescan has been scheduled for " + tool);
+
+        sharedParameters.delayedTasks.schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        pendingTabRescans.remove(tool);
+                        if (sharedParameters.isUnloaded())
+                            return;
+                        SwingUtilities.invokeLater(() -> {
+                            if (sharedParameters.isUnloaded())
+                                return;
+                            loadSettings(tool);
+                            saveSettings(tool);
+                        });
+                    }
+                },
+                getTabRescanDelayMs(tool)
+        );
+        return true;
     }
 
     public void loadSettings(BurpUITools.MainTabs currentMainTab) {
@@ -268,7 +319,12 @@ public class SubTabsSettingsV2 extends StandardSettings {
                             sharedParameters.allSubTabContainerHandlers.put(tool, new ArrayList<>());
                         }
 
-                        if (currentMainTab == null || (currentToolTabbedPane != null && sharedParameters.allSubTabContainerHandlers.get(tool).size() != currentToolTabbedPane.getTabCount())) {
+                        // the handler list is refreshed when the counts differ, and also when a tab has
+                        // no handler while the counts still match, for example when a tab was closed and
+                        // a new one was added before the delayed update ran
+                        if (currentMainTab == null
+                                || sharedParameters.allSubTabContainerHandlers.get(tool).size() != currentToolTabbedPane.getTabCount()
+                                || hasTabWithoutHandler(currentToolTabbedPane, sharedParameters.allSubTabContainerHandlers.get(tool))) {
                             // this is not a drag and drop
                             ArrayList<SubTabsContainerHandler> subTabsContainerHandlers = sharedParameters.allSubTabContainerHandlers.get(tool);
 
@@ -316,6 +372,28 @@ public class SubTabsSettingsV2 extends StandardSettings {
         } catch (Exception err) {
             sharedParameters.printlnError("Lock timeout in SubTabsSettings.updateAllSubTabContainerHandlersObj");
         }
+    }
+
+    // True when a tab of the tabbed pane has no handler yet. This can happen when a tab
+    // change event was missed, so the tab count alone cannot show that a tab is unknown.
+    private boolean hasTabWithoutHandler(JTabbedPane toolTabbedPane, ArrayList<SubTabsContainerHandler> subTabsContainerHandlers) {
+        for (int subTabIndex = 0; subTabIndex < toolTabbedPane.getTabCount(); subTabIndex++) {
+            Component tabComponent = toolTabbedPane.getTabComponentAt(subTabIndex);
+            if (!(tabComponent instanceof Container tabContainer))
+                continue;
+
+            boolean hasHandler = false;
+            for (SubTabsContainerHandler subTabsContainerHandler : subTabsContainerHandlers) {
+                if (tabContainer.equals(subTabsContainerHandler.currentTabContainer)) {
+                    hasHandler = true;
+                    break;
+                }
+            }
+
+            if (!hasHandler)
+                return true;
+        }
+        return false;
     }
 
     private void unsetSubTabsStyle() {
