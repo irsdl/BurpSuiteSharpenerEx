@@ -7,14 +7,12 @@ on:
   push:
     branches:
       - main
-      - early-adopter
   pull_request:
     branches:
       - main
 
 jobs:
   build:
-    if: github.event_name != 'pull_request' || github.head_ref != 'early-adopter' || github.base_ref != 'main'
     runs-on: ubuntu-latest
 
     steps:
@@ -36,7 +34,7 @@ jobs:
         with:
           path: ./releases/*.jar
           name: Downloadable Extension File
-      # The release steps below must only run for pushes to main or early-adopter.
+      # The release steps below must only run for pushes to main.
       # On pull_request events the ref is not a branch, so they would wrongly
       # use the early_adopter_ prefix and replace a release from a PR build.
       - name: Get previous tag for the branch
@@ -82,12 +80,28 @@ jobs:
           else
             echo "RELEASE_TAG=early_adopter_${VERSION}" >> $GITHUB_ENV
           fi
+      - name: Build release notes from CHANGES.md
+        if: github.event_name == 'push'
+        run: |
+          # Copy the section of the released version from CHANGES.md.
+          # The heading format must be: ## Version X.Y (YYYY-MM-DD)
+          awk -v ver="$VERSION" '
+            index($0, "## Version " ver " ") == 1 {found=1; next}
+            found && /^## / {exit}
+            found {print}
+          ' CHANGES.md > release_notes.md
+
+          if [[ ! -s release_notes.md ]]; then
+            echo "This jar file has been built by GitHub automatically." > release_notes.md
+          fi
+          echo "" >> release_notes.md
+          echo "Full change history: https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/CHANGES.md" >> release_notes.md
       - name: Create Release using GitHub CLI
         if: github.event_name == 'push'
         run: |
           gh release create ${{ env.RELEASE_TAG }} ./releases/*.jar \
             --title "Release ${{ env.RELEASE_TAG }}" \
-            --notes "This jar file has been built by GitHub automatically." \
+            --notes-file release_notes.md \
             --repo ${{ github.repository }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
