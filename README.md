@@ -43,7 +43,7 @@ Refer to the "Burp Suite Compatibility and Reporting Errors" section for detaile
 # Burp Suite Compatibility and Reporting Errors
 This extension targets the most recent Burp Suite release. It was last tested with the pro version 2026.4.3, the most recent stable release at the time of this documentation. It is also compatible with the community edition. The minimum supported version is Burp Suite 2024.2, as that is the first release that requires Java 21.
 
-For those keen on using the latest updates, the [early-adopter branch](https://github.com/irsdl/BurpSuiteSharpenerEx/tree/early-adopter) is available.
+All changes are released from the `main` branch. See [CHANGES.md](CHANGES.md) for the change history of each release.
 
 We actively use this extension and occasionally observe potential errors, particularly when Burp Suite updates its core functionalities or UI. As an open-source project, we heavily rely on community feedback for enhancements and bug fixes. If you encounter any issues, kindly report them on our [issues page](https://github.com/irsdl/BurpSuiteSharpenerEx/issues). Additionally, if you value our work, please consider [sponsoring](https://github.com/sponsors/irsdl) this project.
 
@@ -121,6 +121,16 @@ Perhaps the best features can be imported from different open-source extensions 
 ![images/img_8.png](images/img_8.png)
 
 ![images/img_9.png](images/img_9.png)
+
+# Contributing
+Pull requests are welcome. A few rules keep the automated release pipeline working:
+
+* All changes go through pull requests into the `main` branch (direct pushes are blocked).
+* Build with `./gradlew jar` (requires JDK 21). The test suite must pass: `./gradlew build` runs it headless.
+* New or changed behaviour must be covered by test cases in `src/test/java`. The extension cannot run outside Burp Suite, so tests use mocked Montoya interfaces and plain Swing components.
+* Releases are created automatically when a pull request that bumps the version is merged. To make a release:
+  * Bump `version` in `src/main/resources/extension.properties`. It must stay parseable as a number (for example `4.7`), because the update checker compares it numerically.
+  * Add a matching section at the top of [CHANGES.md](CHANGES.md) with the exact heading format `## Version X.Y (YYYY-MM-DD)`. CI copies that section into the GitHub release notes.
 
 # Thanks To
 * Corey Arthur [CoreyD97](https://twitter.com/CoreyD97) for https://github.com/CoreyD97/Burp-Montoya-Utilities/
