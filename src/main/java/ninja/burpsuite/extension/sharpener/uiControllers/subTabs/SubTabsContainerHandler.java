@@ -11,6 +11,7 @@ import ninja.burpsuite.extension.sharpener.objects.TabFeaturesObject;
 import ninja.burpsuite.extension.sharpener.objects.TabFeaturesObjectStyle;
 import ninja.burpsuite.libs.burp.generic.BurpUITools;
 import ninja.burpsuite.libs.generic.ImageHelper;
+import ninja.burpsuite.libs.generic.MouseEventForwarder;
 import ninja.burpsuite.libs.generic.uiObjFinder.UIWalker;
 import ninja.burpsuite.libs.generic.uiObjFinder.UiSpecObject;
 import org.apache.commons.lang3.StringUtils;
@@ -41,7 +42,10 @@ public class SubTabsContainerHandler {
     private String beforeManualEditTabTitle = "";
     private Color originalTabColor;
     private PropertyChangeListener subTabPropertyChangeListener;
+    private ComponentListener subTabComponentWatcher;
     private boolean isFromSetColor = false;
+    private MouseEventForwarder subTabContainerClickForwarder;
+    private LayoutManager originalTabLayout;
     private ArrayList<String> titleHistory = new ArrayList<>();
     private boolean _isVisible = true;
     private boolean _hasChanges = false;
@@ -80,6 +84,22 @@ public class SubTabsContainerHandler {
 
         currentToolTab = BurpUITools.getMainTabsObjFromString(toolTabName);
         this.currentTabContainer = (Container) currentTabTemp;
+
+        // remember Burp's own tab layout so it can be restored after an icon is removed. The icon
+        // needs a different layout, and rebuilding a generic one afterwards made the tab narrower
+        // than a plain Burp tab. Restoring the captured layout keeps the tab its normal size.
+        if (!sharedParameters.isTabTextColorSetByBackground) {
+            LayoutManager currentLayout = currentTabContainer.getLayout();
+            // Burp lays out its tab with its own custom layout manager (a burp.* class). A standard
+            // AWT or Swing layout here (FlowLayout, BorderLayout) means the tab was already changed by
+            // this extension (possibly an older damaged version), so it is not captured as the original.
+            if (currentLayout != null) {
+                String layoutClass = currentLayout.getClass().getName();
+                if (!layoutClass.startsWith("java.awt.") && !layoutClass.startsWith("javax.swing.")) {
+                    originalTabLayout = currentLayout;
+                }
+            }
+        }
 
         UiSpecObject textFieldTabTitleUSO = new UiSpecObject(JTextField.class);
         currentTabTextField = (JComponent) UIWalker.findUIObjectInSubComponents(currentTabContainer, 1, textFieldTabTitleUSO);
@@ -131,10 +151,12 @@ public class SubTabsContainerHandler {
                         } else {
                             if (!((boolean) evt.getNewValue())) {
                                 titleEditInProgress = false;
-                                new java.util.Timer().schedule(
+                                sharedParameters.delayedTasks.schedule(
                                         new java.util.TimerTask() {
                                             @Override
                                             public void run() {
+                                                if (sharedParameters.isUnloaded())
+                                                    return;
                                                 setColor(originalTabColor, false);
                                                 if (!beforeManualEditTabTitle.equals(getTabTitle())) {
                                                     addTitleHistory(beforeManualEditTabTitle, true);
@@ -151,6 +173,11 @@ public class SubTabsContainerHandler {
                     }
 
                 } else if (evt.getPropertyName().equalsIgnoreCase("disabledTextColor")) {
+                    if (!sharedParameters.isTabTextColorSetByBackground) {
+                        // Burp 2026+ sets the tab colour through the tabbed pane foreground,
+                        // so the title field disabledTextColor is no longer used for colouring
+                        return;
+                    }
                     boolean isFromSetToDefault = false;
                     Color newColor = (Color) evt.getNewValue();
 
@@ -172,7 +199,7 @@ public class SubTabsContainerHandler {
                 }
             };
             this.currentTabTextField.addPropertyChangeListener(subTabPropertyChangeListener);
-            this.currentTabTextField.addComponentListener(new ComponentListener() {
+            subTabComponentWatcher = new ComponentListener() {
                 @Override
                 public void componentResized(ComponentEvent e) {
                     // Do nothing
@@ -196,9 +223,17 @@ public class SubTabsContainerHandler {
                         setVisibleIcon(false, false);
                     }
                 }
-            });
+            };
+            this.currentTabTextField.addComponentListener(subTabComponentWatcher);
         } else if (this.currentTabTextField.getPropertyChangeListeners().length == 3) {
             subTabPropertyChangeListener = this.currentTabTextField.getPropertyChangeListeners()[2];
+        }
+        // on new Burp the tab container swallows clicks on its free space, so a click on the
+        // padding between the title and the close button never reaches the tabbed pane. This
+        // forwarder makes the whole tab clickable, so middle-click opens the menu and a left
+        // click on the free space selects the tab, matching a plain Burp tab.
+        if (currentTabContainer instanceof JComponent) {
+            addContainerClickForwarder((JComponent) currentTabContainer);
         }
         return true;
     }
@@ -206,6 +241,13 @@ public class SubTabsContainerHandler {
     public void removeSubTabWatcher() {
         if (subTabPropertyChangeListener != null) {
             this.currentTabTextField.removePropertyChangeListener(subTabPropertyChangeListener);
+        }
+        // the component listener added by addSubTabWatcher must be removed too, otherwise it stays on the tab after unload
+        if (subTabComponentWatcher != null) {
+            this.currentTabTextField.removeComponentListener(subTabComponentWatcher);
+        }
+        if (currentTabContainer instanceof JComponent) {
+            removeContainerClickForwarder((JComponent) currentTabContainer);
         }
     }
 
@@ -247,7 +289,17 @@ public class SubTabsContainerHandler {
         // To set the defaultSubTabObject parameter which keeps default settings of a normal tab
         if (sharedParameters.defaultTabFeaturesObjectStyle == null) {
             var defFont = UIManager.getDefaults().getFont("TabbedPane.font");
-            var defColor = UIManager.getDefaults().getColor("TabbedPane.foreground");
+            Color defColor;
+            if (sharedParameters.isTabTextColorSetByBackground) {
+                defColor = UIManager.getDefaults().getColor("TabbedPane.foreground");
+            } else {
+                // Burp 2026+ paints an unset tab with the tabbed pane default foreground colour
+                if (parentTabbedPane != null && parentTabbedPane.getForeground() != null) {
+                    defColor = parentTabbedPane.getForeground();
+                } else {
+                    defColor = UIManager.getDefaults().getColor("TabbedPane.foreground");
+                }
+            }
             sharedParameters.defaultTabFeaturesObjectStyle = new TabFeaturesObjectStyle("Default", defFont.getFontName(),
                     defFont.getSize(), defFont.isBold(), defFont.isItalic(), true, defColor,
                     "", 0);
@@ -255,12 +307,21 @@ public class SubTabsContainerHandler {
     }
 
     public boolean isDefaultColour(Color color) {
+        if (color == null)
+            return false;
+
+        // the current look and feel default colour also counts as a default colour
+        if (sharedParameters.defaultTabFeaturesObjectStyle != null
+                && color.equals(sharedParameters.defaultTabFeaturesObjectStyle.getColor()))
+            return true;
+
+        String rgbHex = Integer.toHexString(color.getRGB()).substring(2);
         if (!sharedParameters.isDarkMode) {
-            // light mode workaround
-            return Integer.toHexString(color.getRGB()).substring(2).equals("000000") || Integer.toHexString(color.getRGB()).substring(2).equals("010101");
+            // light mode workaround, the second check covers the reset marker colour
+            return rgbHex.equals("000000") || isSetToDefaultColour(color);
         } else {
-            // dark mode workaround
-            return Integer.toHexString(color.getRGB()).substring(2).equals("bbbbbb") || Integer.toHexString(color.getRGB()).substring(2).equals("bcbcbc");
+            // dark mode workaround, the second check covers the reset marker colour
+            return rgbHex.equals("bbbbbb") || isSetToDefaultColour(color);
         }
     }
 
@@ -313,22 +374,33 @@ public class SubTabsContainerHandler {
     }
 
     public void setToDefault(boolean ignoreHasChanges) {
+        setToDefault(ignoreHasChanges, true);
+    }
+
+    public void setToDefault(boolean ignoreHasChanges, boolean useResetMarkerColour) {
         if (isValid()) {
             loadDefaultSetting();
-            // in order to set the right colour when reset to default is used, we need to use a special colour to detect this event
-            // this is because Burp does use the default colour when an item is changed - we have a workaround for that but
-            // the workaround stops reset to default to change the colour as well, so we need another workaround!!!
             TabFeaturesObjectStyle tfosDefault = sharedParameters.defaultTabFeaturesObjectStyle;
             if (tfosDefault != null) {
-                if (!sharedParameters.isDarkMode) {
-                    // light mode workaround
-                    tfosDefault.setColor(Color.decode("#010101"));
-                } else {
-                    // dark mode workaround
-                    tfosDefault.setColor(Color.decode("#bcbcbc"));
+                // a copy is used so the shared default style object is never changed
+                TabFeaturesObjectStyle tfosToApply = tfosDefault.duplicate();
+                // the reset marker workaround is only needed on old Burp. Burp 2026+ sets the colour
+                // through the tabbed pane foreground, which applies the default colour directly.
+                if (useResetMarkerColour && sharedParameters.isTabTextColorSetByBackground) {
+                    // in order to set the right colour when reset to default is used, we need to use a special colour to detect this event
+                    // this is because Burp does use the default colour when an item is changed - we have a workaround for that but
+                    // the workaround stops reset to default to change the colour as well, so we need another workaround!!!
+                    // the sub-tab watcher detects this marker colour and then applies the real default colour
+                    if (!sharedParameters.isDarkMode) {
+                        // light mode workaround
+                        tfosToApply.setColor(Color.decode("#010101"));
+                    } else {
+                        // dark mode workaround
+                        tfosToApply.setColor(Color.decode("#bcbcbc"));
+                    }
                 }
                 removeIcon(ignoreHasChanges);
-                updateByTabFeaturesObjectStyle(tfosDefault, ignoreHasChanges);
+                updateByTabFeaturesObjectStyle(tfosToApply, ignoreHasChanges);
             }
         }
     }
@@ -567,23 +639,61 @@ public class SubTabsContainerHandler {
     }
 
     public Color getColor() {
+        if (!sharedParameters.isTabTextColorSetByBackground && isValid()) {
+            // Burp 2026+ paints the tab title using the tabbed pane per-tab foreground colour
+            Color tabForeground = parentTabbedPane.getForegroundAt(getTabIndex());
+            if (tabForeground != null)
+                return tabForeground;
+            // no explicit colour means the tab uses the tabbed pane default colour
+            return parentTabbedPane.getForeground();
+        }
         return currentTabTextField.getForeground();
     }
 
     public String getColorCode() {
-        return String.format("#%06x", currentTabTextField.getForeground().getRGB() & 0xFFFFFF);
+        Color color = getColor();
+        int rgb = (color == null) ? 0 : color.getRGB();
+        return String.format("#%06x", rgb & 0xFFFFFF);
     }
 
     public void setColor(Color color, boolean ignoreHasChanges) {
-        if (isValid() && !getColor().equals(color)) {
-            isFromSetColor = true;
-            if (!ignoreHasChanges)
-                setHasChanges(true);
-            parentTabbedPane.setBackgroundAt(getTabIndex(), color);
+        if (!isValid() || color == null)
+            return;
+
+        if (sharedParameters.isTabTextColorSetByBackground) {
+            if (!getColor().equals(color)) {
+                isFromSetColor = true;
+                if (!ignoreHasChanges)
+                    setHasChanges(true);
+                // old Burp used this colour as the tab title text colour
+                parentTabbedPane.setBackgroundAt(getTabIndex(), color);
+            }
+        } else {
+            // Burp 2026+ paints the tab title using the tabbed pane per-tab foreground colour.
+            // Setting the title text field colour no longer changes what is painted.
+            int index = getTabIndex();
+            Color currentTabForeground = parentTabbedPane.getForegroundAt(index);
+            if (currentTabForeground == null || !currentTabForeground.equals(color)) {
+                if (!ignoreHasChanges)
+                    setHasChanges(true);
+                parentTabbedPane.setForegroundAt(index, color);
+            }
+            resetTabBackground();
+        }
+    }
+
+    private void resetTabBackground() {
+        Color currentTabBackground = parentTabbedPane.getBackgroundAt(getTabIndex());
+        // a null colour makes the tab use the default tabbed pane background again
+        if (currentTabBackground != null && !currentTabBackground.equals(parentTabbedPane.getBackground())) {
+            parentTabbedPane.setBackgroundAt(getTabIndex(), null);
         }
     }
 
     public void showCloseButton(boolean ignoreHasChanges) {
+        if (!sharedParameters.isTabTextColorSetByBackground)
+            // new Burp shows the close button only on the selected tab, so it is left to Burp
+            return;
         if (isValid() && currentTabCloseButton != null && !currentTabCloseButton.isVisible()) {
             if (!ignoreHasChanges)
                 setHasChanges(true);
@@ -594,6 +704,9 @@ public class SubTabsContainerHandler {
     }
 
     public void hideCloseButton(boolean ignoreHasChanges) {
+        if (!sharedParameters.isTabTextColorSetByBackground)
+            // new Burp shows the close button only on the selected tab, so it is left to Burp
+            return;
         if (isValid() && currentTabCloseButton != null && currentTabCloseButton.isVisible()) {
             if (!ignoreHasChanges)
                 setHasChanges(true);
@@ -626,9 +739,20 @@ public class SubTabsContainerHandler {
                         jLabel.setName(iconString + ":" + iconSize);
                         jLabel.setOpaque(false);
                         jLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder());
-                        tabComponent.setLayout(new FlowLayout(FlowLayout.CENTER));
-                        tabComponent.setSize(tabComponent.getComponent(1).getWidth() + jLabel.getWidth(), tabComponent.getHeight());
-                        tabComponent.add(jLabel, 0);
+                        // clicks on the icon must still reach the tabbed pane so the tab can be selected
+                        jLabel.addMouseListener(new MouseEventForwarder(parentTabbedPane));
+                        if (sharedParameters.isTabTextColorSetByBackground) {
+                            // old Burp: the original layout only manages the title, so a generic layout is needed
+                            tabComponent.setLayout(new FlowLayout(FlowLayout.CENTER));
+                            tabComponent.setSize(tabComponent.getComponent(1).getWidth() + jLabel.getWidth(), tabComponent.getHeight());
+                            tabComponent.add(jLabel, 0);
+                        } else {
+                            // new Burp: a BorderLayout would stretch the title across the tab and leave a
+                            // gap between the icon and the text, so a tight FlowLayout is used instead.
+                            // the whole-tab click forwarder is already added by addSubTabWatcher.
+                            tabComponent.setLayout(new FlowLayout(FlowLayout.LEADING, 4, 0));
+                            tabComponent.add(jLabel, 0);
+                        }
                         if (!ignoreHasChanges) {
                             parentTabbedPane.revalidate();
                             parentTabbedPane.repaint();
@@ -660,7 +784,7 @@ public class SubTabsContainerHandler {
     }
 
     public void removeIcon(boolean ignoreHasChanges) {
-        if (hasIcon() && isValid()) {
+        if (isValid()) {
             JComponent tabComponent = (JComponent) parentTabbedPane.getTabComponentAt(getTabIndex());
             if (tabComponent.getComponent(0) instanceof JLabel) {
                 // we have an icon set
@@ -670,7 +794,65 @@ public class SubTabsContainerHandler {
                     parentTabbedPane.repaint();
                 }
             }
+            // the whole-tab click forwarder stays on the tab (it is removed on unload by removeSubTabWatcher)
+            // heals tabs which lost their original layout to an older version of this extension,
+            // and restores the normal Burp BorderLayout after the tight icon FlowLayout is removed
+            repairTabComponentLayout(tabComponent);
         }
+    }
+
+    private void addContainerClickForwarder(JComponent tabComponent) {
+        if (sharedParameters.isTabTextColorSetByBackground || subTabContainerClickForwarder != null)
+            return;
+
+        subTabContainerClickForwarder = new MouseEventForwarder(parentTabbedPane);
+        tabComponent.addMouseListener(subTabContainerClickForwarder);
+    }
+
+    private void removeContainerClickForwarder(JComponent tabComponent) {
+        if (subTabContainerClickForwarder == null)
+            return;
+
+        tabComponent.removeMouseListener(subTabContainerClickForwarder);
+        subTabContainerClickForwarder = null;
+    }
+
+    private void repairTabComponentLayout(JComponent tabComponent) {
+        // only new Burp is handled; its tab component uses Burp's own custom layout
+        if (sharedParameters.isTabTextColorSetByBackground)
+            return;
+
+        // preferred path: restore Burp's own captured tab layout, so the tab keeps the same size
+        // and look as a plain Burp tab after an icon is removed
+        if (originalTabLayout != null) {
+            if (tabComponent.getLayout() != originalTabLayout) {
+                tabComponent.setLayout(originalTabLayout);
+                tabComponent.revalidate();
+                tabComponent.repaint();
+            }
+            return;
+        }
+
+        // fallback for tabs whose original layout was not captured (for example a tab damaged by an
+        // older extension version): rebuild a generic BorderLayout so the tab is at least usable
+        if (tabComponent.getLayout() instanceof BorderLayout)
+            return;
+
+        tabComponent.setLayout(new BorderLayout(10, 0));
+        boolean sideUsed = false;
+        for (Component tabComponentChild : tabComponent.getComponents()) {
+            if (tabComponentChild == currentTabTextField) {
+                tabComponent.add(tabComponentChild, BorderLayout.CENTER);
+            } else if (tabComponentChild instanceof JLabel) {
+                tabComponent.add(tabComponentChild, BorderLayout.LINE_START);
+            } else if (!sideUsed) {
+                // best effort for other items such as the close button
+                tabComponent.add(tabComponentChild, BorderLayout.LINE_END);
+                sideUsed = true;
+            }
+        }
+        tabComponent.revalidate();
+        tabComponent.repaint();
     }
 
     public String getIconString() {
@@ -723,6 +905,11 @@ public class SubTabsContainerHandler {
     }
 
     public boolean getVisibleCloseButton() {
+        if (!sharedParameters.isTabTextColorSetByBackground)
+            // new Burp toggles the close button per selection, so a stable default is reported
+            // instead of the live state to keep styles from changing as tabs are selected
+            return true;
+
         if (!isValid()) {
             return true;
         }

@@ -139,15 +139,10 @@ public class TopMenu extends javax.swing.JMenu {
                 if (tool.toString().equalsIgnoreCase("none"))
                     continue;
 
-                if (sharedParameters.burpMajorVersion >= 2023 && (
-                        tool.equals(BurpUITools.MainTabs.Extender) ||
-                                tool.equals(BurpUITools.MainTabs.UserOptions) ||
-                                tool.equals(BurpUITools.MainTabs.ProjectOptions)
-                )) {
-                    continue;
-                } else if (sharedParameters.burpMajorVersion < 2023 && (
-                        tool.equals(BurpUITools.MainTabs.Extensions)
-                )) {
+                // these tabs do not exist in supported Burp versions (2024.2 and later)
+                if (tool.equals(BurpUITools.MainTabs.Extender) ||
+                        tool.equals(BurpUITools.MainTabs.UserOptions) ||
+                        tool.equals(BurpUITools.MainTabs.ProjectOptions)) {
                     continue;
                 }
 

@@ -84,10 +84,14 @@ public class BurpFrameListeners implements ComponentListener {
                 if (resizedFrameLock.tryLock(5, TimeUnit.SECONDS)) {
                     try {
                         isResizedFrameCheckInProgress = true;
-                        new java.util.Timer().schedule(
+                        sharedParameters.delayedTasks.schedule(
                                 new java.util.TimerTask() {
                                     @Override
                                     public void run() {
+                                        if (sharedParameters.isUnloaded()) {
+                                            isResizedFrameCheckInProgress = false;
+                                            return;
+                                        }
                                         try {
                                             Dimension newSize = e.getComponent().getBounds().getSize();
                                             Point newLocation = e.getComponent().getBounds().getLocation();
@@ -127,10 +131,14 @@ public class BurpFrameListeners implements ComponentListener {
                 if (movedFrameLock.tryLock(5, TimeUnit.SECONDS)) {
                     try {
                         isMovedFrameCheckInProgress = true;
-                        new java.util.Timer().schedule(
+                        sharedParameters.delayedTasks.schedule(
                                 new java.util.TimerTask() {
                                     @Override
                                     public void run() {
+                                        if (sharedParameters.isUnloaded()) {
+                                            isMovedFrameCheckInProgress = false;
+                                            return;
+                                        }
                                         try {
                                             Dimension newSize = e.getComponent().getBounds().getSize();
                                             Point newLocation = e.getComponent().getBounds().getLocation();
@@ -179,10 +187,14 @@ public class BurpFrameListeners implements ComponentListener {
                 if (recenterLock.tryLock(5, TimeUnit.SECONDS)) {
                     try {
                         isRecenterInProgress = true;
-                        new java.util.Timer().schedule(
+                        sharedParameters.delayedTasks.schedule(
                                 new java.util.TimerTask() {
                                     @Override
                                     public void run() {
+                                        if (sharedParameters.isUnloaded()) {
+                                            isRecenterInProgress = false;
+                                            return;
+                                        }
                                         if (jframe != null && UIHelper.isFrameOutOffScreen(jframe, offScreenMargin)) {
                                             if (isChoice) {
                                                 int response = UIHelper.askConfirmMessage(sharedParameters.extensionName + ": Off Screen Window", "Burp Suite is " + (int) (offScreenMargin * 100) + "% outside the screen, do you want to bring it to the center?", new String[]{"Yes", "No"}, null);

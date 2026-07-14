@@ -60,12 +60,7 @@ public class SubTabsSettingsV2 extends StandardSettings {
             PreferenceObject preferenceObject_minimizeSize_SubTab = new PreferenceObject("minimizeSize_" + tool, Boolean.TYPE, false, Preferences.Visibility.PROJECT);
             preferenceObjectCollection.add(preferenceObject_minimizeSize_SubTab);
 
-            PreferenceObject preferenceObject_isTabFixedPositionUI_SubTab;
-            if (sharedParameters.burpMajorVersion > 2022 || (sharedParameters.burpMajorVersion == 2022 && sharedParameters.burpMinorVersion >= 3)) {
-                preferenceObject_isTabFixedPositionUI_SubTab = new PreferenceObject("isTabFixedPosition_" + tool, Boolean.TYPE, true, Preferences.Visibility.PROJECT);
-            } else {
-                preferenceObject_isTabFixedPositionUI_SubTab = new PreferenceObject("isTabFixedPosition_" + tool, Boolean.TYPE, false, Preferences.Visibility.PROJECT);
-            }
+            PreferenceObject preferenceObject_isTabFixedPositionUI_SubTab = new PreferenceObject("isTabFixedPosition_" + tool, Boolean.TYPE, true, Preferences.Visibility.PROJECT);
             preferenceObjectCollection.add(preferenceObject_isTabFixedPositionUI_SubTab);
         }
 
@@ -116,10 +111,12 @@ public class SubTabsSettingsV2 extends StandardSettings {
                                     if (sharedParameters.preferences.safeGetBooleanSetting("isScrollable_" + tool)) {
                                         try {
                                             // this causes error on Burp start, so we need to run it with a delay
-                                            new java.util.Timer().schedule(
+                                            sharedParameters.delayedTasks.schedule(
                                                     new java.util.TimerTask() {
                                                         @Override
                                                         public void run() {
+                                                            if (sharedParameters.isUnloaded())
+                                                                return;
                                                             var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(tool);
                                                             if (currentToolTabbedPane != null) {
                                                                 currentToolTabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -203,9 +200,14 @@ public class SubTabsSettingsV2 extends StandardSettings {
                     if (sharedParameters.get_rootTabbedPaneUsingMontoya() != null) {
                         sharedParameters.printDebugMessage("Adding MiddleClick / RightClick+Alt to Repeater and Intruder");
 
-                        subTabsListeners = new SubTabsListenersV2(sharedParameters, mouseEvent -> {
-                            SubTabsActions.tabClicked(mouseEvent, sharedParameters);
-                        });
+                        if (subTabsListeners == null) {
+                            subTabsListeners = new SubTabsListenersV2(sharedParameters, mouseEvent -> {
+                                SubTabsActions.tabClicked(mouseEvent, sharedParameters);
+                            });
+                        } else {
+                            // reuse the same listener object so no component listeners are left behind
+                            subTabsListeners.refreshListeners();
+                        }
                     }
                 } finally {
                     updateInProgressLock.unlock();
@@ -283,7 +285,8 @@ public class SubTabsSettingsV2 extends StandardSettings {
 
                                     if (!updatedSubTabsContainerHandlers.contains(tempSubTabsContainerHandler)) {
                                         // we have a new tab
-                                        tempSubTabsContainerHandler.setToDefault(true);
+                                        // no reset marker colour is needed here because the watcher is added after this call
+                                        tempSubTabsContainerHandler.setToDefault(true, false);
                                         tempSubTabsContainerHandler.addSubTabWatcher();
                                         updatedSubTabsContainerHandlers.add(tempSubTabsContainerHandler);
                                     }
@@ -346,7 +349,8 @@ public class SubTabsSettingsV2 extends StandardSettings {
                                         subTabsContainerHandler.setVisible(true);
                                     subTabsContainerHandler.removeIcon(true);
                                     subTabsContainerHandler.removeSubTabWatcher();
-                                    subTabsContainerHandler.setToDefault(true);
+                                    // no reset marker colour is needed here because the watcher has been removed
+                                    subTabsContainerHandler.setToDefault(true, false);
                                 }
                             }
 

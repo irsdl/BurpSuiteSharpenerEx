@@ -33,7 +33,6 @@ import java.util.regex.Pattern;
 public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHandler {
     private ExtensionSharedParameters sharedParameters = null;
     private Boolean isActive = null;
-    private boolean anotherExist = false;
     private PropertyChangeListener lookAndFeelPropChangeListener;
 
     @Override
@@ -90,6 +89,22 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
         if (sharedParameters.features.hasTopMenu) {
             sharedParameters.topMenuBar = new TopMenu(sharedParameters);
             sharedParameters.extensionTopMenuRegistration = api.userInterface().menuBar().registerMenu(sharedParameters.topMenuBar);
+
+            // After a look and feel (theme) change and reload, the freshly added menu can be given a
+            // zero size because its UI delegate is not installed for the current theme, so it does not
+            // paint even though it is in the menu bar. Reinstall its UI and re-lay out the menu bar.
+            SwingUtilities.invokeLater(() -> {
+                try {
+                    sharedParameters.topMenuBar.updateUI();
+                    JMenuBar mainMenuBar = sharedParameters.get_mainMenuBarUsingMontoya();
+                    if (mainMenuBar != null) {
+                        mainMenuBar.revalidate();
+                        mainMenuBar.repaint();
+                    }
+                } catch (Exception e) {
+                    sharedParameters.printDebugMessage("Could not refresh the top menu layout: " + e.getMessage());
+                }
+            });
         }
 
         if (sharedParameters.features.hasHttpRequestEditor) {
@@ -129,46 +144,68 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
         try {
             sharedParameters.setUIParametersUsingMontoya(10);
 
+            if (!sharedParameters.get_isUILoaded()) {
+                sharedParameters.printlnError("UI cannot be loaded... try again");
+                sharedParameters.montoyaApi.extension().unload();
+                return;
+            }
+
+            // A leftover Sharpener menu can still be present right after a quick unload plus reload,
+            // because Burp removes the old menu only after the previous unload has finished.
+            // Our own menu is registered later, so any menu found now is stale.
+            // We remove it and keep loading instead of unloading ourselves. The old code unloaded here
+            // after the settings were already loaded, which left a half loaded extension behind.
+            if (BurpUITools.isMenuBarLoaded(sharedParameters.extensionName, sharedParameters.get_mainMenuBarUsingMontoya())) {
+                sharedParameters.printlnError("A leftover " + sharedParameters.extensionName + " menu was found. Removing it and continuing to load.");
+                BurpUITools.removeMenuBarByName(sharedParameters.extensionName, sharedParameters.get_mainMenuBarUsingMontoya(), true);
+            }
+
             // This needs to be initialized after the UI is accessible
             initializeSettings();
 
-            if (sharedParameters.get_isUILoaded()) {
-                if (!BurpUITools.isMenuBarLoaded(sharedParameters.extensionName, sharedParameters.get_mainMenuBarUsingMontoya())) {
-
-                    // This is a dirty hack when LookAndFeel changes in the middle, and we lose the style!
-                    lookAndFeelPropChangeListener = evt -> {
-                        sharedParameters.unloadWithoutSave = true; // we need to unload the extension without saving it as major change in UI has occurred (switch to dark/light mode)
-                        new java.util.Timer().schedule(
-                                new java.util.TimerTask() {
-                                    @Override
-                                    public void run() {
-                                        SwingUtilities.invokeLater(() -> {
-                                            sharedParameters.printDebugMessage("lookAndFeelPropChangeListener");
-                                            sharedParameters.defaultTabFeaturesObjectStyle = null;
-                                            UIHelper.showWarningMessage("Due to a major UI change, the " + sharedParameters.extensionName + " extension needs to be unload. Please load it manually.", sharedParameters.get_mainFrameUsingMontoya());
-                                            BurpUITools.switchToMainTab("Extender", sharedParameters.get_rootTabbedPaneUsingMontoya());
-                                            sharedParameters.montoyaApi.extension().unload();
-                                        });
+            // This is a dirty hack when LookAndFeel changes in the middle, and we lose the style!
+            lookAndFeelPropChangeListener = evt -> {
+                // only react to the actual look and feel switch, not every UIManager change
+                if (evt.getPropertyName() == null || !evt.getPropertyName().equals("lookAndFeel"))
+                    return;
+                sharedParameters.unloadWithoutSave = true; // we need to unload the extension without saving it as major change in UI has occurred (switch to dark/light mode)
+                sharedParameters.delayedTasks.schedule(
+                        new java.util.TimerTask() {
+                            @Override
+                            public void run() {
+                                if (sharedParameters.isUnloaded())
+                                    return;
+                                SwingUtilities.invokeLater(() -> {
+                                    if (sharedParameters.isUnloaded())
+                                        return;
+                                    sharedParameters.printDebugMessage("lookAndFeelPropChangeListener");
+                                    sharedParameters.defaultTabFeaturesObjectStyle = null;
+                                    try {
+                                        BurpUITools.switchToMainTab(BurpUITools.MainTabs.Extensions.toString(), sharedParameters.get_rootTabbedPaneUsingMontoya());
+                                    } catch (Exception ex) {
+                                        sharedParameters.printDebugMessage("Could not switch to the extensions tab: " + ex.getMessage());
                                     }
-                                },
-                                2000
-                        );
-                    };
+                                    try {
+                                        // shown on the EDT so it renders correctly during the theme change; the old code used a
+                                        // background thread which drew an empty dialog while the look and feel was still switching
+                                        JOptionPane.showMessageDialog(sharedParameters.get_mainFrameUsingMontoya(),
+                                                "Due to a major UI change, the " + sharedParameters.extensionName + " extension needs to be unloaded. Please load it manually.",
+                                                "Warning", JOptionPane.WARNING_MESSAGE);
+                                    } catch (Throwable ignored) {
+                                        // never let a broken dialog stop the unload below
+                                    }
+                                    // the unload must always run, even if the message or tab switch above failed
+                                    sharedParameters.montoyaApi.extension().unload();
+                                });
+                            }
+                        },
+                        2000
+                );
+            };
 
-                    sharedParameters.printDebugMessage("addPropertyChangeListener: lookAndFeelPropChangeListener");
-                    UIManager.addPropertyChangeListener(lookAndFeelPropChangeListener);
+            sharedParameters.printDebugMessage("addPropertyChangeListener: lookAndFeelPropChangeListener");
+            UIManager.addPropertyChangeListener(lookAndFeelPropChangeListener);
 
-                } else {
-                    anotherExist = true;
-                    String errMessage = "The top menu for this extension already exists. Has it been loaded twice?";
-                    sharedParameters.printlnError(errMessage);
-                    UIHelper.showWarningMessage(errMessage, sharedParameters.get_mainFrameUsingMontoya());
-                    sharedParameters.montoyaApi.extension().unload();
-                }
-            } else {
-                sharedParameters.printlnError("UI cannot be loaded... try again");
-                sharedParameters.montoyaApi.extension().unload();
-            }
         } catch (Exception e) {
             sharedParameters.printlnError("Fatal error in loading the extension");
             sharedParameters.printException(e);
@@ -177,6 +214,8 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
 
     public void unload() {
         sharedParameters.printDebugMessage("unload");
+        // stop all delayed tasks first so nothing fires against the dead Burp API while we clean up
+        sharedParameters.delayedTasks.stop();
         try {
             /*
             // reattaching related tools before working on them!
@@ -192,16 +231,23 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
                 }
             }
             */
-            if (sharedParameters.get_isUILoaded() && !anotherExist) {
+            if (sharedParameters.get_isUILoaded()) {
                 try {
                     sharedParameters.printDebugMessage("removePropertyChangeListener: lookAndFeelPropChangeListener");
                     UIManager.removePropertyChangeListener(lookAndFeelPropChangeListener);
 
                     sharedParameters.allSettings.unloadSettings();
 
-                    // this is a very bad hack but sometimes the UI is still being updated because of SwingUtilities.invokeLater
-                    // so we need to wait for a few seconds before unloading the extension
-                    Thread.sleep(1000);
+                    // sometimes the UI is still being updated because of SwingUtilities.invokeLater,
+                    // so we flush the pending EDT work instead of blocking on a fixed sleep
+                    if (!SwingUtilities.isEventDispatchThread()) {
+                        try {
+                            SwingUtilities.invokeAndWait(() -> {
+                            });
+                        } catch (Exception flushError) {
+                            // ignore, we are unloading anyway
+                        }
+                    }
 
                 } catch (Exception e) {
                     sharedParameters.printlnError("An error has occurred when unloading the " + sharedParameters.extensionName + " extension.");

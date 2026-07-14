@@ -62,11 +62,16 @@ public class TabFeaturesObjectStyle implements Serializable {
         // this.colorCode = Integer.toString(_colorObj.getRGB()); // old easy approach!
     }
 
+    // returns a copy so callers can change it without touching this object
+    public TabFeaturesObjectStyle duplicate() {
+        return new TabFeaturesObjectStyle(name, fontName, fontSize, isBold, isItalic, isCloseButtonVisible, getColor(), iconResourceString, iconSize);
+    }
+
     @Override
     public boolean equals(Object o) {
         boolean result = false;
         if (o instanceof TabFeaturesObjectStyle temp) {
-            if (temp.fontName == fontName && temp.fontSize == fontSize && Boolean.compare(temp.isBold, isBold) == 0 &&
+            if (temp.fontName.equals(fontName) && temp.fontSize == fontSize && Boolean.compare(temp.isBold, isBold) == 0 &&
                     Boolean.compare(temp.isItalic, isItalic) == 0 && temp.iconResourceString.equals(iconResourceString) && temp.iconSize == iconSize &&
                     Boolean.compare(temp.isCloseButtonVisible, isCloseButtonVisible) == 0 && temp.colorCode.equals(colorCode)) {
                 result = true;
