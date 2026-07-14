@@ -92,8 +92,14 @@ public class BurpExtensionSharedParameters {
     private JMenuBar _mainMenuBar = null; // This is Burp Suite's main menu bar
     private JTabbedPane _rootTabbedPane = null; // this is where Burp Suite main tools' tabs are
     private String _originalBurpTitle = ""; // Burp Suite's original frame title
-    private Image _originalBurpIcon = null; // Burp Suite's original frame icon
+    private java.util.List<Image> _originalBurpIcons = null; // Burp Suite's original frame icons
     private boolean _isUILoaded = false; // Burp Suite's original frame icon
+
+    // Original state of OS level taskbar icons, used to restore them on unload.
+    // originalWindowAppIds keeps the Windows AppUserModelID of each changed window ("" means it had none).
+    public final java.util.Map<Window, String> originalWindowAppIds = java.util.Collections.synchronizedMap(new java.util.WeakHashMap<>());
+    public Image originalTaskbarIconImage = null; // original java.awt.Taskbar icon (macOS Dock)
+    public boolean originalTaskbarIconSaved = false;
 
     public enum DebugLevels {
         None("Disabled", 0),
@@ -284,7 +290,7 @@ public class BurpExtensionSharedParameters {
             printDebugMessage("Perhaps unload the extension at this point");
         } else {
             _originalBurpTitle = get_mainFrameUsingMontoya().getTitle();
-            _originalBurpIcon = get_mainFrameUsingMontoya().getIconImage();
+            _originalBurpIcons = get_mainFrameUsingMontoya().getIconImages();
 
             printDebugMessage("Original title and icon has been set");
         }
@@ -456,8 +462,8 @@ public class BurpExtensionSharedParameters {
         return _originalBurpTitle;
     }
 
-    public Image get_originalBurpIcon() {
-        return _originalBurpIcon;
+    public java.util.List<Image> get_originalBurpIcons() {
+        return _originalBurpIcons;
     }
 
     public boolean get_isUILoaded() {

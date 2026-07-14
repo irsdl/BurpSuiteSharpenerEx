@@ -26,6 +26,7 @@ dependencies {
     implementation "com.fifesoft:rsyntaxtextarea:3.6.3" // 2026-06-08, https://mvnrepository.com/artifact/com.fifesoft/rsyntaxtextarea/
     implementation "com.fifesoft:autocomplete:3.3.3" // 2026-01-03, https://mvnrepository.com/artifact/com.fifesoft/autocomplete
     implementation "org.reflections:reflections:0.10.2" // 2021-10-25, latest release, https://mvnrepository.com/artifact/org.reflections/reflections/
+    implementation "net.java.dev.jna:jna:5.15.0" // 2024-09-15, same version as bundled inside Burp Suite (parent class loader wins), https://mvnrepository.com/artifact/net.java.dev.jna/jna
 
     testImplementation "net.portswigger.burp.extensions:montoya-api:$montoyaApiVersion" // same version as compileOnly above
     testImplementation "org.junit.jupiter:junit-jupiter:6.1.0" // 2026-05-19, https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter
