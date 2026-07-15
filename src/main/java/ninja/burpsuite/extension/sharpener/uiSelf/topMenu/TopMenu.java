@@ -11,13 +11,13 @@ import ninja.burpsuite.extension.sharpener.ExtensionMainClass;
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
 import ninja.burpsuite.extension.sharpener.capabilities.implementations.PwnFoxSettings;
 import ninja.burpsuite.extension.sharpener.uiControllers.mainTabs.MainTabsStyleHandler;
+import ninja.burpsuite.extension.sharpener.uiControllers.shortcuts.ShortcutsDialog;
 import ninja.burpsuite.libs.burp.generic.BurpExtensionSharedParameters;
 import ninja.burpsuite.libs.burp.generic.BurpTitleAndIcon;
 import ninja.burpsuite.libs.burp.generic.BurpUITools;
 import ninja.burpsuite.libs.generic.ImageHelper;
+import ninja.burpsuite.libs.generic.ResourceIconCache;
 import ninja.burpsuite.libs.generic.UIHelper;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -25,13 +25,18 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
 import java.net.URI;
 import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class TopMenu extends javax.swing.JMenu {
+public final class TopMenu extends javax.swing.JMenu {
+    private static final long serialVersionUID = 1L;
+
+    // the bundled Burp icons shown in the "Change Burp Suite Icon" menu, and their menu display width
+    public static final String BURP_ICON_FOLDER = "icons";
+    public static final int BURP_ICON_MENU_WIDTH = 16;
+
     private JMenu topMenuForExtension;
     private final transient ExtensionSharedParameters sharedParameters;
     private final String[] themeNames = {"none", "halloween", "game", "hacker", "gradient", "mobster", "office", "@irsdl"};
@@ -294,24 +299,21 @@ public class TopMenu extends javax.swing.JMenu {
 
             // Change title button
             String burpResourceIconName = sharedParameters.preferences.safeGetStringSetting("BurpResourceIconName");
-            Resource[] resourceIcons = new Resource[]{};
-
-            try {
-                PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(sharedParameters.extensionClass.getClassLoader());
-                resourceIcons = resolver.getResources("classpath:icons/*.*");
-
-            } catch (IOException e) {
+            // the icons are loaded once and cached, so rebuilding this menu stays fast
+            java.util.List<ResourceIconCache.NamedIcon> resourceIcons =
+                    ResourceIconCache.getIcons(sharedParameters.extensionClass, BURP_ICON_FOLDER, BURP_ICON_MENU_WIDTH);
+            if (resourceIcons.isEmpty()) {
                 sharedParameters.printDebugMessage("No icon was found in resources");
             }
 
             JMenu changeBurpIcon = new JMenu("Change Burp Suite Icon");
 
             ButtonGroup burpIconGroup = new ButtonGroup();
-            for (Resource resourceIcon : resourceIcons) {
-                String resourcePath = "/icons/" + resourceIcon.getFilename();
-                JRadioButtonMenuItem burpIconImage = new JRadioButtonMenuItem(resourceIcon.getFilename().replaceAll("\\..*$", ""));
-                burpIconImage.setIcon(new ImageIcon(ImageHelper.scaleImageToWidth(ImageHelper.loadImageResource(sharedParameters.extensionClass, resourcePath), 16)));
-                if (resourceIcon.getFilename().equalsIgnoreCase(burpResourceIconName)) {
+            for (ResourceIconCache.NamedIcon resourceIcon : resourceIcons) {
+                String resourcePath = "/icons/" + resourceIcon.fileName();
+                JRadioButtonMenuItem burpIconImage = new JRadioButtonMenuItem(resourceIcon.fileName().replaceAll("\\..*$", ""));
+                burpIconImage.setIcon(resourceIcon.icon());
+                if (resourceIcon.fileName().equalsIgnoreCase(burpResourceIconName)) {
                     burpIconImage.setSelected(true);
                 }
                 burpIconImage.addActionListener((e) -> {
@@ -375,6 +377,16 @@ public class TopMenu extends javax.swing.JMenu {
             projectMenu.add(resetIcon);
             add(projectMenu);
 
+            // Keyboard shortcuts viewer and editor
+            JMenuItem keyboardShortcuts = new JMenuItem(new AbstractAction("Keyboard Shortcuts") {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                    ShortcutsDialog.show(sharedParameters);
+                }
+            });
+            keyboardShortcuts.setToolTipText("Shows all Sharpener shortcuts and allows changing them");
+            add(keyboardShortcuts);
+
             addSeparator();
 
             JMenuItem unloadExtension = new JMenuItem(new AbstractAction("Unload Extension") {
@@ -390,7 +402,9 @@ public class TopMenu extends javax.swing.JMenu {
                     }
 
                     try {
-                        new Timer().schedule(
+                        // a private one-shot daemon timer, on purpose not the shared runner:
+                        // this cleanup must still fire after unload has stopped the shared timer
+                        new Timer("SharpenerTopMenuCleanup", true).schedule(
                                 new TimerTask() {
                                     @Override
                                     public void run() {
@@ -426,7 +440,7 @@ public class TopMenu extends javax.swing.JMenu {
 
                         // A bug in resetting settings in BurpExtenderUtilities should be fixed so we will give it another chance instead of using a workaround
                         // sharedParameters.resetAllSettings();
-                        sharedParameters.preferences.resetAllSettings();
+                        sharedParameters.preferences.resetAll();
                         sharedParameters.montoyaApi.extension().unload();
                     }
                 }
@@ -482,16 +496,10 @@ public class TopMenu extends javax.swing.JMenu {
 
             addSeparator();
 
-            Image logoImg;
-            if (sharedParameters.isDarkMode) {
-                logoImg = ImageHelper.scaleImageToWidth(ImageHelper.loadImageResource(sharedParameters.extensionClass, "/sharpener_rotated_small.png"), 59);
-            } else {
-                logoImg = ImageHelper.scaleImageToWidth(ImageHelper.loadImageResource(sharedParameters.extensionClass, "/sharpener_rotated_small.png"), 59);
-            }
+            // the square extension icon, scaled down so the menu item is not distorted
+            Image logoImg = ImageHelper.scaleImageToWidth(ImageHelper.loadImageResource(sharedParameters.extensionClass, "/sharpener.png"), 24);
             ImageIcon logoIcon = new ImageIcon(logoImg);
             JMenuItem logoMenu = new JMenuItem("About " + sharedParameters.extensionName, logoIcon);
-            logoMenu.setPreferredSize(new Dimension(100, 46));
-
             logoMenu.setToolTipText("About this extension");
             logoMenu.addActionListener(new AbstractAction() {
                 @Override

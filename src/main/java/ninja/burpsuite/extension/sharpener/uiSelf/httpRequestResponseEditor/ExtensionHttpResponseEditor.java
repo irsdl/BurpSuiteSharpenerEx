@@ -11,7 +11,6 @@ import java.awt.*;
 
 public class ExtensionHttpResponseEditor implements ExtensionProvidedHttpResponseEditor {
     private ExtensionSharedParameters sharedParameters;
-    private HttpRequestResponse requestResponse;
 
     public ExtensionHttpResponseEditor(ExtensionSharedParameters sharedParameters, EditorCreationContext creationContext) {
         this.sharedParameters = sharedParameters;

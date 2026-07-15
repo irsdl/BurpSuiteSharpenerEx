@@ -11,7 +11,8 @@ import javax.swing.plaf.PopupMenuUI;
 import java.awt.*;
 
 
-public class JScrollMenu extends JMenu {
+public final class JScrollMenu extends JMenu {
+    private static final long serialVersionUID = 1L;
     // Covers the one in the JMenu because the method that creates it in JMenu is private
     /**
      * The popup menu portion of the menu.

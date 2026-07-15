@@ -22,7 +22,6 @@ dependencies {
     implementation "com.google.guava:guava:33.6.0-jre" // 2026-04-14, https://mvnrepository.com/artifact/com.google.guava/guava
     implementation "org.apache.commons:commons-lang3:3.20.0" // 2025-11-12, https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation "com.formdev:flatlaf:3.7.1" // 2026-03-10, https://mvnrepository.com/artifact/com.formdev/flatlaf
-    implementation "org.springframework:spring-core:7.0.8" // 2026-06-08, https://mvnrepository.com/artifact/org.springframework/spring-core
     implementation "com.fifesoft:rsyntaxtextarea:3.6.3" // 2026-06-08, https://mvnrepository.com/artifact/com.fifesoft/rsyntaxtextarea/
     implementation "com.fifesoft:autocomplete:3.3.3" // 2026-01-03, https://mvnrepository.com/artifact/com.fifesoft/autocomplete
     implementation "org.reflections:reflections:0.10.2" // 2021-10-25, latest release, https://mvnrepository.com/artifact/org.reflections/reflections/
@@ -39,9 +38,12 @@ test {
     systemProperty "java.awt.headless", "true"
 }
 
+base {
+    archivesName = project.name
+}
+
 jar{
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    archivesBaseName = project.name
     from {
         (configurations.runtimeClasspath).collect { it.isDirectory() ? it : zipTree(it) }
     }{

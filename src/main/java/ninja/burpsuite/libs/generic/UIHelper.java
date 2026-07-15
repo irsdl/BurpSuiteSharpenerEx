@@ -56,8 +56,6 @@ public class UIHelper {
                 output[i] = ((JTextField) strMessagesObjectList.get(i * 2 + 1)).getText();
             }
         }
-        if (output == null)
-            output = new String[strMessages.length];
         return output;
     }
 
@@ -71,8 +69,8 @@ public class UIHelper {
                 null,
                 msgOptions,
                 msgOptions[0]);
-        if (output == null)
-            output = -1;
+        // showOptionDialog returns an int, so this can never be null
+        // a closed dialog already returns JOptionPane.CLOSED_OPTION which is -1
         return output;
     }
 
@@ -135,43 +133,85 @@ public class UIHelper {
         return filePath;
     }
 
+    // Combined bounds of all screens, or null when they cannot be read.
+    public static Rectangle getScreenUnionBounds() {
+        try {
+            Rectangle bounds = null;
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            for (GraphicsDevice gd : ge.getScreenDevices()) {
+                Rectangle screenBounds = gd.getDefaultConfiguration().getBounds();
+                if (bounds == null) {
+                    bounds = new Rectangle(screenBounds);
+                } else {
+                    bounds.add(screenBounds);
+                }
+            }
+            return bounds;
+        } catch (Exception e) {
+            System.err.println("Error in getScreenUnionBounds, it has been ignored");
+            return null;
+        }
+    }
+
     public static boolean isFrameOutOffScreen(JFrame jframe, double offScreenMargin) {
         boolean result = false;
         try {
-            if (offScreenMargin > 1 || offScreenMargin < 0)
-                offScreenMargin = 0;
-
-            Rectangle bounds = new Rectangle(0, 0, 0, 0);
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            GraphicsDevice[] lstGDs = ge.getScreenDevices();
-            for (GraphicsDevice gd : lstGDs) {
-                bounds.add(gd.getDefaultConfiguration().getBounds());
+            Rectangle screenUnion = getScreenUnionBounds();
+            if (screenUnion != null) {
+                result = isBoundsOutOfScreen(jframe.getBounds(), screenUnion, offScreenMargin);
             }
-
-            Rectangle frameBounds = jframe.getBounds();
-            double widthOffset = offScreenMargin * frameBounds.getWidth();
-            double heightOffset = offScreenMargin * frameBounds.getHeight();
-            Rectangle boundsWithThreshold = new Rectangle((int) (bounds.getX() - widthOffset),
-                    (int) (bounds.getY() - heightOffset),
-                    (int) (bounds.getWidth() + 2 * widthOffset),
-                    (int) (bounds.getHeight() + 2 * heightOffset)
-            );
-
-            result = !boundsWithThreshold.contains(frameBounds);
         } catch (Exception e) {
             System.err.println("Error in isFrameOutOffScreen, it has been ignored");
         }
         return result;
     }
 
+    // True when frameBounds is more than offScreenMargin (0 to 1, fraction of the
+    // frame size) outside the combined screen area. Pure logic so it can be tested headless.
+    public static boolean isBoundsOutOfScreen(Rectangle frameBounds, Rectangle screenUnion, double offScreenMargin) {
+        if (offScreenMargin > 1 || offScreenMargin < 0)
+            offScreenMargin = 0;
+
+        double widthOffset = offScreenMargin * frameBounds.getWidth();
+        double heightOffset = offScreenMargin * frameBounds.getHeight();
+        Rectangle boundsWithThreshold = new Rectangle((int) (screenUnion.getX() - widthOffset),
+                (int) (screenUnion.getY() - heightOffset),
+                (int) (screenUnion.getWidth() + 2 * widthOffset),
+                (int) (screenUnion.getHeight() + 2 * heightOffset)
+        );
+
+        return !boundsWithThreshold.contains(frameBounds);
+    }
+
+    // True when the size is missing or smaller than minSize in either direction.
+    public static boolean isSizeTooSmall(Dimension size, Dimension minSize) {
+        return size == null || size.width < minSize.width || size.height < minSize.height;
+    }
+
     public static void moveFrameToCenter(JFrame jframe) {
         try {
-            Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-            jframe.setLocation(dim.width / 2 - jframe.getSize().width / 2, dim.height / 2 - jframe.getSize().height / 2);
+            GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment()
+                    .getDefaultScreenDevice().getDefaultConfiguration();
+            Rectangle screenBounds = gc.getBounds();
+            Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(gc);
+            Rectangle usableBounds = new Rectangle(screenBounds.x + insets.left,
+                    screenBounds.y + insets.top,
+                    screenBounds.width - insets.left - insets.right,
+                    screenBounds.height - insets.top - insets.bottom);
+            jframe.setLocation(getCenteredLocation(usableBounds, jframe.getSize()));
         } catch (Exception e) {
             System.err.println("Error in moveFrameToCenter, it has been ignored");
         }
 
+    }
+
+    // Centered top-left location for a frame inside the usable screen area.
+    // Never above or left of the usable area, so the title bar stays reachable
+    // even when the frame is larger than the screen. Pure logic so it can be tested headless.
+    public static Point getCenteredLocation(Rectangle usableScreenBounds, Dimension frameSize) {
+        int x = usableScreenBounds.x + (usableScreenBounds.width - frameSize.width) / 2;
+        int y = usableScreenBounds.y + (usableScreenBounds.height - frameSize.height) / 2;
+        return new Point(Math.max(x, usableScreenBounds.x), Math.max(y, usableScreenBounds.y));
     }
 
     public static void simulateClick(JLabel label) {

@@ -8,6 +8,7 @@ package ninja.burpsuite.extension.sharpener.uiControllers.burpFrame;
 
 import com.coreyd97.BurpExtenderUtilities.Preferences;
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
+import ninja.burpsuite.extension.sharpener.uiControllers.shortcuts.ShortcutMappings;
 import ninja.burpsuite.libs.generic.UIHelper;
 
 import javax.swing.*;
@@ -19,20 +20,20 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 
-public class BurpFrameListeners implements ComponentListener {
+public final class BurpFrameListeners implements ComponentListener {
     private final ExtensionSharedParameters sharedParameters;
 
-    private final HashMap<String, String> burpFrameShortcutMappings = new HashMap<>() {{
-        put("control alt C", "MoveToCenter");
-    }};
+    // A frame smaller than this is treated as practically invisible and is restored.
+    public static final Dimension MIN_VISIBLE_FRAME_SIZE = new Dimension(100, 100);
 
     private Lock recenterLock = new ReentrantLock();
     private Lock resizedFrameLock = new ReentrantLock();
     private Lock movedFrameLock = new ReentrantLock();
-    private boolean isRecenterInProgress = false;
-    private boolean isResizedFrameCheckInProgress = false;
-    private boolean isMovedFrameCheckInProgress = false;
+    private volatile boolean isRecenterInProgress = false;
+    private volatile boolean isResizedFrameCheckInProgress = false;
+    private volatile boolean isMovedFrameCheckInProgress = false;
 
     public BurpFrameListeners(ExtensionSharedParameters sharedParameters) {
         this.sharedParameters = sharedParameters;
@@ -47,28 +48,36 @@ public class BurpFrameListeners implements ComponentListener {
         sharedParameters.printDebugMessage("addBurpFrameListener");
         try {
             jframe.addComponentListener(this);
-            clearInputMap(jframe.getRootPane());
-
-            burpFrameShortcutMappings.forEach((k, v) -> jframe.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-                    KeyStroke.getKeyStroke(k), v));
-
-            jframe.getRootPane().getActionMap().put("MoveToCenter", new AbstractAction() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    UIHelper.moveFrameToCenter(jframe);
-                }
-            });
+            installShortcuts(jframe);
         } catch (Exception e) {
             sharedParameters.printDebugMessage("Error in BurpFrameListeners.addBurpFrameListener");
         }
 
     }
 
+    // Installs the Burp frame shortcuts from the registry, honouring user overrides.
+    public void installShortcuts(JFrame jframe) {
+        HashMap<String, Consumer<ActionEvent>> handlers = new HashMap<>();
+        handlers.put(ShortcutMappings.ACTION_KEY_PREFIX + "MoveToCenter", e -> UIHelper.moveFrameToCenter(jframe));
+        ShortcutMappings.installOnBurpFrame(jframe.getRootPane(),
+                ShortcutMappings.getSavedOverrides(sharedParameters), handlers);
+    }
+
+    // Reinstalls the key bindings so a shortcut change is applied without a full reload.
+    public void reloadShortcuts(JFrame jframe) {
+        try {
+            installShortcuts(jframe);
+        } catch (Exception e) {
+            sharedParameters.printDebugMessage("Error in BurpFrameListeners.reloadShortcuts");
+        }
+    }
+
     public void removeBurpFrameListener(JFrame jframe) {
         sharedParameters.printDebugMessage("removeBurpFrameListener");
         try {
             jframe.removeComponentListener(this);
-            clearInputMap(jframe.getRootPane());
+            // removes all Sharpener key bindings from the main window
+            ShortcutMappings.uninstallFromComponent(jframe.getRootPane());
         } catch (Exception e) {
             sharedParameters.printDebugMessage("Error in BurpFrameListeners.removeBurpFrameListener");
         }
@@ -93,14 +102,7 @@ public class BurpFrameListeners implements ComponentListener {
                                             return;
                                         }
                                         try {
-                                            Dimension newSize = e.getComponent().getBounds().getSize();
-                                            Point newLocation = e.getComponent().getBounds().getLocation();
-                                            sharedParameters.preferences.safeSetSetting("lastApplicationSize", newSize, Preferences.Visibility.GLOBAL);
-                                            sharedParameters.preferences.safeSetSetting("lastApplicationPosition", newLocation, Preferences.Visibility.GLOBAL);
-                                            boolean detectOffScreenPosition = sharedParameters.preferences.safeGetBooleanSetting("detectOffScreenPosition");
-                                            if (detectOffScreenPosition && !isRecenterInProgress) {
-                                                checkAndCenterOffScreen(sharedParameters.get_mainFrameUsingMontoya(), 0.8, false);
-                                            }
+                                            saveBoundsAndCheckOffScreen();
                                         } catch (Exception e) {
                                             sharedParameters.printDebugMessage("Error in BurpFrameListeners.componentResized");
                                         } finally {
@@ -140,14 +142,7 @@ public class BurpFrameListeners implements ComponentListener {
                                             return;
                                         }
                                         try {
-                                            Dimension newSize = e.getComponent().getBounds().getSize();
-                                            Point newLocation = e.getComponent().getBounds().getLocation();
-                                            sharedParameters.preferences.safeSetSetting("lastApplicationSize", newSize, Preferences.Visibility.GLOBAL);
-                                            sharedParameters.preferences.safeSetSetting("lastApplicationPosition", newLocation, Preferences.Visibility.GLOBAL);
-                                            boolean detectOffScreenPosition = sharedParameters.preferences.safeGetBooleanSetting("detectOffScreenPosition");
-                                            if (detectOffScreenPosition && !isRecenterInProgress) {
-                                                checkAndCenterOffScreen(sharedParameters.get_mainFrameUsingMontoya(), 0.8, false);
-                                            }
+                                            saveBoundsAndCheckOffScreen();
                                         } catch (Exception e) {
                                             sharedParameters.printDebugMessage("Error in BurpFrameListeners.componentMoved");
                                         } finally {
@@ -191,22 +186,26 @@ public class BurpFrameListeners implements ComponentListener {
                                 new java.util.TimerTask() {
                                     @Override
                                     public void run() {
-                                        if (sharedParameters.isUnloaded()) {
-                                            isRecenterInProgress = false;
-                                            return;
-                                        }
-                                        if (jframe != null && UIHelper.isFrameOutOffScreen(jframe, offScreenMargin)) {
-                                            if (isChoice) {
-                                                int response = UIHelper.askConfirmMessage(sharedParameters.extensionName + ": Off Screen Window", "Burp Suite is " + (int) (offScreenMargin * 100) + "% outside the screen, do you want to bring it to the center?", new String[]{"Yes", "No"}, null);
-                                                if (response == 0) {
-                                                    UIHelper.moveFrameToCenter(jframe);
-                                                }
-                                            } else {
-                                                UIHelper.showWarningMessage(sharedParameters.extensionName + ": Burp Suite was at least " + (int) (offScreenMargin * 100) + "% outside the screen, therefore, it's been moved to the center!", null);
-                                                UIHelper.moveFrameToCenter(jframe);
+                                        // no exception may escape: it would kill the shared timer thread
+                                        try {
+                                            if (sharedParameters.isUnloaded()) {
+                                                isRecenterInProgress = false;
+                                                return;
                                             }
+                                            // UI work belongs on the EDT; it also keeps a modal
+                                            // dialog from blocking the shared timer thread
+                                            SwingUtilities.invokeLater(() -> {
+                                                try {
+                                                    restoreFrameIfNotVisible(jframe, offScreenMargin, isChoice);
+                                                } catch (Exception e) {
+                                                    sharedParameters.printDebugMessage("Error in BurpFrameListeners.checkAndCenterOffScreen");
+                                                } finally {
+                                                    isRecenterInProgress = false;
+                                                }
+                                            });
+                                        } catch (Exception e) {
+                                            isRecenterInProgress = false;
                                         }
-                                        isRecenterInProgress = false;
                                     }
                                 },
                                 1000 // 1 second delay to decrease the amount of checking process
@@ -221,13 +220,66 @@ public class BurpFrameListeners implements ComponentListener {
         }
     }
 
-    private void clearInputMap(JComponent jc) {
-        try {
-            burpFrameShortcutMappings.forEach((k, v) -> jc.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-                    KeyStroke.getKeyStroke(k), "none"));
-        } catch (Exception e) {
-            sharedParameters.printDebugMessage("Error in BurpFrameListeners.clearInputMap");
+    // Saves the current window bounds and starts the off screen check when enabled.
+    // Runs from the delayed move and resize tasks.
+    private void saveBoundsAndCheckOffScreen() {
+        JFrame jframe = sharedParameters.get_mainFrameUsingMontoya();
+        if (!hasUsableBounds(jframe))
+            return;
+
+        Rectangle frameBounds = jframe.getBounds();
+        sharedParameters.preferences.safeSetSetting("lastApplicationSize", frameBounds.getSize(), Preferences.Visibility.GLOBAL);
+        sharedParameters.preferences.safeSetSetting("lastApplicationPosition", frameBounds.getLocation(), Preferences.Visibility.GLOBAL);
+        boolean detectOffScreenPosition = sharedParameters.preferences.safeGetBooleanSetting("detectOffScreenPosition");
+        if (detectOffScreenPosition && !isRecenterInProgress) {
+            checkAndCenterOffScreen(jframe, 0.8, false);
+        }
+    }
+
+    // A minimised or hidden frame reports bogus bounds (Windows uses -32000,-32000),
+    // so it must not be saved or recentered.
+    private boolean hasUsableBounds(JFrame jframe) {
+        return jframe != null && jframe.isShowing() && (jframe.getExtendedState() & Frame.ICONIFIED) == 0;
+    }
+
+    // Runs on the EDT. Restores the frame when it is off screen or too small to be seen.
+    private void restoreFrameIfNotVisible(JFrame jframe, double offScreenMargin, boolean isChoice) {
+        if (sharedParameters.isUnloaded() || !hasUsableBounds(jframe))
+            return;
+
+        boolean tooSmall = UIHelper.isSizeTooSmall(jframe.getSize(), MIN_VISIBLE_FRAME_SIZE);
+        boolean offScreen = UIHelper.isFrameOutOffScreen(jframe, offScreenMargin);
+        if (!tooSmall && !offScreen)
+            return;
+
+        String problem = tooSmall ? "too small to be seen"
+                : "at least " + (int) (offScreenMargin * 100) + "% outside the screen";
+
+        if (isChoice) {
+            int response = UIHelper.askConfirmMessage(sharedParameters.extensionName + ": Invisible Burp Window",
+                    "The Burp Suite window is " + problem + ", do you want to restore it to the center of the screen?",
+                    new String[]{"Yes", "No"}, null);
+            if (response != 0)
+                return;
+        } else {
+            UIHelper.showWarningMessage(sharedParameters.extensionName + ": The Burp Suite window was " + problem +
+                    ", so it has been restored to the center of the screen.", null);
         }
 
+        if (tooSmall) {
+            jframe.setSize(getDefaultFrameSize());
+        }
+        UIHelper.moveFrameToCenter(jframe);
     }
+
+    // A sane fallback window size: two thirds of the primary screen.
+    private Dimension getDefaultFrameSize() {
+        try {
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            return new Dimension(screenSize.width * 2 / 3, screenSize.height * 2 / 3);
+        } catch (Exception e) {
+            return new Dimension(800, 600);
+        }
+    }
+
 }

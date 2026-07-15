@@ -45,7 +45,7 @@ public class ImageHelper {
         return loadImageResource(UIHelper.class, filename);
     }
 
-    public static BufferedImage loadImageResource(Class claz, String filePath) {
+    public static BufferedImage loadImageResource(Class<?> claz, String filePath) {
         URL imageURLMain = null;
 
         if (!filePath.startsWith("/")) {

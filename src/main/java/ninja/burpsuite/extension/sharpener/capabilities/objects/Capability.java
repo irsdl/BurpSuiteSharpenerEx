@@ -7,10 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Capability implements Serializable {
+    private static final long serialVersionUID = 1L;
     public String name = ""; // this is used when displaying the capability in the UI
     public String description = ""; // this is used when displaying the tooltip for the capability
     public String settingName = ""; // this is used when storing the setting in the preferences
-    public List<CapabilityGroup> capabilityGroupList = new ArrayList<>();
+    public ArrayList<CapabilityGroup> capabilityGroupList = new ArrayList<>();
     public String implementationClassName = ""; // this is used when loading the capability
     public int order = 100000; // this is used when sorting the capabilities
     public boolean enabledByDefault = false; // this is used when sorting the capabilities
@@ -23,7 +24,7 @@ public class Capability implements Serializable {
         this.name = name;
         this.description = description;
         this.settingName = settingName;
-        this.capabilityGroupList = capabilityGroupList;
+        this.capabilityGroupList = new ArrayList<>(capabilityGroupList);
         this.implementationClassName = implementationClassName;
         this.order = order;
         this.enabledByDefault = enabledByDefault;

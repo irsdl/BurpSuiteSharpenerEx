@@ -10,6 +10,7 @@ import java.awt.*;
 import java.io.Serializable;
 
 public class TabFeaturesObjectStyle implements Serializable {
+    private static final long serialVersionUID = 1L;
     public String name = "";
     public String fontName = "";
     public float fontSize = 0;
@@ -57,7 +58,8 @@ public class TabFeaturesObjectStyle implements Serializable {
         return color;
     }
 
-    public void setColor(Color _colorObj) {
+    // final because it is called from the constructor
+    public final void setColor(Color _colorObj) {
         this.colorCode = String.format("#%06x", _colorObj.getRGB() & 0xFFFFFF); // new system!
         // this.colorCode = Integer.toString(_colorObj.getRGB()); // old easy approach!
     }
@@ -78,6 +80,12 @@ public class TabFeaturesObjectStyle implements Serializable {
             }
         }
         return result;
+    }
+
+    @Override
+    public int hashCode() {
+        // uses the same fields as equals, the name field is not part of equality
+        return java.util.Objects.hash(fontName, fontSize, isBold, isItalic, iconResourceString, iconSize, isCloseButtonVisible, colorCode);
     }
 
     public boolean equalsIgnoreColor(Object o) {

@@ -33,7 +33,7 @@ public class BurpExtensionSharedParameters {
     public String extensionPropertiesUrl = "https://raw.githubusercontent.com/user/proj/main/src/main/resources/extension.properties"; // can be used in check for update!
     public Integer debugLevel = null;
     public BurpExtension burpExtender;
-    public Class extensionClass = null; // this is useful when trying to load a resource such as an image
+    public Class<?> extensionClass = null; // this is useful when trying to load a resource such as an image
     public MontoyaApi montoyaApi = null;
     public BurpExtensionFeatures features = new BurpExtensionFeatures();
     public ExtendedPreferences preferences; // to use the ability of this project: https://github.com/CoreyD97/BurpExtenderUtilities
@@ -46,7 +46,9 @@ public class BurpExtensionSharedParameters {
     public double burpMinorVersion = 0.0; // Burp release.patch, for example 4.3, derived from burpBuildNumber
     public boolean isCompatibleWithCurrentBurpVersion = true;
     // these are the parameters which are used per extension but needs to be shared - like registers
-    public boolean addedIconListener = false;
+    // the focus listener that reapplies the custom icon; kept so unload can remove exactly
+    // this listener instead of guessing which listener on the main frame is ours
+    public java.awt.event.WindowFocusListener iconRefreshWindowFocusListener = null;
     public boolean isDarkMode = false; // Sometimes extensions need to see whether Burp uses dark or light mode
     public JComponent extensionSuiteTab = null; // panel that extension adds to burp
     public TopMenu topMenuBar;
@@ -138,10 +140,16 @@ public class BurpExtensionSharedParameters {
 
     }
 
+    // initParameters only uses methods and fields of this base class, so the early use of "this" is safe
+    // "all" is included because the Eclipse compiler does not know the javac "this-escape" token
+    @SuppressWarnings({"all", "this-escape"})
     public BurpExtensionSharedParameters(String extensionName, String version, String extensionURL, String extensionIssueTracker, String extensionCopyrightMessage, String extensionPropertiesUrl, BurpExtension burpExtenderObj, MontoyaApi montoyaApi, BurpExtensionFeatures burpExtensionFeatures) {
         initParameters(extensionName, version, extensionURL, extensionIssueTracker, extensionCopyrightMessage, extensionPropertiesUrl, burpExtenderObj, montoyaApi, burpExtensionFeatures);
     }
 
+    // initParameters only uses methods and fields of this base class, so the early use of "this" is safe
+    // "all" is included because the Eclipse compiler does not know the javac "this-escape" token
+    @SuppressWarnings({"all", "this-escape"})
     public BurpExtensionSharedParameters(ExtensionMainClass extensionMainClass, MontoyaApi montoyaApi, String propertiesFilePath) {
         var properties = PropertiesHelper.readProperties(extensionMainClass.getClass(), "/extension.properties");
 
@@ -193,12 +201,12 @@ public class BurpExtensionSharedParameters {
         this.preferences.sharedParameters = this;
         // registering and getting the isDebug setting
         try {
-            preferences.registerSetting("debugLevel", Integer.TYPE, 0, Preferences.Visibility.GLOBAL);
+            preferences.register("debugLevel", Integer.TYPE, 0, Preferences.Visibility.GLOBAL);
         } catch (Exception e) {
             // already registered!
             printlnError(e.getMessage());
         }
-        debugLevel = preferences.getSetting("debugLevel");
+        debugLevel = preferences.get("debugLevel");
 
         // print the copyright message
         this.printlnOutput(extensionCopyrightMessage);
@@ -261,6 +269,10 @@ public class BurpExtensionSharedParameters {
         return isCompatible;
     }
 
+    // delay between two attempts to find the Burp UI; keep this short so a missing UI
+    // can never block extension loading for long (worst case is attempts * delay)
+    public static final long UI_LOAD_RETRY_DELAY_MS = 500;
+
     public void setUIParametersUsingMontoya(int maxLoadAttempts) {
         boolean foundUI = false;
         int attemptsRemaining = maxLoadAttempts;
@@ -278,8 +290,10 @@ public class BurpExtensionSharedParameters {
 
             } catch (Exception e) {
                 attemptsRemaining--;
+                // a fixed short delay; the old growing delay could add up to 45 seconds
+                // and made Burp look frozen while the extension was loading
                 try {
-                    Thread.sleep(1000L * (maxLoadAttempts - attemptsRemaining)); // 100 * `waitSeconds` * 10 = `waitSeconds` seconds
+                    Thread.sleep(UI_LOAD_RETRY_DELAY_MS);
                 } catch (InterruptedException ignored) {
                 }
             }
@@ -391,10 +405,10 @@ public class BurpExtensionSharedParameters {
 
         HashMap<String, Preferences.Visibility> registeredSettings = preferences.getRegisteredSettings();
         for (String item : registeredSettings.keySet()) {
-            if (preferences.getSettingType(item) == String.class)
-                preferences.setSetting(item, "");
+            if (preferences.getType(item) == String.class)
+                preferences.set(item, "");
             else
-                preferences.setSetting(item, null);
+                preferences.set(item, null);
         }
 
     }

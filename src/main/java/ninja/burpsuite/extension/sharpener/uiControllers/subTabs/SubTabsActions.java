@@ -10,13 +10,13 @@ import com.coreyd97.BurpExtenderUtilities.Preferences;
 import com.google.common.io.Files;
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
 import ninja.burpsuite.extension.sharpener.objects.TabFeaturesObjectStyle;
+import ninja.burpsuite.extension.sharpener.uiControllers.shortcuts.ShortcutMappings;
+import ninja.burpsuite.extension.sharpener.uiControllers.shortcuts.ShortcutsDialog;
 import ninja.burpsuite.libs.burp.generic.BurpUITools;
 import ninja.burpsuite.libs.generic.*;
 import ninja.burpsuite.libs.generic.uiObjFinder.UIWalker;
 import ninja.burpsuite.libs.generic.uiObjFinder.UiSpecObject;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -26,17 +26,33 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
+import java.util.function.Consumer;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class SubTabsActions {
+
+    // the bundled tab icons shown in the tab menu, and their menu display width
+    public static final String SUB_TAB_ICON_FOLDER = "subtabicons";
+    public static final int SUB_TAB_ICON_MENU_WIDTH = 32;
+
+    // True while Sharpener changes the selected tab itself. The tab selection history
+    // recorder checks this so a Sharpener jump is not recorded twice.
+    private static boolean tabJumpInProgress = false;
+
+    public static boolean isTabJumpInProgress() {
+        return tabJumpInProgress;
+    }
+
     public static void tabClicked(final MouseEvent event, ExtensionSharedParameters sharedParameters) {
         SubTabsContainerHandler subTabsContainerHandler = getSubTabContainerHandlerFromEvent(sharedParameters, event);
 
@@ -51,12 +67,11 @@ public class SubTabsActions {
 
         fixHistoryAndJumpToTabIndex(sharedParameters, subTabsContainerHandler, subTabsContainerHandler.getTabIndex(), true, true, false);
 
-        if (SwingUtilities.isMiddleMouseButton(event) || event.isAltDown() || ((event.getModifiersEx() & ActionEvent.ALT_MASK) == ActionEvent.ALT_MASK)) {
+        if (SwingUtilities.isMiddleMouseButton(event) || event.isAltDown()) {
             jumpToTabIndex(sharedParameters, subTabsContainerHandler, subTabsContainerHandler.getTabIndex());
-            boolean isCTRL_Key = (event.getModifiersEx() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK || event.isControlDown();
+            boolean isCTRL_Key = event.isControlDown();
             // Middle key is like the Alt key!
-            //boolean isALT_Key = (event.getModifiers() & ActionEvent.ALT_MASK) == ActionEvent.ALT_MASK;
-            boolean isSHIFT_Key = (event.getModifiersEx() & ActionEvent.SHIFT_MASK) == ActionEvent.SHIFT_MASK || event.isShiftDown();
+            boolean isSHIFT_Key = event.isShiftDown();
 
             int maxSize = 40;
             int minSize = 10;
@@ -94,7 +109,7 @@ public class SubTabsActions {
     public static void addMouseWheelToJTabbedPane(ExtensionSharedParameters sharedParameters, BurpUITools.MainTabs currentToolTab, boolean isLastOneSelectable) {
         // from https://stackoverflow.com/questions/38463047/use-mouse-to-scroll-through-tabs-in-jtabbedpane
 
-        MouseWheelListener mwl = e -> {
+        Consumer<MouseWheelEvent> mwl = e -> {
             JTabbedPane tabbedPane = (JTabbedPane) e.getSource();
             // works with version 2022.1.1 - not tested in the previous versions!
             int currentSelection = tabbedPane.getSelectedIndex();
@@ -329,18 +344,30 @@ public class SubTabsActions {
         };
         var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(currentToolTab);
         if (currentToolTabbedPane != null)
-            currentToolTabbedPane.addMouseWheelListener(mwl);
+            attachMouseWheelHandler(currentToolTabbedPane, mwl);
     }
 
-    public static void removeMouseWheelFromJTabbedPane(ExtensionSharedParameters sharedParameters, BurpUITools.MainTabs currentToolTab, boolean onlyRemoveLast) {
+    public static void removeMouseWheelFromJTabbedPane(ExtensionSharedParameters sharedParameters, BurpUITools.MainTabs currentToolTab) {
         var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(currentToolTab);
         if (currentToolTabbedPane != null) {
-            MouseWheelListener[] mwlArr = currentToolTabbedPane.getMouseWheelListeners();
-            for (int i = mwlArr.length - 1; i >= 0; i--) {
-                currentToolTabbedPane.removeMouseWheelListener(mwlArr[i]);
-                if (onlyRemoveLast) {
-                    break;
-                }
+            detachMouseWheelHandlers(currentToolTabbedPane);
+        }
+    }
+
+    // Adds the wheel handler with a named type. Any old handler of the same type is
+    // removed first, so repeated calls never stack listeners on the tabbed pane.
+    static void attachMouseWheelHandler(JTabbedPane tabbedPane, Consumer<MouseWheelEvent> mouseWheelEventConsumer) {
+        detachMouseWheelHandlers(tabbedPane);
+        tabbedPane.addMouseWheelListener(new MouseWheelListenerExtensionHandler(mouseWheelEventConsumer));
+    }
+
+    // Removes only the wheel listeners added by this extension. The tabbed pane can
+    // also carry wheel listeners owned by Burp or the look and feel, those must stay,
+    // and ours must not be left behind after unload.
+    static void detachMouseWheelHandlers(JTabbedPane tabbedPane) {
+        for (MouseWheelListener mouseWheelListener : tabbedPane.getMouseWheelListeners()) {
+            if (mouseWheelListener instanceof MouseWheelListenerExtensionHandler) {
+                tabbedPane.removeMouseWheelListener(mouseWheelListener);
             }
         }
     }
@@ -367,7 +394,11 @@ public class SubTabsActions {
         if (currentSubTabsContainerHandler == null)
             return new JPopupMenu();
 
-        JPopupMenu popupMenu = new JPopupMenu();
+        // a scrollable menu, so the last items are not lost on short screens;
+        // when everything fits, the scrollbar stays hidden and it behaves like a normal menu.
+        // No row cap is set here: the menu measures itself against the screen when shown.
+        JScrollPopupMenu popupMenu = new JScrollPopupMenu();
+        popupMenu.setMaximumVisibleRows(Integer.MAX_VALUE);
 
         JMenuItem notificationMenuItem = new JMenuItem();
         notificationMenuItem.setFont(notificationMenuItem.getFont().deriveFont(notificationMenuItem.getFont().getStyle() ^ Font.BOLD));
@@ -546,13 +577,10 @@ public class SubTabsActions {
             customStyleMenu.add(italicMenu);
 
 
-            Resource[] resourceIcons = new Resource[]{};
-
-            try {
-                PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(sharedParameters.extensionClass.getClassLoader());
-                resourceIcons = resolver.getResources("classpath:subtabicons/*.*");
-
-            } catch (IOException e) {
+            // the icons are loaded once and cached, so opening the menu stays fast
+            List<ResourceIconCache.NamedIcon> resourceIcons =
+                    ResourceIconCache.getIcons(sharedParameters.extensionClass, SUB_TAB_ICON_FOLDER, SUB_TAB_ICON_MENU_WIDTH);
+            if (resourceIcons.isEmpty()) {
                 sharedParameters.printDebugMessage("No icon was found in resources");
             }
 
@@ -574,14 +602,13 @@ public class SubTabsActions {
             subTabIconGroup.add(noneIconImage);
             changeTabIcon.add(noneIconImage);
 
-            for (Resource resourceIcon : resourceIcons) {
+            for (ResourceIconCache.NamedIcon resourceIcon : resourceIcons) {
                 if (resourceIcon == null)
                     continue;
 
-                String resourcePath = "/subtabicons/" + resourceIcon.getFilename();
-                JRadioButtonMenuItem subTabIconImage = new JRadioButtonMenuItem(Objects.requireNonNull(resourceIcon.getFilename()).replaceAll("\\..*$", ""));
-                subTabIconImage.setIcon(new ImageIcon(Objects.requireNonNull(ImageHelper.scaleImageToWidth(ImageHelper.loadImageResource(sharedParameters.extensionClass, resourcePath), 32))));
-                String fileNameWithOutExt = Files.getNameWithoutExtension(resourceIcon.getFilename());
+                JRadioButtonMenuItem subTabIconImage = new JRadioButtonMenuItem(resourceIcon.fileName().replaceAll("\\..*$", ""));
+                subTabIconImage.setIcon(resourceIcon.icon());
+                String fileNameWithOutExt = Files.getNameWithoutExtension(resourceIcon.fileName());
 
                 if (fileNameWithOutExt.equalsIgnoreCase(currentSubTabsContainerHandler.getIconString())) {
                     subTabIconImage.setSelected(true);
@@ -634,14 +661,14 @@ public class SubTabsActions {
 
         JMenu searchAndJumpMenu = new JMenu("Find Title (Use RegEx)");
 
-        JMenuItem searchAndJumpDefineRegExMenu = new JMenuItem("Search by RegEx (case insensitive) [Ctrl+Shift+F]");
+        JMenuItem searchAndJumpDefineRegExMenu = new JMenuItem("Search by RegEx (case insensitive)" + ShortcutMappings.menuHint(sharedParameters, "FindTabs"));
 
         searchAndJumpDefineRegExMenu.addActionListener(e -> {
             defineRegExPopupForSearchAndJump(sharedParameters, currentSubTabsContainerHandler);
         });
         searchAndJumpMenu.add(searchAndJumpDefineRegExMenu);
 
-        JMenuItem jumpToNextTabByTitleMenu = new JMenuItem("Next" + " [F3]");
+        JMenuItem jumpToNextTabByTitleMenu = new JMenuItem("Next" + ShortcutMappings.menuHint(sharedParameters, "NextFind"));
         if (sharedParameters.searchedTabTitleForJumpToTab.isEmpty()) {
             jumpToNextTabByTitleMenu.setEnabled(false);
         } else {
@@ -653,7 +680,7 @@ public class SubTabsActions {
         });
         searchAndJumpMenu.add(jumpToNextTabByTitleMenu);
 
-        JMenuItem jumpToPreviousTabByTitleMenu = new JMenuItem("Previous" + " [Shift+F3]");
+        JMenuItem jumpToPreviousTabByTitleMenu = new JMenuItem("Previous" + ShortcutMappings.menuHint(sharedParameters, "PreviousFind"));
         if (sharedParameters.searchedTabTitleForJumpToTab.isEmpty()) {
             jumpToPreviousTabByTitleMenu.setEnabled(false);
         } else {
@@ -691,13 +718,13 @@ public class SubTabsActions {
 
         popupMenu.add(searchAndJumpMenu);
 
-        JMenuItem copyTitleMenu = new JMenuItem("Copy Title [Ctrl+C]");
+        JMenuItem copyTitleMenu = new JMenuItem("Copy Title" + ShortcutMappings.menuHint(sharedParameters, "CopyTitle"));
         copyTitleMenu.addActionListener(e -> {
             copyTitle(sharedParameters, currentSubTabsContainerHandler);
         });
         popupMenu.add(copyTitleMenu);
 
-        JMenuItem pasteTitleMenu = new JMenuItem("Paste Title [Ctrl+V]");
+        JMenuItem pasteTitleMenu = new JMenuItem("Paste Title" + ShortcutMappings.menuHint(sharedParameters, "PasteTitle"));
 
         try {
             String clipboardText = (String) Toolkit.getDefaultToolkit()
@@ -718,7 +745,7 @@ public class SubTabsActions {
         });
         popupMenu.add(pasteTitleMenu);
 
-        JMenuItem renameTitleMenu = new JMenuItem("Rename Title [F2]");
+        JMenuItem renameTitleMenu = new JMenuItem("Rename Title" + ShortcutMappings.menuHint(sharedParameters, "RenameTitle"));
         renameTitleMenu.addActionListener(e -> {
             renameTitle(sharedParameters, currentSubTabsContainerHandler);
         });
@@ -813,7 +840,7 @@ public class SubTabsActions {
         popupMenu.addSeparator();
 
         JMenu jumpMenu = new JMenu("Jump To (Click > Next, Right-Click > Prev)");
-        JMenuItem jumpToFirstTabMenu = new JMenuItem("First Tab [Home]");
+        JMenuItem jumpToFirstTabMenu = new JMenuItem("First Tab" + ShortcutMappings.menuHint(sharedParameters, "FirstTab"));
 
         jumpToFirstTabMenu.addActionListener(e -> {
             jumpToFirstTab(sharedParameters, currentSubTabsContainerHandler);
@@ -822,7 +849,7 @@ public class SubTabsActions {
 
         jumpMenu.add(jumpToFirstTabMenu);
 
-        JMenuItem jumpToLastTabMenu = new JMenuItem("Last Tab [End]");
+        JMenuItem jumpToLastTabMenu = new JMenuItem("Last Tab" + ShortcutMappings.menuHint(sharedParameters, "LastTab"));
 
         jumpToLastTabMenu.addActionListener(e -> {
             jumpToLastTab(sharedParameters, currentSubTabsContainerHandler);
@@ -830,7 +857,7 @@ public class SubTabsActions {
 
         jumpMenu.add(jumpToLastTabMenu);
 
-        JMenuItem jumpToPreviousTabMenu = new JMenuItem("Previous Tab [Left Arrow]");
+        JMenuItem jumpToPreviousTabMenu = new JMenuItem("Previous Tab" + ShortcutMappings.menuHint(sharedParameters, "PreviousTab"));
 
         jumpToPreviousTabMenu.addActionListener(e -> {
             jumpToPreviousTab(sharedParameters, currentSubTabsContainerHandler, notificationMenuItem);
@@ -838,13 +865,13 @@ public class SubTabsActions {
 
         jumpMenu.add(jumpToPreviousTabMenu);
 
-        JMenuItem jumpToNextTabMenu = new JMenuItem("Next Tab [Right Arrow]");
+        JMenuItem jumpToNextTabMenu = new JMenuItem("Next Tab" + ShortcutMappings.menuHint(sharedParameters, "NextTab"));
         jumpToNextTabMenu.addActionListener(e -> {
             jumpToNextTab(sharedParameters, currentSubTabsContainerHandler, notificationMenuItem);
         });
         jumpMenu.add(jumpToNextTabMenu);
 
-        JMenuItem jumpToPreviouslySelectedTabMenu = new JMenuItem("Back [Alt+Left Arrow]");
+        JMenuItem jumpToPreviouslySelectedTabMenu = new JMenuItem("Back" + ShortcutMappings.menuHint(sharedParameters, "PreviouslySelectedTab"));
         if (sharedParameters.subTabPreviouslySelectedIndexHistory.get(currentSubTabsContainerHandler.currentToolTab).size() <= 0)
             jumpToPreviouslySelectedTabMenu.setEnabled(false);
         jumpToPreviouslySelectedTabMenu.addActionListener(e -> {
@@ -852,7 +879,7 @@ public class SubTabsActions {
         });
         jumpMenu.add(jumpToPreviouslySelectedTabMenu);
 
-        JMenuItem jumpToNextlySelectedTabMenu = new JMenuItem("Forward [Alt+Right Arrow]");
+        JMenuItem jumpToNextlySelectedTabMenu = new JMenuItem("Forward" + ShortcutMappings.menuHint(sharedParameters, "NextlySelectedTab"));
         if (sharedParameters.subTabNextlySelectedIndexHistory.get(currentSubTabsContainerHandler.currentToolTab).size() <= 0)
             jumpToNextlySelectedTabMenu.setEnabled(false);
         jumpToNextlySelectedTabMenu.addActionListener(e -> {
@@ -966,7 +993,7 @@ public class SubTabsActions {
 
             toolSubTabPaneMouseWheelScroll.addActionListener((e) -> {
                 if (sharedParameters.preferences.safeGetBooleanSetting("mouseWheelToScroll_" + tool)) {
-                    SubTabsActions.removeMouseWheelFromJTabbedPane(sharedParameters, tool, true);
+                    SubTabsActions.removeMouseWheelFromJTabbedPane(sharedParameters, tool);
                     sharedParameters.preferences.safeSetSetting("mouseWheelToScroll_" + tool, false, Preferences.Visibility.PROJECT);
                 } else {
                     SubTabsActions.addMouseWheelToJTabbedPane(sharedParameters, tool, sharedParameters.isTabGroupSupportedByDefault);
@@ -976,6 +1003,13 @@ public class SubTabsActions {
 
             popupMenu.add(toolSubTabPaneMouseWheelScroll);
         }
+
+        popupMenu.addSeparator();
+
+        JMenuItem keyboardShortcutsMenu = new JMenuItem("Keyboard Shortcuts");
+        keyboardShortcutsMenu.setToolTipText("Shows all Sharpener shortcuts and allows changing them");
+        keyboardShortcutsMenu.addActionListener(e -> ShortcutsDialog.show(sharedParameters));
+        popupMenu.add(keyboardShortcutsMenu);
 
         return popupMenu;
     }
@@ -1538,21 +1572,147 @@ public class SubTabsActions {
 
             }
 
-            if (
-                    sharedParameters.subTabPreviouslySelectedIndexHistory.get(currentSubTabsContainerHandler.currentToolTab).size() <= 0
-                            ||
-                            (
-                                    sharedParameters.subTabPreviouslySelectedIndexHistory.get(currentSubTabsContainerHandler.currentToolTab).getLast() != indexNumber
-                                            &&
-                                            (
-                                                    currentSubTabsContainerHandler.parentTabbedPane.getTabCount() - 1 != indexNumber || sharedParameters.isTabGroupSupportedByDefault
-                                            )
-                            )
-            ) {
-                sharedParameters.subTabPreviouslySelectedIndexHistory.get(currentSubTabsContainerHandler.currentToolTab).add(indexNumber);
+            ShortcutMappings.recordSelectionHistory(
+                    sharedParameters.subTabPreviouslySelectedIndexHistory.get(currentSubTabsContainerHandler.currentToolTab),
+                    indexNumber,
+                    currentSubTabsContainerHandler.parentTabbedPane.getTabCount() - 1 == indexNumber,
+                    sharedParameters.isTabGroupSupportedByDefault);
+
+            if (shouldJump) {
+                // when the user is navigating from the tab header, the focus must stay there,
+                // so the next arrow key press keeps navigating instead of typing in the editor
+                boolean keepFocusOnHeader = ShortcutMappings.isTabAreaFocused(currentSubTabsContainerHandler.parentTabbedPane);
+
+                try {
+                    tabJumpInProgress = true;
+                    currentSubTabsContainerHandler.parentTabbedPane.setSelectedIndex(indexNumber);
+                } finally {
+                    tabJumpInProgress = false;
+                }
+
+                if (keepFocusOnHeader) {
+                    keepFocusOnTabHeader(sharedParameters, currentSubTabsContainerHandler.parentTabbedPane);
+                }
             }
-            if (shouldJump)
-                currentSubTabsContainerHandler.parentTabbedPane.setSelectedIndex(indexNumber);
+        }
+    }
+
+    // Incremented whenever the user deliberately moves the focus into the request editor
+    // (the Down key). A pending "keep focus on header" retry captures this value and skips
+    // itself when the value has changed, so it never steals focus back out of the editor.
+    // Touched only on the EDT.
+    private static long headerFocusEpoch = 0;
+
+    // Moves the focus back to the selected tab header. Burp gives the focus to the
+    // message editor after a tab change, so one delayed retry is used to win that race.
+    // This is only called when the tab header already had the focus before the jump.
+    // If the user presses Down before the retry runs, the retry is skipped, so it does
+    // not pull the focus out of the editor.
+    public static void keepFocusOnTabHeader(ExtensionSharedParameters sharedParameters, JTabbedPane tabbedPane) {
+        final long epoch = headerFocusEpoch;
+
+        SwingUtilities.invokeLater(() -> {
+            if (headerFocusEpoch == epoch)
+                requestFocusOnSelectedTabHeader(tabbedPane);
+        });
+
+        sharedParameters.delayedTasks.schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        if (sharedParameters.isUnloaded())
+                            return;
+                        SwingUtilities.invokeLater(() -> {
+                            if (headerFocusEpoch == epoch && !ShortcutMappings.isTabAreaFocused(tabbedPane))
+                                requestFocusOnSelectedTabHeader(tabbedPane);
+                        });
+                    }
+                },
+                250
+        );
+    }
+
+    private static void requestFocusOnSelectedTabHeader(JTabbedPane tabbedPane) {
+        int selectedIndex = tabbedPane.getSelectedIndex();
+        if (selectedIndex < 0)
+            return;
+        Component tabComponent = tabbedPane.getTabComponentAt(selectedIndex);
+        if (tabComponent != null)
+            tabComponent.requestFocusInWindow();
+    }
+
+    // Moves the focus from the tab header into the HTTP request editor of the selected tab,
+    // so the user can start editing. Called by the fixed Down key on the tab header.
+    public static void focusRequestEditor(ExtensionSharedParameters sharedParameters, ActionEvent event) {
+        SubTabsContainerHandler currentSubTabsContainerHandler = getSubTabContainerHandlerFromEvent(sharedParameters, event);
+        if (currentSubTabsContainerHandler == null)
+            return;
+
+        Component content = currentSubTabsContainerHandler.parentTabbedPane.getSelectedComponent();
+        if (!(content instanceof Container))
+            return;
+
+        Component editor = findRequestEditorComponent((Container) content);
+        if (editor != null) {
+            // invalidate any pending "keep focus on header" retry so it does not pull
+            // the focus back out of the editor a moment after this jump
+            headerFocusEpoch++;
+            editor.requestFocusInWindow();
+            sharedParameters.printDebugMessage("Focus moved into the request editor");
+        }
+    }
+
+    // Burp's request editor is a custom component, not a Swing text component, so it cannot be
+    // found by type or size reliably. Instead this looks at the point where a user would click to
+    // edit the request (the left area of the tab content, below the toolbar) and takes the
+    // component there, exactly like a real click. The request editor is on the left, the response
+    // on the right, so a left-side point lands in the request.
+    private static Component findRequestEditorComponent(Container content) {
+        int width = content.getWidth();
+        int height = content.getHeight();
+        if (width <= 0 || height <= 0)
+            return null;
+
+        // left area (request, not response) and below the editor toolbar
+        int pointX = Math.max(1, width / 6);
+        int pointY = Math.max(1, (int) (height * 0.4));
+
+        Component deepest = content.findComponentAt(pointX, pointY);
+
+        // walk up to the first component that can take the keyboard focus, that is the editor
+        Component candidate = deepest;
+        while (candidate != null && candidate != content) {
+            if (candidate.isFocusable() && candidate.isEnabled() && candidate.isShowing())
+                return candidate;
+            candidate = candidate.getParent();
+        }
+        return null;
+    }
+
+    // Moves the focus from the request or response editor back to the current tab header.
+    // Called by the configurable Focus Tab key, which fires from anywhere in the window.
+    public static void focusTab(ExtensionSharedParameters sharedParameters, ActionEvent event) {
+        Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getPermanentFocusOwner();
+
+        JTabbedPane toolTabbedPane = null;
+        if (focusOwner != null) {
+            for (BurpUITools.MainTabs tool : sharedParameters.getAccessibleSubTabSupportedTabs()) {
+                JTabbedPane pane = sharedParameters.get_toolTabbedPane(tool);
+                if (pane != null && SwingUtilities.isDescendingFrom(focusOwner, pane)) {
+                    toolTabbedPane = pane;
+                    break;
+                }
+            }
+        }
+
+        // fallback to the pane that owns the key binding
+        if (toolTabbedPane == null && event.getSource() instanceof Component sourceComponent) {
+            toolTabbedPane = (JTabbedPane) UIWalker.findUIObjectInParentComponents(sourceComponent, 4, new UiSpecObject(JTabbedPane.class));
+        }
+
+        if (toolTabbedPane != null) {
+            keepFocusOnTabHeader(sharedParameters, toolTabbedPane);
+            sharedParameters.printDebugMessage("Focus moved back to the tab header");
         }
     }
 
@@ -1580,10 +1740,10 @@ public class SubTabsActions {
     }
 
     public static void pasteTitle(ExtensionSharedParameters sharedParameters, SubTabsContainerHandler currentSubTabsContainerHandler) {
-        try {
-            if (currentSubTabsContainerHandler == null)
-                return;
+        if (currentSubTabsContainerHandler == null)
+            return;
 
+        try {
             String clipboardText = (String) Toolkit.getDefaultToolkit()
                     .getSystemClipboard().getData(DataFlavor.stringFlavor);
             sharedParameters.lastClipboardText = clipboardText.trim().replaceAll("^#\\d+\\s+", "");

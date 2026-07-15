@@ -17,9 +17,11 @@ import ninja.burpsuite.extension.sharpener.capabilities.objects.CapabilityGroup;
 import ninja.burpsuite.extension.sharpener.uiSelf.contextMenu.ContextMenu;
 import ninja.burpsuite.extension.sharpener.uiSelf.httpRequestResponseEditor.ExtensionHttpRequestEditorProvider;
 import ninja.burpsuite.extension.sharpener.uiSelf.httpRequestResponseEditor.ExtensionHttpResponseEditorProvider;
+import ninja.burpsuite.extension.sharpener.uiControllers.subTabs.SubTabsActions;
 import ninja.burpsuite.extension.sharpener.uiSelf.suiteTab.SuiteTab;
 import ninja.burpsuite.extension.sharpener.uiSelf.topMenu.TopMenu;
 import ninja.burpsuite.libs.burp.generic.BurpUITools;
+import ninja.burpsuite.libs.generic.ResourceIconCache;
 import ninja.burpsuite.libs.generic.UIHelper;
 
 import javax.swing.*;
@@ -53,6 +55,20 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
         }
 
         furtherLoadingChecks();
+
+        // load the menu icons into the cache on a short-lived background thread,
+        // so neither extension loading nor the EDT pays for the first icon scan.
+        // ResourceIconCache is thread safe, an early menu open simply waits for it.
+        new Thread(() -> {
+            try {
+                ResourceIconCache.getIcons(sharedParameters.extensionClass,
+                        TopMenu.BURP_ICON_FOLDER, TopMenu.BURP_ICON_MENU_WIDTH);
+                ResourceIconCache.getIcons(sharedParameters.extensionClass,
+                        SubTabsActions.SUB_TAB_ICON_FOLDER, SubTabsActions.SUB_TAB_ICON_MENU_WIDTH);
+            } catch (Exception e) {
+                sharedParameters.printDebugMessage("Icon cache warm-up failed: " + e.getMessage());
+            }
+        }, "SharpenerIconCacheWarmUp").start();
 
         if (sharedParameters.features.hasHttpHandler) {
             // register our HTTP handlers - the condition above will always be true in the Sharpener extension

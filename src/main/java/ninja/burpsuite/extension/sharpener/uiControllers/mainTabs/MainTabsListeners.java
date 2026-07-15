@@ -12,7 +12,7 @@ import javax.swing.*;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 
-public class MainTabsListeners implements ContainerListener {
+public final class MainTabsListeners implements ContainerListener {
     private final ExtensionSharedParameters sharedParameters;
     private boolean isResetInProgress = false;
 

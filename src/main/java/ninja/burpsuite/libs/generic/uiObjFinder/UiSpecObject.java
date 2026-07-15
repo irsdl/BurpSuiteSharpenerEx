@@ -7,7 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.Type;
 
-public class UiSpecObject {
+public final class UiSpecObject {
     private boolean _isJComponent = false;
     private Type _objectType = null;
     private Type _parentObjectType = null;

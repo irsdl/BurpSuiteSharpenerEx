@@ -62,6 +62,23 @@ public class TabFeaturesObjectStyleTest {
     }
 
     @Test
+    void equalStylesHaveTheSameHashCode() {
+        // the name field is not part of equality, so it must not change the hash code
+        TabFeaturesObjectStyle style1 = new TabFeaturesObjectStyle("a", "Dialog", 12, true, false, true, Color.RED, "", 0);
+        TabFeaturesObjectStyle style2 = new TabFeaturesObjectStyle("b", "Dialog", 12, true, false, true, Color.RED, "", 0);
+        assertTrue(style1.equals(style2));
+        assertEquals(style1.hashCode(), style2.hashCode());
+    }
+
+    @Test
+    void equalTabFeaturesObjectsHaveTheSameHashCode() {
+        TabFeaturesObject tfo1 = new TabFeaturesObject(0, "Tab Title", new String[]{}, "Dialog", 12, true, false, true, Color.RED, "", 0);
+        TabFeaturesObject tfo2 = new TabFeaturesObject(1, "tab title", new String[]{}, "Dialog", 12, true, false, true, Color.RED, "", 0);
+        assertTrue(tfo1.equals(tfo2)); // titles are compared trimmed and in lowercase, the index is ignored
+        assertEquals(tfo1.hashCode(), tfo2.hashCode());
+    }
+
+    @Test
     void duplicateCreatesAnEqualButIndependentCopy() {
         TabFeaturesObjectStyle original = new TabFeaturesObjectStyle("a", "Dialog", 12, true, false, true, Color.RED, "icon", 16);
         TabFeaturesObjectStyle copy = original.duplicate();

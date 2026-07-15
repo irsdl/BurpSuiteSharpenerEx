@@ -26,7 +26,7 @@ import java.util.function.Consumer;
  * Use {@link SubTabsListenersV2} instead.
  */
 @Deprecated
-public class SubTabsListeners implements ContainerListener {
+public final class SubTabsListeners implements ContainerListener {
     private final Consumer<MouseEvent> mouseEventConsumer;
     private final ExtensionSharedParameters sharedParameters;
     private boolean _isUpdateInProgress = false;

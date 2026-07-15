@@ -11,7 +11,8 @@ import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
 import javax.swing.*;
 
 public class SuiteTab extends JComponent {
-    ExtensionSharedParameters sharedParameters;
+    private static final long serialVersionUID = 1L;
+    transient ExtensionSharedParameters sharedParameters;
 
     public SuiteTab(ExtensionSharedParameters sharedParameters) {
         this.sharedParameters = sharedParameters;

@@ -55,8 +55,8 @@ public class SharpenerMessageTabPanelGUI {
         topPanel.setMinimumSize(new Dimension(84, 30));
         topPanel.setPreferredSize(new Dimension(78, 30));
         sharpenerMessageMainJPanel.add(topPanel, BorderLayout.NORTH);
-        comboBoxActions = new JComboBox();
-        final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
+        comboBoxActions = new JComboBox<>();
+        final DefaultComboBoxModel<String> defaultComboBoxModel1 = new DefaultComboBoxModel<>();
         defaultComboBoxModel1.addElement("test1");
         defaultComboBoxModel1.addElement("test2");
         comboBoxActions.setModel(defaultComboBoxModel1);
