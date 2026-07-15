@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class SubTabsContainerHandler {
+public final class SubTabsContainerHandler {
     public JTabbedPane parentTabbedPane;
     public Container currentTabContainer;
     public JComponent currentTabTextField;
@@ -982,6 +982,18 @@ public class SubTabsContainerHandler {
             }
         }
         return result;
+    }
+
+    @Override
+    public int hashCode() {
+        // follows the same rule as equals: the tab container when valid, otherwise the last known tab index
+        // these objects are kept in lists, not in hash based collections
+        if (isValid()) {
+            return java.util.Objects.hashCode(currentTabContainer);
+        } else if (!tabIndexHistory.isEmpty()) {
+            return tabIndexHistory.get(tabIndexHistory.size() - 1).hashCode();
+        }
+        return 0;
     }
 
     public boolean isNormalTab() {

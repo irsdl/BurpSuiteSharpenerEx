@@ -17,7 +17,8 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class SharpenerMessageEditor_RTextScrollPane extends RTextScrollPane {
+public final class SharpenerMessageEditor_RTextScrollPane extends RTextScrollPane {
+    private static final long serialVersionUID = 1L;
     private final RSyntaxTextArea textArea;
 
     public SharpenerMessageEditor_RTextScrollPane(ExtensionSharedParameters sharedParameters) {

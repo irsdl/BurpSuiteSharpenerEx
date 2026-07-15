@@ -7,8 +7,9 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import javax.swing.*;
 import java.awt.*;
 
-public class SharpenerMessageTabPanel extends JPanel {
-    ExtensionSharedParameters sharedParameters;
+public final class SharpenerMessageTabPanel extends JPanel {
+    private static final long serialVersionUID = 1L;
+    transient ExtensionSharedParameters sharedParameters;
 
     public SharpenerMessageTabPanel(ExtensionSharedParameters sharedParameters, boolean readOnly) {
         super(new GridBagLayout());

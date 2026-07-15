@@ -98,28 +98,7 @@ public class BurpTitleAndIcon {
         List<Image> iconList = buildIconList(baseImage);
         if (!iconList.isEmpty()) {
             setIcons_noUiLock(sharedParameters, iconList);
-
-            if (sharedParameters.addedIconListener) {
-                removeMainFrameWindowFocusListener(sharedParameters);
-            }
-
-            // Burp can rewrite window icons, so the icon is applied again on focus changes.
-            WindowFocusListener mainFrameWindowFocusListener = new WindowFocusListener() {
-
-                @Override
-                public void windowGainedFocus(WindowEvent e) {
-                    setIcons_noUiLock(sharedParameters, iconList);
-                }
-
-                @Override
-                public void windowLostFocus(WindowEvent e) {
-                    setIcons_noUiLock(sharedParameters, iconList);
-                }
-            };
-
-            sharedParameters.get_mainFrameUsingMontoya().addWindowFocusListener(mainFrameWindowFocusListener);
-            sharedParameters.addedIconListener = true;
-
+            installIconRefreshListener(sharedParameters, iconList);
         } else {
             sharedParameters.printlnError("Image could not be loaded to be used as the Burp Suite icon: " + imgPath);
         }
@@ -199,14 +178,34 @@ public class BurpTitleAndIcon {
         }
     }
 
-    private static void removeMainFrameWindowFocusListener(BurpExtensionSharedParameters sharedParameters) {
-        if (sharedParameters.addedIconListener) {
-            sharedParameters.addedIconListener = false;
-            int listenerCount = sharedParameters.get_mainFrameUsingMontoya().getWindowFocusListeners().length;
-            if (listenerCount > 0) {
-                // We assume that the last one is ours!
-                sharedParameters.get_mainFrameUsingMontoya().removeWindowFocusListener(sharedParameters.get_mainFrameUsingMontoya().getWindowFocusListeners()[listenerCount - 1]);
+    // Burp can rewrite window icons, so the icon is applied again on focus changes.
+    // The listener instance is stored so unload can remove exactly this listener,
+    // even when Burp or another extension adds its own focus listener later.
+    static void installIconRefreshListener(BurpExtensionSharedParameters sharedParameters, List<Image> iconList) {
+        removeMainFrameWindowFocusListener(sharedParameters);
+
+        WindowFocusListener mainFrameWindowFocusListener = new WindowFocusListener() {
+
+            @Override
+            public void windowGainedFocus(WindowEvent e) {
+                setIcons_noUiLock(sharedParameters, iconList);
             }
+
+            @Override
+            public void windowLostFocus(WindowEvent e) {
+                setIcons_noUiLock(sharedParameters, iconList);
+            }
+        };
+
+        sharedParameters.get_mainFrameUsingMontoya().addWindowFocusListener(mainFrameWindowFocusListener);
+        sharedParameters.iconRefreshWindowFocusListener = mainFrameWindowFocusListener;
+    }
+
+    static void removeMainFrameWindowFocusListener(BurpExtensionSharedParameters sharedParameters) {
+        WindowFocusListener listener = sharedParameters.iconRefreshWindowFocusListener;
+        if (listener != null) {
+            sharedParameters.iconRefreshWindowFocusListener = null;
+            sharedParameters.get_mainFrameUsingMontoya().removeWindowFocusListener(listener);
         }
     }
 }

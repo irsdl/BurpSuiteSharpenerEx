@@ -4,13 +4,16 @@
 package ninja.burpsuite.libs.burp.generic;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowFocusListener;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class BurpTitleAndIconTest {
 
@@ -63,5 +66,66 @@ class BurpTitleAndIconTest {
     void customWindowsAppIdIsStable() {
         // The taskbar groups windows by this value, so it must not change between releases
         assertEquals("ninja.burpsuite.sharpener.customicon", BurpTitleAndIcon.CUSTOM_WINDOWS_APP_ID);
+    }
+
+    // The main frame is mocked because a real JFrame cannot be created in a headless test
+    private static BurpExtensionSharedParameters mockSharedParametersWithFrame(JFrame frame) {
+        BurpExtensionSharedParameters sharedParameters = mock(BurpExtensionSharedParameters.class);
+        when(sharedParameters.get_mainFrameUsingMontoya()).thenReturn(frame);
+        return sharedParameters;
+    }
+
+    @Test
+    void installStoresTheAddedFocusListener() {
+        JFrame frame = mock(JFrame.class);
+        BurpExtensionSharedParameters sharedParameters = mockSharedParametersWithFrame(frame);
+
+        BurpTitleAndIcon.installIconRefreshListener(sharedParameters, List.of(squareImage(16)));
+
+        ArgumentCaptor<WindowFocusListener> added = ArgumentCaptor.forClass(WindowFocusListener.class);
+        verify(frame).addWindowFocusListener(added.capture());
+        assertSame(added.getValue(), sharedParameters.iconRefreshWindowFocusListener);
+    }
+
+    @Test
+    void removeOnlyRemovesTheStoredListenerAndClearsIt() {
+        // a memory leak regression test: unload used to remove the LAST focus listener on the
+        // main frame, which could be one owned by Burp or another extension, and in that case
+        // our own listener stayed on the frame forever
+        JFrame frame = mock(JFrame.class);
+        BurpExtensionSharedParameters sharedParameters = mockSharedParametersWithFrame(frame);
+
+        BurpTitleAndIcon.installIconRefreshListener(sharedParameters, List.of(squareImage(16)));
+        WindowFocusListener ourListener = sharedParameters.iconRefreshWindowFocusListener;
+
+        BurpTitleAndIcon.removeMainFrameWindowFocusListener(sharedParameters);
+
+        verify(frame).removeWindowFocusListener(same(ourListener));
+        verify(frame, times(1)).removeWindowFocusListener(any());
+        assertNull(sharedParameters.iconRefreshWindowFocusListener);
+    }
+
+    @Test
+    void removeDoesNothingWhenNoListenerWasInstalled() {
+        JFrame frame = mock(JFrame.class);
+        BurpExtensionSharedParameters sharedParameters = mockSharedParametersWithFrame(frame);
+
+        BurpTitleAndIcon.removeMainFrameWindowFocusListener(sharedParameters);
+
+        verify(frame, never()).removeWindowFocusListener(any());
+    }
+
+    @Test
+    void installingAgainReplacesTheOldListenerInsteadOfStacking() {
+        JFrame frame = mock(JFrame.class);
+        BurpExtensionSharedParameters sharedParameters = mockSharedParametersWithFrame(frame);
+
+        BurpTitleAndIcon.installIconRefreshListener(sharedParameters, List.of(squareImage(16)));
+        WindowFocusListener firstListener = sharedParameters.iconRefreshWindowFocusListener;
+
+        BurpTitleAndIcon.installIconRefreshListener(sharedParameters, List.of(squareImage(16)));
+
+        verify(frame).removeWindowFocusListener(same(firstListener));
+        assertNotSame(firstListener, sharedParameters.iconRefreshWindowFocusListener);
     }
 }

@@ -7,14 +7,18 @@
 package ninja.burpsuite.extension.sharpener.uiControllers.burpFrame;
 
 import com.coreyd97.BurpExtenderUtilities.Preferences;
+import com.google.gson.reflect.TypeToken;
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
+import ninja.burpsuite.extension.sharpener.uiControllers.shortcuts.ShortcutMappings;
 import ninja.burpsuite.libs.burp.generic.BurpTitleAndIcon;
+import ninja.burpsuite.libs.generic.UIHelper;
 import ninja.burpsuite.libs.objects.PreferenceObject;
 import ninja.burpsuite.libs.objects.StandardSettings;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 public class BurpFrameSettings extends StandardSettings {
 
@@ -69,7 +73,21 @@ public class BurpFrameSettings extends StandardSettings {
         preferenceObject = new PreferenceObject("lastApplicationSize", Dimension.class, null, Preferences.Visibility.GLOBAL);
         preferenceObjectCollection.add(preferenceObject);
 
+        // user defined keyboard shortcuts. BurpFrameSettings loads before SubTabsSettingsV2,
+        // so the setting is registered here as well; the duplicate registration is tolerated.
+        preferenceObject = new PreferenceObject(ShortcutMappings.CUSTOM_SHORTCUTS_SETTING_NAME,
+                new TypeToken<HashMap<String, ArrayList<String>>>() {
+                }.getType(), null, Preferences.Visibility.GLOBAL);
+        preferenceObjectCollection.add(preferenceObject);
+
         return preferenceObjectCollection;
+    }
+
+    // Reinstalls the key bindings so a shortcut change is applied without a full reload.
+    public void reloadShortcuts() {
+        if (burpFrameListeners != null) {
+            burpFrameListeners.reloadShortcuts(sharedParameters.get_mainFrameUsingMontoya());
+        }
     }
 
     @Override
@@ -84,7 +102,7 @@ public class BurpFrameSettings extends StandardSettings {
         String newIconPath = sharedParameters.preferences.safeGetStringSetting("BurpIconCustomPath");
         String newIconResourcePath = sharedParameters.preferences.safeGetStringSetting("BurpResourceIconName");
         if (!newIconPath.isBlank()) {
-            sharedParameters.preferences.setSetting("LastBurpIconCustomPath", newIconPath);
+            sharedParameters.preferences.set("LastBurpIconCustomPath", newIconPath);
             BurpTitleAndIcon.setIcon(sharedParameters, newIconPath, false);
         } else if (!newIconResourcePath.isBlank()) {
             BurpTitleAndIcon.setIcon(sharedParameters, newIconResourcePath, true);
@@ -97,11 +115,16 @@ public class BurpFrameSettings extends StandardSettings {
             Point lastApplicationPosition = sharedParameters.preferences.safeGetSetting("lastApplicationPosition", null);
             Dimension lastApplicationSize = sharedParameters.preferences.safeGetSetting("lastApplicationSize", null);
 
-            if (lastApplicationPosition != null) {
+            // a minimised window position saved by an older version (-32000 on Windows)
+            // would restore Burp far off screen
+            if (lastApplicationPosition != null
+                    && lastApplicationPosition.x > -30000 && lastApplicationPosition.y > -30000) {
                 sharedParameters.get_mainFrameUsingMontoya().setLocation(lastApplicationPosition);
             }
 
-            if (lastApplicationSize != null) {
+            // a size below the minimum would restore a practically invisible window
+            if (lastApplicationSize != null
+                    && !UIHelper.isSizeTooSmall(lastApplicationSize, BurpFrameListeners.MIN_VISIBLE_FRAME_SIZE)) {
                 sharedParameters.get_mainFrameUsingMontoya().setSize(lastApplicationSize);
             }
         }

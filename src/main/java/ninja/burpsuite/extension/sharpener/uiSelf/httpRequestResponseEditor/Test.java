@@ -6,7 +6,7 @@ import java.awt.*;
 public class Test {
     public JTextArea textArea1;
     public JButton buttonTESTButton;
-    public JComboBox comboBox1;
+    public JComboBox<String> comboBox1;
     public JPanel mainPanel;
 
     public boolean isModified() {
@@ -65,8 +65,8 @@ public class Test {
         gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
         mainPanel.add(panel2, gbc);
-        comboBox1 = new JComboBox();
-        final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
+        comboBox1 = new JComboBox<>();
+        final DefaultComboBoxModel<String> defaultComboBoxModel1 = new DefaultComboBoxModel<>();
         defaultComboBoxModel1.addElement("test");
         comboBox1.setModel(defaultComboBoxModel1);
         gbc = new GridBagConstraints();

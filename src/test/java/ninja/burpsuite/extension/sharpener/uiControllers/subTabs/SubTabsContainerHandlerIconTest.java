@@ -81,6 +81,8 @@ public class SubTabsContainerHandlerIconTest {
     // stands in for Burp's own custom tab layout manager: a layout whose class is NOT in
     // java.awt / javax.swing, which is how the handler tells Burp's layout from a damaged one
     private static class FakeBurpTabLayout extends BorderLayout {
+        private static final long serialVersionUID = 1L;
+
         FakeBurpTabLayout() {
             super(10, 0);
         }

@@ -490,7 +490,6 @@ public class HTTPMessageHelper {
             } else {
                 // this is a request or response - we have at least a match...
                 int counter = 0;
-                boolean matchFound = false;
                 for (String item : headers) {
                     if (item.indexOf(":") >= 0 && counter != 0) {
                         String[] headerItem = item.split(":", 2);

@@ -12,6 +12,9 @@ public abstract class StandardSettings {
     private Collection<PreferenceObject> _preferenceObjectCollection;
     public ExtensionSharedParameters sharedParameters;
 
+    // the constructor runs the settings lifecycle, so calling overridable methods here is intended
+    // "all" is included because the Eclipse compiler does not know the javac "this-escape" token
+    @SuppressWarnings({"all", "this-escape"})
     protected StandardSettings(ExtensionSharedParameters sharedParameters) {
         boolean isError = false;
         this.sharedParameters = sharedParameters;
@@ -49,7 +52,7 @@ public abstract class StandardSettings {
 
         for (PreferenceObject preferenceObject : _preferenceObjectCollection) {
             try {
-                sharedParameters.preferences.registerSetting(preferenceObject.settingName, preferenceObject.type, preferenceObject.defaultValue, preferenceObject.visibility);
+                sharedParameters.preferences.register(preferenceObject.settingName, preferenceObject.type, preferenceObject.defaultValue, preferenceObject.visibility);
             } catch (Exception e) {
                 //already registered setting
                 sharedParameters.printDebugMessage(e.getMessage());

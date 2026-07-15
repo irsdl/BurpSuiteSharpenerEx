@@ -9,7 +9,7 @@ import java.util.Properties;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 
 public class PropertiesHelper {
-    public static Properties readProperties(Class claz, String resourcePath) {
+    public static Properties readProperties(Class<?> claz, String resourcePath) {
         Properties prop = new Properties();
         try {
             InputStream stream = claz.getResourceAsStream(resourcePath);

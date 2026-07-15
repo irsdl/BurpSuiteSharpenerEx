@@ -34,6 +34,16 @@ public class ExtensionPropertiesTest {
     }
 
     @Test
+    void copyrightShowsLicenseAndDeveloperOnly() {
+        // shown in the About dialog; the MDSec history moved to the README
+        String copyright = props.getProperty("copyright");
+        assertNotNull(copyright);
+        assertTrue(copyright.contains("AGPL"));
+        assertTrue(copyright.contains("Soroush Dalili"));
+        assertFalse(copyright.contains("MDSec"));
+    }
+
+    @Test
     void minSupportedBurpVersionIs2024_2() {
         // Burp 2024.2 is the first release that requires Java 21.
         // The jar contains Java 21 bytecode, so older Burp versions cannot load it.

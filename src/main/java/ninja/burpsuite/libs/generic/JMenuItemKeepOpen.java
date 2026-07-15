@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.event.MouseEvent;
 
 public class JMenuItemKeepOpen extends JMenuItem {
+    private static final long serialVersionUID = 1L;
 
     public JMenuItemKeepOpen(String text) {
         super(text);
