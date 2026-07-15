@@ -22,20 +22,30 @@ import ninja.burpsuite.extension.sharpener.uiSelf.suiteTab.SuiteTab;
 import ninja.burpsuite.extension.sharpener.uiSelf.topMenu.TopMenu;
 import ninja.burpsuite.libs.burp.generic.BurpUITools;
 import ninja.burpsuite.libs.generic.ResourceIconCache;
+import ninja.burpsuite.libs.generic.SingleInstanceGuard;
 import ninja.burpsuite.libs.generic.UIHelper;
 
 import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.net.URI;
+import java.util.function.BooleanSupplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHandler {
+    // root pane client property key for the SingleInstanceGuard liveness marker
+    public static final String INSTANCE_MARKER_KEY = "ninja.burpsuite.extension.sharpener.loadedInstance";
+
     private ExtensionSharedParameters sharedParameters = null;
     private Boolean isActive = null;
     private PropertyChangeListener lookAndFeelPropChangeListener;
+    // true when another live copy of this extension was detected, so this copy
+    // must unload itself without touching Burp's UI or the saved settings
+    private boolean isDuplicateInstance = false;
+    // this copy's own liveness marker, kept so unload removes exactly this marker
+    private BooleanSupplier ownInstanceMarker = null;
 
     @Override
     public void initialize(MontoyaApi api) {
@@ -55,6 +65,11 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
         }
 
         furtherLoadingChecks();
+
+        // a second live copy of the extension was detected: this copy has already asked
+        // Burp to unload it, so it must not register any handlers or UI below
+        if (isDuplicateInstance)
+            return;
 
         // load the menu icons into the cache on a short-lived background thread,
         // so neither extension loading nor the EDT pays for the first icon scan.
@@ -166,6 +181,21 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
                 return;
             }
 
+            // Duplicate load detection. A menu bar check cannot tell a stale leftover menu
+            // (quick unload plus reload race) from a second live copy, so a liveness marker
+            // on Burp's root pane is checked instead: the previous copy's marker turns dead
+            // as soon as its unload starts, while a genuinely loaded copy stays live.
+            JRootPane burpRootPane = sharedParameters.get_mainFrameUsingMontoya().getRootPane();
+            if (SingleInstanceGuard.isAnotherInstanceLive(burpRootPane, INSTANCE_MARKER_KEY)) {
+                isDuplicateInstance = true;
+                String errMessage = "Another live copy of the " + sharedParameters.extensionName +
+                        " extension is already loaded. This copy will now be unloaded.";
+                sharedParameters.printlnError(errMessage);
+                UIHelper.showWarningMessage(errMessage, sharedParameters.get_mainFrameUsingMontoya());
+                sharedParameters.montoyaApi.extension().unload();
+                return;
+            }
+
             // A leftover Sharpener menu can still be present right after a quick unload plus reload,
             // because Burp removes the old menu only after the previous unload has finished.
             // Our own menu is registered later, so any menu found now is stale.
@@ -175,6 +205,11 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
                 sharedParameters.printlnError("A leftover " + sharedParameters.extensionName + " menu was found. Removing it and continuing to load.");
                 BurpUITools.removeMenuBarByName(sharedParameters.extensionName, sharedParameters.get_mainMenuBarUsingMontoya(), true);
             }
+
+            // publish this copy's liveness marker before anything else is loaded, so a copy
+            // loaded from now on detects this one; the supplier turns false once unload starts
+            ownInstanceMarker = () -> !sharedParameters.isUnloaded();
+            SingleInstanceGuard.publish(burpRootPane, INSTANCE_MARKER_KEY, ownInstanceMarker);
 
             // This needs to be initialized after the UI is accessible
             initializeSettings();
@@ -232,6 +267,23 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
         sharedParameters.printDebugMessage("unload");
         // stop all delayed tasks first so nothing fires against the dead Burp API while we clean up
         sharedParameters.delayedTasks.stop();
+
+        // a duplicate copy never published a marker, never loaded settings, and never
+        // touched Burp's UI, so it must not run the restore logic of the live copy
+        if (isDuplicateInstance) {
+            sharedParameters.printDebugMessage("Duplicate copy unloaded without touching the UI.");
+            return;
+        }
+
+        // remove this copy's liveness marker so a later load never sees a dead leftover
+        // marker, and so the marker does not keep the unloaded classloader alive
+        try {
+            SingleInstanceGuard.clear(sharedParameters.get_mainFrameUsingMontoya().getRootPane(),
+                    INSTANCE_MARKER_KEY, ownInstanceMarker);
+        } catch (Exception e) {
+            sharedParameters.printDebugMessage("Could not clear the instance marker: " + e.getMessage());
+        }
+
         try {
             /*
             // reattaching related tools before working on them!

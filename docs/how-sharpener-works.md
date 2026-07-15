@@ -69,12 +69,24 @@ Active vs legacy: `SubTabsListenersV2` and `SubTabsSettingsV2` are the active im
 3. Compatibility gate: if the Burp version is too old (or Community when not allowed), warn and self-unload.
 4. `furtherLoadingChecks()`:
    - `setUIParametersUsingMontoya(10)`: resolve main frame, root tabbed pane, dark mode, original title and icons. Up to 10 attempts, 500 ms apart (load stall is capped at about 5 seconds).
+   - Duplicate load detection (see below): if another live copy is already loaded, warn and self-unload without touching Burp's UI or saved settings.
    - Remove a stale Sharpener menu left by a previous quick unload if present.
+   - Publish this copy's liveness marker on Burp's root pane so later copies can detect it.
    - `allSettings = new ExtensionGeneralSettings(...)`: triggers the full settings lifecycle and capability discovery.
    - Install a `UIManager` Look-and-Feel listener (see below).
 5. Warm the icon cache on a background thread (`ResourceIconCache` for top menu and sub-tab icons) so menus open fast and the EDT never pays the first jar scan.
 6. Register capability handlers with Montoya. For each `CapabilitySettings` in `allSettings.capabilitySettingsList`, its `CapabilityGroup` list decides registration: `PROXY_REQUEST_HANDLER`, `PROXY_RESPONSE_HANDLER`, `WEBSOCKET_CREATION_HANDLER`. Each registration reflects a fresh handler instance via `Capability.createCapabilityObject(...)`.
 7. Register UI pieces gated by feature flags: context menu and top menu are on; suite tab and request/response editors are off. After registering the top menu, an `invokeLater` re-installs the menu UI delegate (fixes an unpainted menu after LaF change plus reload).
+
+### Duplicate load detection (SingleInstanceGuard)
+
+Loading Sharpener twice must not leave two menus and two copies fighting over the same Swing components and preference keys. A menu bar check alone cannot tell a stale leftover menu (a quick unload plus reload, where Burp removes the old menu only after the previous unload finishes) from a second live copy, so detection uses a liveness marker instead of the menu.
+
+- The marker is a `java.util.function.BooleanSupplier` stored as a client property on Burp's main frame root pane (`ExtensionMainClass.INSTANCE_MARKER_KEY`). Each copy has its own classloader, so only JDK types cross the boundary; the supplier reports `!sharedParameters.isUnloaded()`, which turns false the instant unload begins (`delayedTasks.stop()` is the first line of unload).
+- On load, `furtherLoadingChecks()` calls `SingleInstanceGuard.isAnotherInstanceLive(...)`. A live marker means a real second copy: the copy shows a warning, sets `isDuplicateInstance = true`, and self-unloads. `initialize()` returns early after `furtherLoadingChecks()` for a duplicate, so no handlers or UI are registered, and `unload()` returns early so it never runs the restore logic or clears the other copy's marker.
+- A dead marker (supplier returns false), a missing marker, a foreign value, or a supplier that throws all count as "no live instance", so the stale leftover menu case falls through to the existing remove-and-continue path with no false positive.
+- A non-duplicate copy publishes its own marker before loading settings and clears it on unload, but `SingleInstanceGuard.clear` only removes the marker when it is still this copy's own supplier, so a late unload of an old copy never removes a newer copy's marker. Clearing also drops the reference into the extension classloader, so an unloaded copy does not leak.
+- Covered by `SingleInstanceGuardTest`. This replaces the old menu-bar-only check that unloaded after settings were already loaded (it left a half loaded extension behind on a quick reload, which is why it was removed in 4.6).
 
 ### Look-and-Feel change forces unload without saving
 
@@ -82,7 +94,7 @@ A LaF switch would corrupt saved styles, so the listener sets `unloadWithoutSave
 
 ### Unload
 
-`extensionUnloaded()` runs: stop the shared `delayedTasks` timer first (so no delayed task fires after unload), remove the LaF listener, `allSettings.unloadSettings()` (each area restores Burp's original UI), then flush the EDT with `invokeAndWait`. Unloading must leave Burp exactly as it was found.
+`extensionUnloaded()` runs: stop the shared `delayedTasks` timer first (so no delayed task fires after unload, and so the liveness marker turns dead at once). A duplicate copy returns here without further work. Otherwise clear this copy's liveness marker, remove the LaF listener, `allSettings.unloadSettings()` (each area restores Burp's original UI), then flush the EDT with `invokeAndWait`. Unloading must leave Burp exactly as it was found.
 
 ## 4. Settings and preferences system
 
