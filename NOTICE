@@ -1,0 +1,27 @@
+Sharpener, a Burp Suite extension
+Copyright (C) 2021-2026 Soroush Dalili (@irsdl)
+https://github.com/irsdl/BurpSuiteSharpenerEx
+
+This program is free software, licensed under the GNU Affero General Public
+License version 3.0 (AGPLv3). See the LICENSE file for the license text.
+
+Additional terms under GNU AGPL version 3 section 7
+---------------------------------------------------
+
+As permitted by section 7(b) of the GNU AGPL version 3, the following
+reasonable legal notices and author attributions must be preserved in
+copies and in modified versions of this work:
+
+1. The copyright notices naming Soroush Dalili in this NOTICE file and
+   in the source file headers.
+2. The attribution line "Developed by Soroush Dalili (@irsdl)" in the
+   source file headers and in the Appropriate Legal Notices shown by the
+   program (the About dialog of the extension).
+
+As permitted by section 7(c) of the GNU AGPL version 3, misrepresentation
+of the origin of this material is prohibited, and modified versions must
+be marked in reasonable ways as different from the original version.
+
+Historical note: this project was first released as open source by MDSec
+(https://www.mdsec.co.uk/) as BurpSuiteSharpener and is continued by its
+original author at the repository above.

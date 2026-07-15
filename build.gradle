@@ -44,6 +44,11 @@ base {
 
 jar{
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    // ship the license and the section 7 notice inside the distributed jar
+    from(rootDir) {
+        include 'LICENSE', 'NOTICE'
+        into 'META-INF'
+    }
     from {
         (configurations.runtimeClasspath).collect { it.isDirectory() ? it : zipTree(it) }
     }{

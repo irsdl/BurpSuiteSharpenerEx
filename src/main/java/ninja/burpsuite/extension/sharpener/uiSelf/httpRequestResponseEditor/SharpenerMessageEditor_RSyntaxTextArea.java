@@ -1,3 +1,9 @@
+// Burp Suite Extension Name: Sharpener
+// Copyright (C) 2021-2026 Soroush Dalili (@irsdl)
+// Released under AGPL v3.0 with additional terms, see the LICENSE and NOTICE files
+// Developed by Soroush Dalili (@irsdl)
+// Project link: https://github.com/irsdl/BurpSuiteSharpenerEx
+
 // initial code from https://github.com/hackvertor/hackvertor/blob/master/src/main/java/burp/ui/HackvertorInput.java
 package ninja.burpsuite.extension.sharpener.uiSelf.httpRequestResponseEditor;
 
