@@ -179,3 +179,9 @@ Pull requests are welcome. A few rules keep the automated release pipeline worki
 * Bruno Demarche (for initial Swing hack inspiration)
 
 Please feel free to report bugs, suggest features, or send pull requests.
+
+## License
+
+Copyright (C) 2021-2026 Soroush Dalili ([@irsdl](https://github.com/irsdl)).
+
+Released under the GNU Affero General Public License v3.0 with additional terms under section 7 of the license: copies and modified versions must keep the copyright notices and the "Developed by Soroush Dalili (@irsdl)" attribution. See the [LICENSE](LICENSE) and [NOTICE](NOTICE) files.

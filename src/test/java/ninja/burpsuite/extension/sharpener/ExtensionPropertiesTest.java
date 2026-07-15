@@ -1,5 +1,6 @@
 // Burp Suite Extension Name: Sharpener
-// Released under AGPL see LICENSE for more information
+// Copyright (C) 2021-2026 Soroush Dalili (@irsdl)
+// Released under AGPL v3.0 with additional terms, see the LICENSE and NOTICE files
 // Developed by Soroush Dalili (@irsdl)
 // Project link: https://github.com/irsdl/BurpSuiteSharpenerEx
 
@@ -33,12 +34,15 @@ public class ExtensionPropertiesTest {
     }
 
     @Test
-    void copyrightShowsLicenseAndDeveloperOnly() {
-        // shown in the About dialog; the MDSec history moved to the README
+    void copyrightShowsNoticeLicenseAndDeveloper() {
+        // shown in the About dialog; it is part of the Appropriate Legal Notices
+        // named in the NOTICE file, so the copyright and attribution must stay
         String copyright = props.getProperty("copyright");
         assertNotNull(copyright);
+        assertTrue(copyright.contains("Copyright (C)"));
         assertTrue(copyright.contains("AGPL"));
-        assertTrue(copyright.contains("Soroush Dalili"));
+        assertTrue(copyright.contains("NOTICE"));
+        assertTrue(copyright.contains("Developed by Soroush Dalili (@irsdl)"));
         assertFalse(copyright.contains("MDSec"));
     }
 

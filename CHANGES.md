@@ -32,6 +32,7 @@ Keep the heading format exactly as `## Version X.Y (YYYY-MM-DD)` so it can find 
 - Much faster tab menus: the icons shown in the tab right-click menu and in the "Change Burp Suite Icon" menu are now loaded once and cached. The old code rescanned the extension jar and reloaded every icon image on the UI thread each time a menu was opened, which made every tab right-click slow.
 - The extension jar is about 2 MB smaller and loads faster: the Spring library was removed. It was only used to list the bundled icons, which a small helper now does.
 - Extension loading can no longer stall for a long time when the Burp UI is slow to appear. The old retry logic could sleep for up to 45 seconds in total, the new one is capped at 5 seconds.
+- Documentation update: a full technical reference of the extension is now available in docs/how-sharpener-works.md.
 
 ## Version 4.8 (2026-07-14)
 
