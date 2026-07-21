@@ -40,9 +40,13 @@ public class SourceHeadersTest {
 
     @Test
     void everyJavaFileKeepsTheHeaderNotices() throws IOException {
+        // vendored third-party files carry their own header, enforced by ThirdPartyHeadersTest
+        Path vendoredRoot = Path.of("src", "main", "java", "ninja", "burpsuite", "libs", "thirdparty");
         for (Path root : List.of(Path.of("src", "main", "java"), Path.of("src", "test", "java"))) {
             try (Stream<Path> files = Files.walk(root)) {
-                files.filter(p -> p.toString().endsWith(".java")).forEach(p -> {
+                files.filter(p -> p.toString().endsWith(".java"))
+                        .filter(p -> !p.startsWith(vendoredRoot))
+                        .forEach(p -> {
                     String head;
                     try {
                         head = String.join("\n", Files.readAllLines(p).stream().limit(10).toList());

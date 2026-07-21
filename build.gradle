@@ -7,9 +7,6 @@ version ''
 
 repositories {
     mavenCentral()
-    maven {
-        url "https://jitpack.io"
-    }
 }
 
 // one shared version so the main and test classpaths cannot drift
@@ -17,8 +14,8 @@ def montoyaApiVersion = '2026.4' // 2026-04-15
 
 dependencies {
     compileOnly "net.portswigger.burp.extensions:montoya-api:$montoyaApiVersion" //https://central.sonatype.com/artifact/net.portswigger.burp.extensions/montoya-api/
-    implementation "com.github.CoreyD97:Burp-Montoya-Utilities:b7faf563" // commit from 2026-04-14, https://jitpack.io/com/github/CoreyD97/Burp-Montoya-Utilities/
-    //implementation "com.google.code.gson:gson:2.10.1" //https://mvnrepository.com/artifact/com.google.code.gson/gson
+    // the preferences code from Burp-Montoya-Utilities is vendored under libs/thirdparty, see the NOTICE file
+    implementation "com.google.code.gson:gson:2.11.0" // 2024-05-19, pinned to the previously transitive version so stored-settings JSON stays identical, https://mvnrepository.com/artifact/com.google.code.gson/gson
     implementation "com.google.guava:guava:33.6.0-jre" // 2026-04-14, https://mvnrepository.com/artifact/com.google.guava/guava
     implementation "org.apache.commons:commons-lang3:3.20.0" // 2025-11-12, https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation "com.formdev:flatlaf:3.7.1" // 2026-03-10, https://mvnrepository.com/artifact/com.formdev/flatlaf

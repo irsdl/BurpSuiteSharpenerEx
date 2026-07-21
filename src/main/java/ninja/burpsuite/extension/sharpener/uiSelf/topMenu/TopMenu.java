@@ -6,7 +6,7 @@
 
 package ninja.burpsuite.extension.sharpener.uiSelf.topMenu;
 
-import com.coreyd97.BurpExtenderUtilities.Preferences;
+import ninja.burpsuite.libs.thirdparty.burpextenderutilities.Preferences;
 import ninja.burpsuite.extension.sharpener.ExtensionMainClass;
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
 import ninja.burpsuite.extension.sharpener.capabilities.implementations.PwnFoxSettings;

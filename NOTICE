@@ -22,6 +22,21 @@ As permitted by section 7(c) of the GNU AGPL version 3, misrepresentation
 of the origin of this material is prohibited, and modified versions must
 be marked in reasonable ways as different from the original version.
 
+Third-party code
+----------------
+
+The directory src/main/java/ninja/burpsuite/libs/thirdparty/ contains code
+from Burp-Montoya-Utilities by Corey Arthur (@CoreyD97),
+https://github.com/CoreyD97/Burp-Montoya-Utilities
+Copyright (C) Corey Arthur, licensed under the GNU AGPL version 3.0.
+
+The section 7 additional terms in this NOTICE apply only to material authored
+by Soroush Dalili. They do not apply to the vendored third-party files.
+
+The vendored copy was taken from upstream commit b7faf563 and modified
+(repackaged under ninja.burpsuite.libs.thirdparty); as marking under
+section 7(c), it is not the original library.
+
 Historical note: this project was first released as open source by MDSec
 (https://www.mdsec.co.uk/) as BurpSuiteSharpener and is continued by its
 original author at the repository above.

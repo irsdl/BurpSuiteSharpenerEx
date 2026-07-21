@@ -175,7 +175,7 @@ Pull requests are welcome. A few rules keep the automated release pipeline worki
 
 ## Thanks To
 
-* Corey Arthur [CoreyD97](https://twitter.com/CoreyD97) for [Burp-Montoya-Utilities](https://github.com/CoreyD97/Burp-Montoya-Utilities/)
+* Corey Arthur [CoreyD97](https://twitter.com/CoreyD97) for [Burp-Montoya-Utilities](https://github.com/CoreyD97/Burp-Montoya-Utilities/). A small part of it (the preferences classes) is now maintained inside this repository under `libs/thirdparty/`; the rest of the library is no longer bundled. See the NOTICE file.
 * Bruno Demarche (for initial Swing hack inspiration)
 
 Please feel free to report bugs, suggest features, or send pull requests.

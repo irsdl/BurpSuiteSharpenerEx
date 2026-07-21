@@ -6,7 +6,7 @@
 
 package ninja.burpsuite.extension.sharpener;
 
-import com.coreyd97.BurpExtenderUtilities.Preferences;
+import ninja.burpsuite.libs.thirdparty.burpextenderutilities.Preferences;
 import ninja.burpsuite.extension.sharpener.capabilities.objects.CapabilitySettings;
 import ninja.burpsuite.extension.sharpener.uiControllers.burpFrame.BurpFrameSettings;
 import ninja.burpsuite.extension.sharpener.uiControllers.mainTabs.MainTabsSettings;
