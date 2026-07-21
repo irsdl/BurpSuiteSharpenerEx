@@ -6,10 +6,7 @@
 
 package ninja.burpsuite.libs.thirdparty.burpextenderutilities;
 
-import com.coreyd97.BurpExtenderUtilities.DefaultGsonProvider;
-import com.coreyd97.BurpExtenderUtilities.Preferences;
-import com.coreyd97.BurpExtenderUtilities.UnmanagedSettingException;
-import com.coreyd97.BurpExtenderUtilities.nameManager.NameCollisionException;
+import ninja.burpsuite.libs.thirdparty.burpextenderutilities.nameManager.NameCollisionException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

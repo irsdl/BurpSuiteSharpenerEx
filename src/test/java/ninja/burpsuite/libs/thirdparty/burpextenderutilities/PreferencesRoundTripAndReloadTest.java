@@ -6,9 +6,7 @@
 
 package ninja.burpsuite.libs.thirdparty.burpextenderutilities;
 
-import com.coreyd97.BurpExtenderUtilities.DefaultGsonProvider;
-import com.coreyd97.BurpExtenderUtilities.Preferences;
-import com.coreyd97.BurpExtenderUtilities.nameManager.NameManager;
+import ninja.burpsuite.libs.thirdparty.burpextenderutilities.nameManager.NameManager;
 import com.google.gson.reflect.TypeToken;
 import ninja.burpsuite.extension.sharpener.objects.TabFeaturesObject;
 import org.junit.jupiter.api.BeforeEach;

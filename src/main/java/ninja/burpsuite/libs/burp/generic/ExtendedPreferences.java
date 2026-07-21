@@ -5,8 +5,8 @@
 package ninja.burpsuite.libs.burp.generic;
 
 import burp.api.montoya.MontoyaApi;
-import com.coreyd97.BurpExtenderUtilities.IGsonProvider;
-import com.coreyd97.BurpExtenderUtilities.Preferences;
+import ninja.burpsuite.libs.thirdparty.burpextenderutilities.IGsonProvider;
+import ninja.burpsuite.libs.thirdparty.burpextenderutilities.Preferences;
 
 public class ExtendedPreferences extends Preferences {
     BurpExtensionSharedParameters sharedParameters;

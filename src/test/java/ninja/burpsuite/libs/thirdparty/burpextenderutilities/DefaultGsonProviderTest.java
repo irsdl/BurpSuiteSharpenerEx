@@ -6,9 +6,7 @@
 
 package ninja.burpsuite.libs.thirdparty.burpextenderutilities;
 
-import com.coreyd97.BurpExtenderUtilities.DefaultGsonProvider;
-import com.coreyd97.BurpExtenderUtilities.Preferences;
-import com.coreyd97.BurpExtenderUtilities.TypeAdapter.ByteArrayToBase64TypeAdapter;
+import ninja.burpsuite.libs.thirdparty.burpextenderutilities.typeadapter.ByteArrayToBase64TypeAdapter;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 

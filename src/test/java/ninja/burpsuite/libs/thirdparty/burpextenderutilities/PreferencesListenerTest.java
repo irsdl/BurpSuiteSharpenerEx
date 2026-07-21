@@ -6,9 +6,6 @@
 
 package ninja.burpsuite.libs.thirdparty.burpextenderutilities;
 
-import com.coreyd97.BurpExtenderUtilities.DefaultGsonProvider;
-import com.coreyd97.BurpExtenderUtilities.PreferenceListener;
-import com.coreyd97.BurpExtenderUtilities.Preferences;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -6,7 +6,7 @@
 
 package ninja.burpsuite.extension.sharpener.uiControllers.subTabs;
 
-import com.coreyd97.BurpExtenderUtilities.Preferences;
+import ninja.burpsuite.libs.thirdparty.burpextenderutilities.Preferences;
 import com.google.gson.reflect.TypeToken;
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
 import ninja.burpsuite.extension.sharpener.objects.TabFeaturesObject;

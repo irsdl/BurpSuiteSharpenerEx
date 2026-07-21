@@ -107,7 +107,7 @@ Each feature area has a `*Settings` class extending `StandardSettings` (`libs/ob
 
 `unloadSettings()` is called on extension unload and must restore original Burp state.
 
-Persistence uses CoreyD97 BurpExtenderUtilities `Preferences` (Gson JSON through Burp preferences), subclassed as `ExtendedPreferences` which adds `safeSetSetting` (3 retries, write verification, auto-register on "not registered") and `safeGet*Setting` helpers that never throw.
+Persistence uses the vendored `Preferences` class in `libs/thirdparty/burpextenderutilities` (originally from CoreyD97 Burp-Montoya-Utilities, see the NOTICE file): each setting is serialized to JSON with Gson and stored through Burp preferences. It is subclassed as `ExtendedPreferences` which adds `safeSetSetting` (3 retries, write verification, auto-register on "not registered") and `safeGet*Setting` helpers that never throw. Note the auto-register fallback is currently dead code: it matches the old "has not been registered" message while the vendored code throws `UnmanagedSettingException` with different wording (characterized in `ExtendedPreferencesTest`).
 
 Visibility: `GLOBAL` = Burp user preferences, shared across projects. `PROJECT` = stored in the project file. Most settings are GLOBAL; the window title and icon choices are PROJECT.
 

@@ -6,7 +6,7 @@
 
 package ninja.burpsuite.extension.sharpener.capabilities.implementations;
 
-import com.coreyd97.BurpExtenderUtilities.Preferences;
+import ninja.burpsuite.libs.thirdparty.burpextenderutilities.Preferences;
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
 import ninja.burpsuite.extension.sharpener.capabilities.objects.Capability;
 import ninja.burpsuite.extension.sharpener.capabilities.objects.CapabilityGroup;

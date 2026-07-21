@@ -6,8 +6,8 @@
 
 package ninja.burpsuite.libs.burp.generic;
 
-import com.coreyd97.BurpExtenderUtilities.DefaultGsonProvider;
-import com.coreyd97.BurpExtenderUtilities.Preferences;
+import ninja.burpsuite.libs.thirdparty.burpextenderutilities.DefaultGsonProvider;
+import ninja.burpsuite.libs.thirdparty.burpextenderutilities.Preferences;
 import ninja.burpsuite.libs.thirdparty.burpextenderutilities.InMemoryPersistence;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -5,6 +5,11 @@ Release notes for the Sharpener Burp Suite extension. The newest version is at t
 The CI release job copies the section of the released version into the GitHub release notes.
 Keep the heading format exactly as `## Version X.Y (YYYY-MM-DD)` so it can find the section.
 
+## Version 4.92 (2026-07-21)
+
+- The preference classes from the Burp-Montoya-Utilities library are now maintained inside the extension. Saved settings keep the exact same format, and the unused parts of the library are no longer bundled, so the jar is smaller.
+- The build no longer downloads any dependency from JitPack.
+
 ## Version 4.91 (2026-07-21)
 
 - The update check now verifies the TLS certificate of the GitHub server, so an attacker on the network cannot replace the version information. The check is still off by default and only runs when "Check for Update on Start" is enabled.
