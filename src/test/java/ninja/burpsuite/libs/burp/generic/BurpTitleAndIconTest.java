@@ -69,6 +69,30 @@ class BurpTitleAndIconTest {
         assertEquals("ninja.burpsuite.sharpener.customicon", BurpTitleAndIcon.CUSTOM_WINDOWS_APP_ID);
     }
 
+    @Test
+    void iconsAlreadyAppliedIsTrueForTheSameImagesInOrder() {
+        List<Image> desired = List.of(squareImage(16), squareImage(32));
+        // Window.getIconImages() returns a new list holding the same Image references
+        assertTrue(BurpTitleAndIcon.iconsAlreadyApplied(new java.util.ArrayList<>(desired), desired));
+    }
+
+    @Test
+    void iconsAlreadyAppliedIsFalseForDifferentImagesOrSizes() {
+        List<Image> desired = List.of(squareImage(16), squareImage(32));
+        // equal looking but different Image instances mean Burp replaced the icons
+        assertFalse(BurpTitleAndIcon.iconsAlreadyApplied(List.of(squareImage(16), squareImage(32)), desired));
+        // a shorter, longer, or missing current list must trigger a reapply
+        assertFalse(BurpTitleAndIcon.iconsAlreadyApplied(List.of(desired.get(0)), desired));
+        assertFalse(BurpTitleAndIcon.iconsAlreadyApplied(List.of(), desired));
+        assertFalse(BurpTitleAndIcon.iconsAlreadyApplied(null, desired));
+    }
+
+    @Test
+    void iconsAlreadyAppliedIsFalseWhenTheOrderChanged() {
+        List<Image> desired = List.of(squareImage(16), squareImage(32));
+        assertFalse(BurpTitleAndIcon.iconsAlreadyApplied(List.of(desired.get(1), desired.get(0)), desired));
+    }
+
     // The main frame is mocked because a real JFrame cannot be created in a headless test
     private static BurpExtensionSharedParameters mockSharedParametersWithFrame(JFrame frame) {
         BurpExtensionSharedParameters sharedParameters = mock(BurpExtensionSharedParameters.class);

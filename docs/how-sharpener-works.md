@@ -113,7 +113,7 @@ Visibility: `GLOBAL` = Burp user preferences, shared across projects. `PROJECT` 
 
 `ExtensionGeneralSettings` composes everything. Load order: `TopMenuSettings`, `ContextMenuSettings`, (`SuiteTabSettings` if enabled), optional update check, `BurpFrameSettings`, `MainTabsSettings`, `SubTabsSettingsV2`, then `capabilityInitializer()`.
 
-Update check: gated by GLOBAL `checkForUpdate` (default false). Fetches `propertiesFileUrl` from GitHub, extracts `version=([\d.]+)`, compares both sides as `double`. This is why `version` in `extension.properties` must stay parseable as a double.
+Update check: gated by GLOBAL `checkForUpdate` (default false). Fetches `propertiesFileUrl` from GitHub through Burp networking with `RequestOptions.withUpstreamTLSVerification()` (Burp does not verify the upstream certificate otherwise), extracts `version=([\d.]+)`, compares both sides as `double`. This is why `version` in `extension.properties` must stay parseable as a double.
 
 ## 5. ExtensionSharedParameters (shared state)
 
@@ -137,7 +137,7 @@ The largest area. `SubTabsSettingsV2` (settings and persistence), `SubTabsListen
 Opened by right-click, middle-click, Alt+click on a tab, or Ctrl+Enter. Built by `SubTabsActions.createPopupMenu()` inside a `JScrollPopupMenu` (scrolls when taller than the screen). Contents:
 
 - **Rename Title** (F2), plain input dialog, titles trimmed and capped at 100 chars.
-- **Copy Title** (Ctrl+Shift+C) and **Paste Title** (Ctrl+Shift+V). Paste strips a leading `#<digits>` uniqueness prefix. The old title is kept under Previous Titles.
+- **Copy Title** (Ctrl+Shift+C) and **Paste Title** (Ctrl+Shift+V). Paste strips a leading `#<digits>` uniqueness prefix. The old title is kept under Previous Titles. The clipboard is always read on a background thread (`readClipboardTitleAsync`), never on the EDT: the clipboard owner is another process and a stuck owner would freeze the Burp UI. The Paste Title item starts disabled and is enabled when the value arrives.
 - **Previous Titles**: per-tab title history with Set, Copy, Clear History.
 - **Match/Replace Titles (RegEx)** across visible tabs.
 - **Predefined Styles**: High/Medium/Low/Info Confirmed and Unconfirmed, Interesting 1/2 (bold, fixed colors: high `#f71414`, medium `#ff7e0d`, low `#FAD400`, info `#0d9e1e`, interesting `#395EEA`, interesting2 `#D641CF`), plus icon-only styles False Positive, Duplicate, Tick, Cross.
@@ -219,7 +219,7 @@ Unload: `uninstallFromComponent()` removes only entries whose action value start
 
 - **Save**: moves and resizes are debounced (1 s / 2 s) on the shared timer, then bounds are saved to GLOBAL `lastApplicationPosition` and `lastApplicationSize`. Minimised frames are never saved (Windows reports bogus -32000 bounds when iconified; checked via `Frame.ICONIFIED`).
 - **Restore** (`useLastScreenPositionAndSize`, GLOBAL, default false): applied at load, ignoring saved positions beyond -30000 and sizes below `MIN_VISIBLE_FRAME_SIZE` (100x100), so Burp can never start invisible.
-- **Off-screen check** (`detectOffScreenPosition`, GLOBAL, default true): at load, an interactive check (10% margin) asks before recentering; at runtime after moves/resizes, a non-interactive check (80% margin) recenters with a warning. A too-small window is resized to two thirds of the screen. The check runs on the EDT and any error or open dialog cannot stall the shared timer.
+- **Off-screen check** (`detectOffScreenPosition`, GLOBAL, default true): at load, an interactive check (10% margin) asks before recentering; at runtime after moves/resizes, a non-interactive check (80% margin) recenters with a warning. A too-small window is resized to two thirds of the screen. The check runs on the EDT and any error or open dialog cannot stall the shared timer. Its dialogs use a null parent on purpose: the Burp frame is off the screen or invisible at that moment, and a dialog centered on that frame would be invisible too, so the dialog is centered on the primary screen instead.
 - **Centering**: `UIHelper.moveFrameToCenter` centers within the default screen's usable bounds (taskbar insets subtracted) and clamps so the title bar stays reachable. Geometry helpers (`isBoundsOutOfScreen`, `getCenteredLocation`, `isSizeTooSmall`) are pure and unit-tested.
 - Unload removes the listener and Sharpener key bindings; position/size preferences persist deliberately.
 
@@ -230,7 +230,7 @@ Unload: `uninstallFromComponent()` removes only entries whose action value start
 - Title: PROJECT preference `BurpTitle`, set via top menu, restored on unload from the original captured at startup.
 - Icon: PROJECT `BurpIconCustomPath` (file) wins over PROJECT `BurpResourceIconName` (bundled icon); GLOBAL `LastBurpIconCustomPath` remembers the file dialog location. The base image is scaled to 16/24/32/48/64/128 and applied to every open `Window` (covers detached tools).
 - OS integration: macOS Dock via `java.awt.Taskbar` (original saved once); Windows taskbar via `WindowsAppUserModelId`, a pure JNA COM property-store client that sets each frame's AppUserModelID to a custom ID so the taskbar shows the window icon instead of the install4j launcher icon. Empty ID restores the default. All of this is best effort, wrapped against `Exception | LinkageError`.
-- Burp rewrites window icons, so a `WindowFocusListener` on the main frame re-applies the icons on focus gained and lost. The exact listener instance is stored so unload removes only Sharpener's listener (never Burp's or another extension's).
+- Burp rewrites window icons, so a `WindowFocusListener` on the main frame re-applies the icons on focus gained and lost. The refresh is cheap: windows that already carry the icon list (compared by instance) are skipped, and the OS taskbar and dock calls only run when the applied icon actually changed (`appliedOsTaskbarIconImage`). The exact listener instance is stored so unload removes only Sharpener's listener (never Burp's or another extension's).
 - Unload restores original icons on all windows, the Dock icon, and all recorded AppUserModelIDs.
 
 ## 11. Capabilities (proxy features)
@@ -257,7 +257,7 @@ Shipped capabilities (both enabled by default, toggled from the top menu):
 - **Context menu** (`ContextMenu`): a Montoya `ContextMenuItemsProvider` for the HTTP message editor and message lists, active for Proxy, Target, and Repeater. Currently minimal (Print request / Print response to the extension output). Not to be confused with the rich tab-header menu, which lives in `SubTabsActions` (section 6); that menu appends shortcut hints via `ShortcutMappings.menuHint(...)`, preferring the header key over the global key.
 - **Disabled features** (kept in code, gated off in `extension.properties`):
   - `suiteTab` (`hasSuiteTab=false`): `SuiteTab` is an empty `JComponent` placeholder for a future Sharpener dashboard tab.
-  - `httpRequestResponseEditor` (`hasHttpRequestEditor`/`hasHttpResponseEditor` false): an experimental RSyntaxTextArea-based message editor. Working pieces: removes the shared `RTextAreaKeymap` so Burp shortcuts survive, re-installs Undo/Redo (Ctrl+Z/Y), Ctrl +/- font zoom following Burp's editor font, dark/light RSyntax theming (`RSyntaxUtils`), experimental Ctrl+Click copy and Ctrl+Alt+Click paste. Parts are still demo code (dummy headers, placeholder combo boxes).
+  - `httpRequestResponseEditor` (`hasHttpRequestEditor`/`hasHttpResponseEditor` false): an experimental RSyntaxTextArea-based message editor. Working pieces: removes the shared `RTextAreaKeymap` so Burp shortcuts survive, re-installs Undo/Redo (Ctrl+Z/Y), Ctrl +/- font zoom following Burp's editor font, dark/light RSyntax theming (`RSyntaxUtils`), experimental Ctrl+Click copy and Ctrl+Alt+Click paste. Parts are still demo code (placeholder combo boxes), but `getRequest()` is safe: an untouched editor returns the original request unchanged and an edited one returns exactly the editor content, so nothing extra can reach a target even if the flag is enabled.
 
 ## 13. Library helpers (libs/generic)
 

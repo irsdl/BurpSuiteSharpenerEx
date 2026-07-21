@@ -75,11 +75,34 @@ public class BurpTitleAndIcon {
         if (icons == null || icons.isEmpty()) {
             return;
         }
+        boolean anyWindowUpdated = false;
         for (Window window : Window.getWindows()) {
-            window.setIconImages(icons);
+            // skip windows that already carry exactly these icons, so the focus
+            // refresh is a no-op unless Burp rewrote them or a new window appeared
+            if (!iconsAlreadyApplied(window.getIconImages(), icons)) {
+                window.setIconImages(icons);
+                anyWindowUpdated = true;
+            }
         }
         applyOsTaskbarIcon(sharedParameters, icons);
-        sharedParameters.printDebugMessage("Burp Suite icon has been updated");
+        if (anyWindowUpdated) {
+            sharedParameters.printDebugMessage("Burp Suite icon has been updated");
+        }
+    }
+
+    // True when the current icon list already holds exactly the desired images.
+    // Compared by instance: the same list is reapplied for the lifetime of one
+    // custom icon, and Window.getIconImages() returns the same Image references.
+    static boolean iconsAlreadyApplied(List<Image> currentIcons, List<Image> desiredIcons) {
+        if (currentIcons == null || currentIcons.size() != desiredIcons.size()) {
+            return false;
+        }
+        for (int i = 0; i < desiredIcons.size(); i++) {
+            if (currentIcons.get(i) != desiredIcons.get(i)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static void setIcons_noUiLock(BurpExtensionSharedParameters sharedParameters, List<Image> icons) {
@@ -109,7 +132,11 @@ public class BurpTitleAndIcon {
     // the macOS Dock (java.awt.Taskbar) and the Windows taskbar (AppUserModelID).
     private static void applyOsTaskbarIcon(BurpExtensionSharedParameters sharedParameters, List<Image> icons) {
         try {
-            if (!GraphicsEnvironment.isHeadless() && Taskbar.isTaskbarSupported()) {
+            Image largestIcon = icons.get(icons.size() - 1);
+            // the dock icon is process wide, not per window, so one successful call is
+            // enough; this guard keeps the focus refresh away from the native API
+            if (sharedParameters.appliedOsTaskbarIconImage != largestIcon
+                    && !GraphicsEnvironment.isHeadless() && Taskbar.isTaskbarSupported()) {
                 Taskbar taskbar = Taskbar.getTaskbar();
                 if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
                     if (!sharedParameters.originalTaskbarIconSaved) {
@@ -120,7 +147,8 @@ public class BurpTitleAndIcon {
                         }
                         sharedParameters.originalTaskbarIconSaved = true;
                     }
-                    taskbar.setIconImage(icons.get(icons.size() - 1)); // the largest one
+                    taskbar.setIconImage(largestIcon);
+                    sharedParameters.appliedOsTaskbarIconImage = largestIcon;
                     sharedParameters.printDebugMessage("OS taskbar/dock icon has been updated");
                 }
             }
@@ -147,6 +175,7 @@ public class BurpTitleAndIcon {
     }
 
     private static void restoreOsTaskbarIcon(BurpExtensionSharedParameters sharedParameters) {
+        sharedParameters.appliedOsTaskbarIconImage = null;
         try {
             if (sharedParameters.originalTaskbarIconSaved && !GraphicsEnvironment.isHeadless() && Taskbar.isTaskbarSupported()) {
                 Taskbar taskbar = Taskbar.getTaskbar();
@@ -180,6 +209,9 @@ public class BurpTitleAndIcon {
     }
 
     // Burp can rewrite window icons, so the icon is applied again on focus changes.
+    // Both focus events are used because new or detached windows can appear at any
+    // time, but setIcons skips windows that already have the icon, so a refresh
+    // that finds nothing to do costs no Swing or native calls.
     // The listener instance is stored so unload can remove exactly this listener,
     // even when Burp or another extension adds its own focus listener later.
     static void installIconRefreshListener(BurpExtensionSharedParameters sharedParameters, List<Image> iconList) {

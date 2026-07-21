@@ -42,16 +42,13 @@ public class ExtensionHttpRequestEditor implements ExtensionProvidedHttpRequestE
      */
     @Override
     public HttpRequest getRequest() {
-        HttpRequest request;
-
+        // an untouched editor must hand the original request back unchanged;
+        // an edited one returns exactly the editor content, nothing is ever added
         if (requestEditor.isModified()) {
-            request = requestResponse.request().withAddedHeader("test1", "demo1");
-        } else {
-            request = requestResponse.request().withAddedHeader("test2", "demo2");
-            ;
+            return HttpRequest.httpRequest(requestResponse.request().httpService(),
+                    requestEditor.sharpenerMessageEditor_RTextScrollPane.getTextArea().getText());
         }
-
-        return request;
+        return requestResponse.request();
     }
 
     /**

@@ -255,6 +255,11 @@ public final class BurpFrameListeners implements ComponentListener {
         String problem = tooSmall ? "too small to be seen"
                 : "at least " + (int) (offScreenMargin * 100) + "% outside the screen";
 
+        // The dialogs below use a null parent on purpose. This code runs exactly when
+        // the Burp window is off the screen or practically invisible, and a dialog is
+        // centered on its parent, so a dialog parented to that frame would be off the
+        // screen too. A null parent centers the dialog on the primary screen, which is
+        // the only place the user is guaranteed to see it.
         if (isChoice) {
             int response = UIHelper.askConfirmMessage(sharedParameters.extensionName + ": Invisible Burp Window",
                     "The Burp Suite window is " + problem + ", do you want to restore it to the center of the screen?",

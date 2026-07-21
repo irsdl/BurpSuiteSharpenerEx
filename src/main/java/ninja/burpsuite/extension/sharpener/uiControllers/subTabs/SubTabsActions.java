@@ -726,19 +726,17 @@ public class SubTabsActions {
 
         JMenuItem pasteTitleMenu = new JMenuItem("Paste Title" + ShortcutMappings.menuHint(sharedParameters, "PasteTitle"));
 
-        try {
-            String clipboardText = (String) Toolkit.getDefaultToolkit()
-                    .getSystemClipboard().getData(DataFlavor.stringFlavor);
-            sharedParameters.lastClipboardText = clipboardText.trim().replaceAll("^#\\d+\\s+", "");
-        } catch (Exception e) {
-            sharedParameters.lastClipboardText = "";
-        }
-
-        if (sharedParameters.lastClipboardText.isBlank()) {
-            pasteTitleMenu.setEnabled(false);
-        } else {
-            pasteTitleMenu.setToolTipText("Clipboard value: " + StringUtils.abbreviate(sharedParameters.lastClipboardText, 100));
-        }
+        // The item starts disabled and is enabled once the clipboard value arrives,
+        // usually before the menu is even visible. The clipboard must not be read on
+        // the EDT here: the owner of the clipboard is another process and a slow or
+        // stuck owner would freeze the whole Burp UI during menu construction.
+        pasteTitleMenu.setEnabled(false);
+        readClipboardTitleAsync(sharedParameters, clipboardTitle -> {
+            if (!clipboardTitle.isBlank()) {
+                pasteTitleMenu.setEnabled(true);
+                pasteTitleMenu.setToolTipText("Clipboard value: " + StringUtils.abbreviate(clipboardTitle, 100));
+            }
+        });
 
         pasteTitleMenu.addActionListener(e -> {
             pasteTitle(sharedParameters, currentSubTabsContainerHandler);
@@ -1743,19 +1741,41 @@ public class SubTabsActions {
         if (currentSubTabsContainerHandler == null)
             return;
 
-        try {
-            String clipboardText = (String) Toolkit.getDefaultToolkit()
-                    .getSystemClipboard().getData(DataFlavor.stringFlavor);
-            sharedParameters.lastClipboardText = clipboardText.trim().replaceAll("^#\\d+\\s+", "");
-        } catch (Exception e) {
-            sharedParameters.lastClipboardText = "";
-        }
+        // read off the EDT, then apply the title back on the EDT
+        readClipboardTitleAsync(sharedParameters, clipboardTitle -> {
+            if (!clipboardTitle.isBlank()) {
+                currentSubTabsContainerHandler.setTabTitle(clipboardTitle, true);
+                sharedParameters.allSettings.subTabsSettings.saveSettings(currentSubTabsContainerHandler);
+                sharedParameters.printDebugMessage("Title has been pasted");
+            }
+        });
+    }
 
-        if (!sharedParameters.lastClipboardText.isBlank()) {
-            currentSubTabsContainerHandler.setTabTitle(sharedParameters.lastClipboardText, true);
-            sharedParameters.allSettings.subTabsSettings.saveSettings(currentSubTabsContainerHandler);
-            sharedParameters.printDebugMessage("Title has been pasted");
+    // Reads the clipboard text on a short background thread and hands the normalised
+    // value to the consumer on the EDT. A synchronous read can block until the process
+    // that owns the clipboard responds, so it must never run on the EDT.
+    static void readClipboardTitleAsync(ExtensionSharedParameters sharedParameters, Consumer<String> onResultOnEdt) {
+        new Thread(() -> {
+            String clipboardText;
+            try {
+                clipboardText = (String) Toolkit.getDefaultToolkit()
+                        .getSystemClipboard().getData(DataFlavor.stringFlavor);
+            } catch (Exception e) {
+                clipboardText = null;
+            }
+            String normalizedTitle = normalizeClipboardTitle(clipboardText);
+            sharedParameters.lastClipboardText = normalizedTitle;
+            SwingUtilities.invokeLater(() -> onResultOnEdt.accept(normalizedTitle));
+        }, "SharpenerClipboardRead").start();
+    }
+
+    // Trims the clipboard value and removes the "#<number> " prefix that a copied
+    // numbered tab title starts with. Returns an empty string for a null value.
+    static String normalizeClipboardTitle(String clipboardText) {
+        if (clipboardText == null) {
+            return "";
         }
+        return clipboardText.trim().replaceAll("^#\\d+\\s+", "");
     }
 
     public static void renameTitle(ExtensionSharedParameters sharedParameters, ActionEvent event) {
