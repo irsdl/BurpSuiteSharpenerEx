@@ -11,6 +11,8 @@ Keep the heading format exactly as `## Version X.Y (YYYY-MM-DD)` so it can find 
 - The tab right-click menu no longer reads the clipboard on the UI thread. When another application owned the clipboard and answered slowly, opening a tab menu could freeze the whole Burp window. The clipboard is now read in the background and the Paste Title item is enabled as soon as the value arrives.
 - The focus listener that keeps the custom Burp icon applied now skips windows that already show the icon and no longer repeats the OS taskbar and dock calls, so a window focus change does no redundant work.
 - The placeholder HTTP request editor (disabled by default) no longer adds demo headers to a request. An untouched editor returns the original request unchanged.
+- The extension now detects when a second live copy of it is loaded and unloads the duplicate safely, without touching the settings or the UI of the first copy.
+- All source files now carry copyright notices, and a NOTICE file with AGPL section 7 terms has been added.
 
 ## Version 4.9 (2026-07-15)
 
