@@ -9,6 +9,9 @@ package ninja.burpsuite.extension.sharpener;
 import burp.api.montoya.BurpExtension;
 import burp.api.montoya.MontoyaApi;
 import burp.api.montoya.extension.ExtensionUnloadingHandler;
+import burp.api.montoya.http.Http;
+import burp.api.montoya.http.RequestOptions;
+import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.proxy.http.ProxyRequestHandler;
 import burp.api.montoya.proxy.http.ProxyResponseHandler;
@@ -337,13 +340,22 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
         System.gc(); // probably will be ignored by Java anyway!
     }
 
+    // The update check must go through Burp networking with upstream TLS verification
+    // turned on, so a network level attacker cannot substitute the remote version file.
+    // Burp does not verify the upstream certificate unless this option is set.
+    static HttpRequestResponse sendVersionCheckRequest(Http http, HttpRequest request, RequestOptions requestOptions) {
+        return http.sendRequest(request, requestOptions.withUpstreamTLSVerification());
+    }
+
     public void checkForUpdate() {
         // we need to see whether the extension is up-to-date by reading the propertiesFileUrl link
         new Thread(() -> {
             try {
                 boolean isError = true;
 
-                var buildGradleFileResponse = sharedParameters.montoyaApi.http().sendRequest(HttpRequest.httpRequestFromUrl(sharedParameters.extensionPropertiesUrl));
+                var buildGradleFileResponse = sendVersionCheckRequest(sharedParameters.montoyaApi.http(),
+                        HttpRequest.httpRequestFromUrl(sharedParameters.extensionPropertiesUrl),
+                        RequestOptions.requestOptions());
 
                 var propertiesFile = buildGradleFileResponse.response().body().getBytes();
 

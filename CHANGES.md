@@ -5,6 +5,13 @@ Release notes for the Sharpener Burp Suite extension. The newest version is at t
 The CI release job copies the section of the released version into the GitHub release notes.
 Keep the heading format exactly as `## Version X.Y (YYYY-MM-DD)` so it can find the section.
 
+## Version 4.91 (2026-07-21)
+
+- The update check now verifies the TLS certificate of the GitHub server, so an attacker on the network cannot replace the version information. The check is still off by default and only runs when "Check for Update on Start" is enabled.
+- The tab right-click menu no longer reads the clipboard on the UI thread. When another application owned the clipboard and answered slowly, opening a tab menu could freeze the whole Burp window. The clipboard is now read in the background and the Paste Title item is enabled as soon as the value arrives.
+- The focus listener that keeps the custom Burp icon applied now skips windows that already show the icon and no longer repeats the OS taskbar and dock calls, so a window focus change does no redundant work.
+- The placeholder HTTP request editor (disabled by default) no longer adds demo headers to a request. An untouched editor returns the original request unchanged.
+
 ## Version 4.9 (2026-07-15)
 
 - The off screen window check can now also restore a Burp window that has become too small to see: it is resized to two thirds of the screen and moved to the center.

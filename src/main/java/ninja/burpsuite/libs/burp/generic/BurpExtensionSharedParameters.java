@@ -103,6 +103,8 @@ public class BurpExtensionSharedParameters {
     public final java.util.Map<Window, String> originalWindowAppIds = java.util.Collections.synchronizedMap(new java.util.WeakHashMap<>());
     public Image originalTaskbarIconImage = null; // original java.awt.Taskbar icon (macOS Dock)
     public boolean originalTaskbarIconSaved = false;
+    // last icon applied to the OS taskbar/dock; the focus refresh skips the native call when it is unchanged
+    public Image appliedOsTaskbarIconImage = null;
 
     public enum DebugLevels {
         None("Disabled", 0),
