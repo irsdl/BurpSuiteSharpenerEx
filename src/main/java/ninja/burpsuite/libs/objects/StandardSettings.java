@@ -12,26 +12,27 @@ import java.util.Collection;
 public abstract class StandardSettings {
     private Collection<PreferenceObject> _preferenceObjectCollection;
     public ExtensionSharedParameters sharedParameters;
+    private boolean loaded;
+
+    public boolean isLoaded() {
+        return loaded;
+    }
 
     // the constructor runs the settings lifecycle, so calling overridable methods here is intended
     // "all" is included because the Eclipse compiler does not know the javac "this-escape" token
     @SuppressWarnings({"all", "this-escape"})
     protected StandardSettings(ExtensionSharedParameters sharedParameters) {
-        boolean isError = false;
         this.sharedParameters = sharedParameters;
         try {
             init();
             this._preferenceObjectCollection = definePreferenceObjectCollection();
             registerSettings();
             loadSettings();
-        } catch (Exception e) {
-            isError = true;
-            sharedParameters.printException(e);
-        }
-
-        if (isError) {
-            sharedParameters.printlnError("A fatal error has occurred in loading the settings. The extension is going to be unloaded.");
-            sharedParameters.montoyaApi.extension().unload();
+            loaded = true;
+        } catch (Exception | LinkageError e) {
+            sharedParameters.reportCompatibilityIssue(getClass().getSimpleName(), e);
+            // Retain registered preferences, undo partial UI hooks, and let other settings load.
+            sharedParameters.runOptionalFeature(getClass().getSimpleName() + " cleanup", this::unloadSettings);
         }
     }
 

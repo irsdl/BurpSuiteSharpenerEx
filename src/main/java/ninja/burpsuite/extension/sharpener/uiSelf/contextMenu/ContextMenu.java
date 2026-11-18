@@ -34,7 +34,11 @@ public class ContextMenu implements ContextMenuItemsProvider {
             JMenuItem retrieveRequestItem = new JMenuItem("Print request");
             JMenuItem retrieveResponseItem = new JMenuItem("Print response");
 
-            HttpRequestResponse requestResponse = event.messageEditorRequestResponse().isPresent() ? event.messageEditorRequestResponse().get().requestResponse() : event.selectedRequestResponses().get(0);
+            var editor = event.messageEditorRequestResponse();
+            var selected = event.selectedRequestResponses();
+            HttpRequestResponse requestResponse = editor.isPresent() ? editor.get().requestResponse()
+                    : selected.isEmpty() ? null : selected.getFirst();
+            if (requestResponse == null || requestResponse.request() == null) return List.of();
 
             retrieveRequestItem.addActionListener(l -> sharedParameters.montoyaApi.logging().logToOutput("Request is:\r\n" + requestResponse.request().toString()));
             menuItemList.add(retrieveRequestItem);

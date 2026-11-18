@@ -14,6 +14,7 @@ import java.awt.event.ContainerListener;
 
 public final class MainTabsListeners implements ContainerListener {
     private final ExtensionSharedParameters sharedParameters;
+    private JTabbedPane attachedPane;
     private boolean isResetInProgress = false;
 
     public MainTabsListeners(ExtensionSharedParameters sharedParameters) {
@@ -23,12 +24,15 @@ public final class MainTabsListeners implements ContainerListener {
 
     public void addTabListener(JTabbedPane tabbedPane) {
         sharedParameters.printDebugMessage("addMainTabListener");
+        if (tabbedPane == null) return;
+        attachedPane = tabbedPane;
         tabbedPane.addContainerListener(this);
     }
 
     public void removeTabListener(JTabbedPane tabbedPane) {
         sharedParameters.printDebugMessage("removeMainTabListener");
-        tabbedPane.removeContainerListener(this);
+        if (attachedPane != null) attachedPane.removeContainerListener(this);
+        attachedPane = null;
     }
 
     @Override
@@ -44,8 +48,12 @@ public final class MainTabsListeners implements ContainerListener {
                             SwingUtilities.invokeLater(() -> {
                                 if (sharedParameters.isUnloaded())
                                     return;
-                                MainTabsStyleHandler.resetMainTabsStylesFromSettings_noUiLock(sharedParameters);
-                                setResetInProgress(false);
+                                try {
+                                    sharedParameters.runOptionalFeature("main tab refresh", () ->
+                                            MainTabsStyleHandler.resetMainTabsStylesFromSettings_noUiLock(sharedParameters));
+                                } finally {
+                                    setResetInProgress(false);
+                                }
                             });
                         }
                     },

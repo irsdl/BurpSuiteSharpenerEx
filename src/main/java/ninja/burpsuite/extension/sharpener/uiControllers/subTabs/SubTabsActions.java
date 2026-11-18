@@ -7,7 +7,6 @@
 package ninja.burpsuite.extension.sharpener.uiControllers.subTabs;
 
 import ninja.burpsuite.libs.thirdparty.burpextenderutilities.Preferences;
-import com.google.common.io.Files;
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
 import ninja.burpsuite.extension.sharpener.objects.TabFeaturesObjectStyle;
 import ninja.burpsuite.extension.sharpener.uiControllers.shortcuts.ShortcutMappings;
@@ -608,7 +607,9 @@ public class SubTabsActions {
 
                 JRadioButtonMenuItem subTabIconImage = new JRadioButtonMenuItem(resourceIcon.fileName().replaceAll("\\..*$", ""));
                 subTabIconImage.setIcon(resourceIcon.icon());
-                String fileNameWithOutExt = Files.getNameWithoutExtension(resourceIcon.fileName());
+                String fileName = new File(resourceIcon.fileName()).getName();
+                int extensionIndex = fileName.lastIndexOf('.');
+                String fileNameWithOutExt = extensionIndex < 0 ? fileName : fileName.substring(0, extensionIndex);
 
                 if (fileNameWithOutExt.equalsIgnoreCase(currentSubTabsContainerHandler.getIconString())) {
                     subTabIconImage.setSelected(true);
@@ -640,6 +641,7 @@ public class SubTabsActions {
                 }
 
                 colorChooser.setColor(currentSubTabsContainerHandler.getColor());
+                if (sharedParameters.get_mainFrameUsingMontoya() == null) return;
                 JDialog dialog = JColorChooser.createDialog(
                         sharedParameters.get_mainFrameUsingMontoya(),
                         "Choose a Color",
@@ -903,7 +905,7 @@ public class SubTabsActions {
             Rectangle componentRect = currentSubTabsContainerHandler.parentTabbedPane.getSelectedComponent().getBounds();
             BufferedImage bufferedImage = new BufferedImage(componentRect.width, componentRect.height, BufferedImage.TYPE_INT_RGB);
             currentSubTabsContainerHandler.parentTabbedPane.getSelectedComponent().paint(bufferedImage.getGraphics());
-            ImageHelper.setClipboard(bufferedImage);
+            sharedParameters.backgroundTasks.submit("screenshot clipboard", () -> ImageHelper.setClipboard(bufferedImage));
         });
         tabScreenshotMenu.add(saveScreenshotToClipboardMenu);
 
@@ -920,24 +922,14 @@ public class SubTabsActions {
                 String strDate = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
                 String imageFileLocation = saveLocation + "/" + currentSubTabsContainerHandler.getTabTitle().replaceAll("[^a-zA-Z0-9-_.]", "_") + "_" + strDate + ".png";
 
-                try {
-                    ByteArrayOutputStream os = new ByteArrayOutputStream();
-                    ImageIO.write(bufferedImage, "png", os);
+                sharedParameters.backgroundTasks.submit("screenshot file", () -> {
                     try (OutputStream outputStream = new FileOutputStream(imageFileLocation)) {
-                        os.writeTo(outputStream);
+                        if (!ImageIO.write(bufferedImage, "png", outputStream))
+                            throw new IOException("No PNG encoder available");
                     }
-                } catch (Exception err) {
-                    sharedParameters.printlnError("Image file could not be saved: " + imageFileLocation);
-                    sharedParameters.printDebugMessage(err.getMessage());
-                }
-
-                File imageFile = new File(imageFileLocation);
-                if (imageFile.exists()) {
-                    sharedParameters.printlnOutput("Image file saved successfully: " + imageFileLocation);
-                } else {
-                    sharedParameters.printlnError("Image file could not be saved: " + imageFileLocation);
-                    UIHelper.showWarningMessage("Image file could not be saved: " + imageFileLocation, sharedParameters.get_mainFrameUsingMontoya());
-                }
+                    if (!sharedParameters.isUnloaded())
+                        sharedParameters.printlnOutput("Image file saved successfully: " + imageFileLocation);
+                });
 
             }
         });
@@ -1755,7 +1747,7 @@ public class SubTabsActions {
     // value to the consumer on the EDT. A synchronous read can block until the process
     // that owns the clipboard responds, so it must never run on the EDT.
     static void readClipboardTitleAsync(ExtensionSharedParameters sharedParameters, Consumer<String> onResultOnEdt) {
-        new Thread(() -> {
+        sharedParameters.backgroundTasks.submit("clipboard read", () -> {
             String clipboardText;
             try {
                 clipboardText = (String) Toolkit.getDefaultToolkit()
@@ -1764,9 +1756,17 @@ public class SubTabsActions {
                 clipboardText = null;
             }
             String normalizedTitle = normalizeClipboardTitle(clipboardText);
+            if (sharedParameters.isUnloaded() || sharedParameters.backgroundTasks.isStopped()) return;
             sharedParameters.lastClipboardText = normalizedTitle;
-            SwingUtilities.invokeLater(() -> onResultOnEdt.accept(normalizedTitle));
-        }, "SharpenerClipboardRead").start();
+            SwingUtilities.invokeLater(() -> {
+                if (!sharedParameters.isUnloaded() && !sharedParameters.backgroundTasks.isStopped()) {
+                    try { onResultOnEdt.accept(normalizedTitle); }
+                    catch (RuntimeException | LinkageError failure) {
+                        sharedParameters.reportBackgroundFailure("clipboard result", failure);
+                    }
+                }
+            });
+        });
     }
 
     // Trims the clipboard value and removes the "#<number> " prefix that a copied

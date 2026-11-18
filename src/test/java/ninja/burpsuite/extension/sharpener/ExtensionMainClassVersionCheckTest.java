@@ -25,12 +25,14 @@ public class ExtensionMainClassVersionCheckTest {
         RequestOptions baseOptions = mock(RequestOptions.class);
         RequestOptions verifiedOptions = mock(RequestOptions.class);
         HttpRequestResponse response = mock(HttpRequestResponse.class);
+        when(baseOptions.withResponseTimeout(15000)).thenReturn(baseOptions);
         when(baseOptions.withUpstreamTLSVerification()).thenReturn(verifiedOptions);
         when(http.sendRequest(request, verifiedOptions)).thenReturn(response);
 
         assertSame(response, ExtensionMainClass.sendVersionCheckRequest(http, request, baseOptions));
 
         verify(baseOptions).withUpstreamTLSVerification();
+        verify(baseOptions).withResponseTimeout(15000);
         verify(http).sendRequest(request, verifiedOptions);
         // the single argument overload would silently skip certificate verification
         verify(http, never()).sendRequest(any(HttpRequest.class));

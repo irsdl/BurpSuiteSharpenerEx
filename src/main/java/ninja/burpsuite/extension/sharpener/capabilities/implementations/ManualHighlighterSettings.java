@@ -18,10 +18,10 @@ import java.util.Collection;
 public class ManualHighlighterSettings extends CapabilitySettings {
     public ManualHighlighterSettings(ExtensionSharedParameters sharedParameters) {
         super(sharedParameters,
-                new Capability("Proxy Manual Highlighter",
-                        "Use TempColorCOLORNAME to highlight requests, Use PermColorCOLORNAME to highlight both requests and responses",
+                new Capability("Manual Highlighter (Proxy and Logger)",
+                        "Highlight Proxy and Logger traffic using tempcolorCOLORNAME or permcolorCOLORNAME. Proxy removes tempcolor from requests; permcolor is retained.",
                         "manualHighlightCapability",
-                        Arrays.asList(CapabilityGroup.PROXY_REQUEST_HANDLER, CapabilityGroup.PROXY_RESPONSE_HANDLER, CapabilityGroup.WEBSOCKET_CREATION_HANDLER),
+                        Arrays.asList(CapabilityGroup.PROXY_REQUEST_HANDLER, CapabilityGroup.PROXY_RESPONSE_HANDLER, CapabilityGroup.WEBSOCKET_CREATION_HANDLER, CapabilityGroup.HTTP_HANDLER),
                         "ninja.burpsuite.extension.sharpener.capabilities.implementations.ManualHighlighterRequestResponseHandler",
                         10000, true));
     }

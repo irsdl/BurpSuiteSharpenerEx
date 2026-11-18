@@ -6,6 +6,7 @@ package ninja.burpsuite.libs.burp.generic;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import ninja.burpsuite.libs.generic.WindowsAppUserModelId;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,6 +18,57 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class BurpTitleAndIconTest {
+
+    @Test
+    void linuxSkipsAllWindowsNativeProperties() {
+        BurpExtensionSharedParameters parameters = new BurpExtensionSharedParameters();
+        parameters.windowsTaskbarIconResource = "unused.ico,0";
+        try (var windows = mockStatic(WindowsAppUserModelId.class)) {
+            windows.when(WindowsAppUserModelId::isWindows).thenReturn(false);
+            BurpTitleAndIcon.applyOsTaskbarIcon(parameters, List.of(squareImage(32)));
+            windows.verify(WindowsAppUserModelId::isWindows);
+            windows.verifyNoMoreInteractions();
+        } finally { parameters.delayedTasks.stop(); parameters.backgroundTasks.stop(); }
+    }
+
+    @Test
+    void macDockUpdatesWithoutCallingWindowsNativeProperties() {
+        BurpExtensionSharedParameters parameters = spy(new BurpExtensionSharedParameters());
+        doNothing().when(parameters).printDebugMessage(anyString());
+        parameters.windowsTaskbarIconResource = "unused.ico,0";
+        Image original = squareImage(16), desired = squareImage(32);
+        Taskbar taskbar = mock(Taskbar.class);
+        when(taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)).thenReturn(true);
+        when(taskbar.getIconImage()).thenReturn(original);
+        try (var windows = mockStatic(WindowsAppUserModelId.class);
+             var environment = mockStatic(GraphicsEnvironment.class);
+             var taskbars = mockStatic(Taskbar.class)) {
+            windows.when(WindowsAppUserModelId::isWindows).thenReturn(false);
+            environment.when(GraphicsEnvironment::isHeadless).thenReturn(false);
+            taskbars.when(Taskbar::isTaskbarSupported).thenReturn(true);
+            taskbars.when(Taskbar::getTaskbar).thenReturn(taskbar);
+            BurpTitleAndIcon.applyOsTaskbarIcon(parameters, List.of(desired));
+            verify(taskbar).setIconImage(desired);
+            assertSame(original, parameters.originalTaskbarIconImage);
+            BurpTitleAndIcon.restoreOsTaskbarIcon(parameters);
+            verify(taskbar).setIconImage(original);
+            assertFalse(parameters.originalTaskbarIconSaved);
+            windows.verify(WindowsAppUserModelId::isWindows, times(2));
+            windows.verifyNoMoreInteractions();
+        } finally { parameters.delayedTasks.stop(); parameters.backgroundTasks.stop(); }
+    }
+
+    @Test
+    void focusListenerRemovalUsesTheOriginalFrameAfterReplacement() {
+        JFrame original = mock(JFrame.class), replacement = mock(JFrame.class);
+        BurpExtensionSharedParameters parameters = mockSharedParametersWithFrame(original);
+        BurpTitleAndIcon.installIconRefreshListener(parameters, List.of(squareImage(16)));
+        WindowFocusListener listener = parameters.iconRefreshWindowFocusListener;
+        when(parameters.get_mainFrameUsingMontoya()).thenReturn(replacement);
+        BurpTitleAndIcon.removeMainFrameWindowFocusListener(parameters);
+        verify(original).removeWindowFocusListener(listener);
+        verify(replacement, never()).removeWindowFocusListener(any());
+    }
 
     private static BufferedImage squareImage(int size) {
         BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);

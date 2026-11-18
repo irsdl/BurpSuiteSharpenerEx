@@ -1,0 +1,64 @@
+// Explicit opt-in only. No dependency from build, check, test, or push readiness.
+def fullUiClasses = layout.buildDirectory.dir('classes/fullUiTest')
+def compileFullUi = tasks.register('compileFullUiTests', JavaCompile) {
+    group = 'verification'
+    source = fileTree('src/fullUiTest/java') { include '**/*.java' }
+    classpath = files(tasks.named('jar').flatMap { it.archiveFile }) + configurations.compileClasspath
+    destinationDirectory = fullUiClasses
+    options.release = 21
+    options.encoding = 'UTF-8'
+    dependsOn tasks.named('jar')
+}
+def fullUiHarness = tasks.register('fullUiTestHarnessJar', Jar) {
+    group = 'verification'
+    description = 'Build developer-only live Burp UI test harness; never ship this jar.'
+    dependsOn compileFullUi
+    archiveFileName = 'sharpener-full-ui-tests.jar'
+    manifest.attributes('Premain-Class': 'ninja.burpsuite.fulluitest.FullUiBootstrap')
+    destinationDirectory = layout.buildDirectory.dir('full-ui-harness')
+    from fullUiClasses
+    from 'src/fullUiTest/resources'
+}
+def fullUiClasspath = files(fullUiHarness.flatMap { it.archiveFile }, tasks.named('jar').flatMap { it.archiveFile }) + configurations.compileClasspath
+tasks.register('fullUiTestPlan', JavaExec) {
+    group = 'verification'
+    description = 'Print full UI cases and validate the harness without launching Burp.'
+    dependsOn fullUiHarness
+    classpath = fullUiClasspath
+    mainClass = 'ninja.burpsuite.fulluitest.FullUiLauncher'
+    args '--plan'
+}
+tasks.register('fullUiTest', JavaExec) {
+    group = 'verification'
+    description = 'Opt-in full UI checks in a disposable, real Burp host. Requires -PburpJar and -PburpJava.'
+    dependsOn fullUiHarness, tasks.named('test')
+    classpath = fullUiClasspath
+    mainClass = 'ninja.burpsuite.fulluitest.FullUiLauncher'
+    doFirst {
+        def hostJar = providers.gradleProperty('burpJar').orNull
+        def hostJava = providers.gradleProperty('burpJava').orNull
+        if (!hostJar || !hostJava) throw new GradleException('Use fullUiTest -PburpJar=/path/burpsuite.jar -PburpJava=/path/to/java. See docs/full-ui-tests.md.')
+        args '--burp-jar', file(hostJar).absolutePath, '--java', file(hostJava).absolutePath,
+                '--extension-jar', tasks.named('jar').get().archiveFile.get().asFile.absolutePath,
+                '--harness-jar', fullUiHarness.get().archiveFile.get().asFile.absolutePath,
+                '--output', layout.buildDirectory.dir('reports/full-ui-tests').get().asFile.absolutePath,
+                '--timeout', providers.gradleProperty('fullUiTimeoutSeconds').getOrElse('600')
+        args '--edition', providers.gradleProperty('fullUiEdition').getOrElse('auto')
+        if (providers.gradleProperty('fullUiAutomatedOnly').getOrElse('false') == 'true') args '--automated-only'
+        if (providers.gradleProperty('fullUiClipboard').getOrElse('false') == 'true') args '--clipboard'
+        if (providers.gradleProperty('burpExecutable').isPresent()) args '--native-launcher', file(providers.gradleProperty('burpExecutable').get()).absolutePath
+    }
+}
+tasks.register('fullUiTestReview', JavaExec) {
+    group = 'verification'
+    description = 'Validate completed human UI evidence for one exact host/jar; does not launch Burp.'
+    dependsOn fullUiHarness
+    classpath = fullUiClasspath
+    mainClass = 'ninja.burpsuite.fulluitest.FullUiLauncher'
+    doFirst {
+        def results = providers.gradleProperty('fullUiResults').orNull
+        def evidence = providers.gradleProperty('fullUiManualEvidence').orNull
+        if (!results || !evidence) throw new GradleException('Provide -PfullUiResults=.../results.json -PfullUiManualEvidence=.../completed-checklist.json')
+        args '--review', file(results).absolutePath, '--evidence', file(evidence).absolutePath
+    }
+}

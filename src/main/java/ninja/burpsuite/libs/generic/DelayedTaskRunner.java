@@ -8,6 +8,7 @@ package ninja.burpsuite.libs.generic;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.function.Consumer;
 
 // Runs delayed tasks on one shared daemon timer.
 // The extension used to create a new java.util.Timer for every delayed action.
@@ -18,6 +19,11 @@ import java.util.TimerTask;
 public class DelayedTaskRunner {
     private final Timer timer = new Timer("SharpenerSharedTimer", true);
     private volatile boolean stopped = false;
+    private final Consumer<Throwable> report;
+
+    public DelayedTaskRunner() { this(Throwable::printStackTrace); }
+
+    public DelayedTaskRunner(Consumer<Throwable> report) { this.report = report; }
 
     // True after stop() has been called. Delayed tasks read this to skip work.
     public boolean isStopped() {
@@ -30,7 +36,17 @@ public class DelayedTaskRunner {
         if (stopped)
             return;
         try {
-            timer.schedule(task, delay);
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if (stopped) return;
+                    try {
+                        task.run();
+                    } catch (RuntimeException | LinkageError failure) {
+                        if (!stopped) report.accept(failure);
+                    }
+                }
+            }, delay);
         } catch (Exception e) {
             // the timer may have been stopped between the check above and here
         }

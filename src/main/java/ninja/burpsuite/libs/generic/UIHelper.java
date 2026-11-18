@@ -15,17 +15,20 @@ public class UIHelper {
 
     // Show a message to the user
     public static void showMessage(final String strMsg, final String strTitle, Component parentCmp) {
-        new Thread(() -> JOptionPane.showMessageDialog(parentCmp, strMsg, strTitle, JOptionPane.INFORMATION_MESSAGE)).start();
+        if (parentCmp == null) return;
+        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(parentCmp, strMsg, strTitle, JOptionPane.INFORMATION_MESSAGE));
 
     }
 
     // Show a message to the user
     public static void showWarningMessage(final String strMsg, Component parentCmp) {
-        new Thread(() -> JOptionPane.showMessageDialog(parentCmp, strMsg, "Warning", JOptionPane.WARNING_MESSAGE)).start();
+        if (parentCmp == null) return;
+        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(parentCmp, strMsg, "Warning", JOptionPane.WARNING_MESSAGE));
     }
 
     // Show a message to the user
     public static String showPlainInputMessage(final String strMessage, final String strTitle, final String defaultValue, Component parentCmp) {
+        if (parentCmp == null) return defaultValue == null ? "" : defaultValue;
         String output = (String) JOptionPane.showInputDialog(parentCmp,
                 strMessage, strTitle, JOptionPane.PLAIN_MESSAGE, null, null, defaultValue);
         if (output == null) {
@@ -41,6 +44,7 @@ public class UIHelper {
     // Common method to ask a multiline question
     public static String[] showPlainInputMessages(final String[] strMessages, final String strTitle, final String[] defaultValues, Component parentCmp) {
         String[] output = new String[strMessages.length];
+        if (parentCmp == null) return output;
         java.util.List<Object> strMessagesObjectList = new ArrayList<>();
 
         for (int i = 0; i < strMessages.length; i++) {
@@ -62,6 +66,7 @@ public class UIHelper {
 
     // Common method to ask a multiple question
     public static Integer askConfirmMessage(final String strTitle, final String strQuestion, String[] msgOptions, Component parentCmp) {
+        if (parentCmp == null) return JOptionPane.CLOSED_OPTION;
         Integer output = JOptionPane.showOptionDialog(parentCmp,
                 strQuestion,
                 strTitle,
@@ -104,6 +109,7 @@ public class UIHelper {
 
     // Show file chooser
     public static String showFileDialog(final String initialPath, final boolean dirOnly, FileFilter fileFilter, Component parentCmp, boolean isSave) {
+        if (parentCmp == null) return "";
         String filePath = "";
         JFileChooser _fileChooser = new JFileChooser();
         if (dirOnly)

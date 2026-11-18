@@ -18,6 +18,7 @@ import java.awt.*;
 
 public class MainTabsStyleHandler {
     // client property keys used to keep the original Burp tab look, so unload can restore it
+    static final String ICON_KEY = "Sharpener.mainTab.icon";
     static final String ORIGINAL_LAYOUT_KEY = "Sharpener.mainTab.originalLayout";
     static final String ORIGINAL_FONT_KEY = "Sharpener.mainTab.originalFont";
     static final String ORIGINAL_BORDER_KEY = "Sharpener.mainTab.originalBorder";
@@ -26,6 +27,7 @@ public class MainTabsStyleHandler {
     public static void setMainTabsStyle_noUiLock(ExtensionSharedParameters sharedParameters, BurpUITools.MainTabs toolName) {
         SwingUtilities.invokeLater(() -> {
 
+            if (sharedParameters.isUnloaded()) return;
             sharedParameters.printDebugMessage("setToolTabStyle for " + toolName);
             String themeName = sharedParameters.preferences.safeGetStringSetting("ToolsThemeName");
             String themeCustomPath = sharedParameters.preferences.safeGetStringSetting("ToolsThemeCustomPath");
@@ -44,8 +46,13 @@ public class MainTabsStyleHandler {
 
                 String componentTitle = tabbedPane.getTitleAt(componentIndex);
                 if (componentTitle != null && componentTitle.equalsIgnoreCase(toolName.toString())) {
-                    JComponent tabComponent = (JComponent) tabbedPane.getTabComponentAt(componentIndex);
-                    if (tabComponent.getComponent(0) instanceof JTextField jTextField) {
+                    Component header = tabbedPane.getTabComponentAt(componentIndex);
+                    if (!(header instanceof JComponent tabComponent)) {
+                        sharedParameters.reportCompatibilityIssue("main tab header styling", null);
+                        break;
+                    }
+                    // Only the known one-title header can be safely rearranged. Preserve new controls.
+                    if (tabComponent.getComponentCount() == 1 && tabComponent.getComponent(0) instanceof JTextField jTextField) {
                         saveOriginalTabLook(tabComponent, jTextField);
                         // the tab component swallows clicks on its free space (above and below the
                         // title, or next to the icon), so they must be forwarded to the tabbed pane
@@ -76,6 +83,7 @@ public class MainTabsStyleHandler {
                             } else {
                                 jLabel = new JLabel();
                             }
+                            tabComponent.putClientProperty(ICON_KEY, jLabel);
                             jLabel.setOpaque(false);
                             jLabel.setBorder(BorderFactory.createEmptyBorder());
                             // clicks on the icon must still reach the tabbed pane so the tab can be selected
@@ -90,7 +98,8 @@ public class MainTabsStyleHandler {
                         } catch (Exception e) {
                             sharedParameters.montoyaApi.logging().logToError(e);
                         }
-
+                    } else if (tabComponent.getClientProperty(ICON_KEY) == null) {
+                        sharedParameters.reportCompatibilityIssue("main tab header styling", null);
                     }
                     break;
                 }
@@ -109,6 +118,7 @@ public class MainTabsStyleHandler {
         // instead of two commented lines above, we want to reset it more smoothly
         SwingUtilities.invokeLater(() -> {
 
+            if (sharedParameters.isUnloaded() || sharedParameters.get_rootTabbedPaneUsingMontoya() == null) return;
             sharedParameters.printDebugMessage("setToolTabStylesFromSettings");
             if (sharedParameters.preferences.safeGetBooleanSetting("isToolTabPaneScrollable")) {
                 sharedParameters.get_rootTabbedPaneUsingMontoya().setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -128,6 +138,7 @@ public class MainTabsStyleHandler {
     public static void unsetAllMainTabsStyles(ExtensionSharedParameters sharedParameters) {
         sharedParameters.printDebugMessage("unsetAllToolTabStyles");
         Runnable unsetAll = () -> {
+            if (sharedParameters.get_rootTabbedPaneUsingMontoya() == null) return;
             if (!sharedParameters.isSubTabScrollSupportedByDefault) {
                 if (sharedParameters.preferences.safeGetBooleanSetting("isToolTabPaneScrollable")) {
                     sharedParameters.get_rootTabbedPaneUsingMontoya().setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
@@ -174,12 +185,15 @@ public class MainTabsStyleHandler {
                 continue;
 
             if (componentTitle.equalsIgnoreCase(toolName.toString())) {
-                JComponent tabComponent = (JComponent) tabbedPane.getTabComponentAt(componentIndex);
+                Component header = tabbedPane.getTabComponentAt(componentIndex);
+                if (!(header instanceof JComponent tabComponent)) break;
                 removeTabClickForwarder(tabComponent);
-                if (tabComponent.getComponent(0) instanceof JLabel) {
-                    tabComponent.remove(0);
-                    JTextField jTextField = (JTextField) tabComponent.getComponent(0);
-                    restoreOriginalTabLook(tabComponent, jTextField);
+                Object ownedIcon = tabComponent.getClientProperty(ICON_KEY);
+                if (ownedIcon instanceof JLabel label && label.getParent() == tabComponent) {
+                    tabComponent.remove(label);
+                    tabComponent.putClientProperty(ICON_KEY, null);
+                    for (Component child : tabComponent.getComponents())
+                        if (child instanceof JTextField field) restoreOriginalTabLook(tabComponent, field);
                     tabbedPane.revalidate();
                     tabbedPane.repaint();
                 }

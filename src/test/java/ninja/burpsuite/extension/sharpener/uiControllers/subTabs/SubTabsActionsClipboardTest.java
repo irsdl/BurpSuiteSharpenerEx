@@ -5,6 +5,8 @@
 package ninja.burpsuite.extension.sharpener.uiControllers.subTabs;
 
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
+import ninja.burpsuite.libs.burp.generic.BurpExtensionSharedParameters;
+import ninja.burpsuite.libs.generic.BackgroundTaskRunner;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -43,6 +45,10 @@ public class SubTabsActionsClipboardTest {
     @Test
     void asyncReadDeliversTheResultOnTheEdtAndNeverBlocksTheCaller() throws Exception {
         ExtensionSharedParameters sharedParameters = mock(ExtensionSharedParameters.class);
+        BackgroundTaskRunner runner = new BackgroundTaskRunner((feature, failure) -> fail(failure));
+        var field = BurpExtensionSharedParameters.class.getField("backgroundTasks");
+        field.setAccessible(true);
+        field.set(sharedParameters, runner);
         CountDownLatch delivered = new CountDownLatch(1);
         AtomicBoolean onEdt = new AtomicBoolean(false);
         AtomicReference<String> received = new AtomicReference<>();
@@ -59,5 +65,6 @@ public class SubTabsActionsClipboardTest {
         // but it is never null and always matches the stored last clipboard text
         assertNotNull(received.get());
         assertEquals(sharedParameters.lastClipboardText, received.get());
+        runner.stop();
     }
 }
