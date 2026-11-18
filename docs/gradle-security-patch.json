@@ -1427,13 +1427,28 @@
     "unix_launcher": "Git Bash on Windows --version and syntax check passed; not Linux/macOS execution",
     "harness_plan": "33 groups compiled/validated without launching Burp",
     "linux_ci": {
-      "status": "pending"
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/irsdl/BurpSuiteSharpenerEx/actions/runs/44318611310",
+      "head_sha": "76bc15116c001b25ac47a2d9a166fece552dc93c",
+      "tested_merge_sha": "b59e3ff0ecf8c707f854cdf7926efaef82c42c1f",
+      "completed_utc": "2026-11-18T13:55:55Z",
+      "runner_family": "ubuntu-24.04",
+      "runner_image": "ubuntu24 20261111.370.1",
+      "git": "2.56.1",
+      "python": "3.12.3",
+      "jdk_vendor_build": "Corretto-21.0.13.1.2",
+      "java_runtime": "21.0.13.1+2-LTS",
+      "raw_log_sha256": "98a6639684fe814eba30cde1ffd6c1a1fc1b5caf8cda86b1f01663ade559e939",
+      "checks": "Exact tested-public-commit checkout, 12 JDK bootstrap unit cases, exact vendor JDK, canonical toolchain acquisition with pinned composition digest, strict locked acquisition, offline normal test/package/daemon identity and eight review fixtures with push gate",
+      "scope": "Actual Linux build/toolchain execution only; no Linux/macOS Burp host or output jar equality claim. Final follow-up changes only review/evidence text; its CI must also pass before merge."
     },
     "macos_build": "not executed",
     "host": "No new Burp host run; historical raw evidence is unavailable and must be regenerated",
     "launcher_integration": "Passed missing-input offline failure without download, Windows path with spaces, exact composition digest/version, mixed acquisition rejection, stock-daemon rejection; original cache untouched",
     "standalone_packaged_smoke": "Passed actual Windows JNA native memory, FlatLaf, XML editor/theme, multi-release class selection and absence of build/test/host libraries",
-    "output_sha256": "155490feb3ac34662dcc66b72d7bbd6d495a657a221da4978dc7f231d98976e1"
+    "output_sha256": "155490feb3ac34662dcc66b72d7bbd6d495a657a221da4978dc7f231d98976e1",
+    "negative_policy_gates": "Changed inputs, stale upstream review, missing criterion and unresolved release rejected under the new wrapper; original review restored exactly"
   },
   "remaining_release_blockers": [
     "Complete native/shaded inventory and provenance/publisher gaps",

@@ -66,7 +66,10 @@ Fresh OSV queries found no matches for 61 identifiable composed Gradle Maven
 coordinates. Unidentified/shaded/native inventory and publisher-provenance gaps
 remain documented; no universal vulnerability-free claim is made.
 
-Retain exact CI observations in the JSON record. Review the exception weekly,
+[Linux CI passed](https://github.com/irsdl/BurpSuiteSharpenerEx/actions/runs/44318611310)
+with the identical composition digest and fixed daemon Guava bytes. Exact
+commit, runner/JDK identities and raw-log hash are in the JSON record.
+Review the exception weekly,
 starting 2026-11-23, and retire it when a fully reviewed official distribution
 fixes the embedded findings. The existing security-fix age authorization expires
 2026-12-17; this record does not extend it. All host/release gates remain required.

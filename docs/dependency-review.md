@@ -26,6 +26,11 @@ coverage, not proof of a complete shaded/native inventory or release admission.
 The earlier 36-coordinate runtime/test review remains unchanged. Linux CI and
 remaining provenance/host evidence are recorded separately, without inference.
 
+[PR #57 Linux CI passed](https://github.com/irsdl/BurpSuiteSharpenerEx/actions/runs/44318611310),
+logging the same composition digest and fixed daemon Guava bytes on the exact
+tested merge commit. JDK/runner identities and raw-log hash are in the record;
+this is build evidence, not a Burp host or macOS validation.
+
 The dated reviews below retain the pre-patch findings and decisions.
 
 ## Security patch follow-up: 2026-11-18

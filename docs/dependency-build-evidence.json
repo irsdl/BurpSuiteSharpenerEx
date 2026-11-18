@@ -1,5 +1,5 @@
 {
-  "evaluation_utc": "2026-11-18T13:50:41.615988+00:00",
+  "evaluation_utc": "2026-11-18T13:57:52.739055+00:00",
   "source_revision": "bc76fee41ba826449836752cfd030b9f0826ed65",
   "source_changes": "Approved exact Gradle 9.9.1/Guava 33.8.0-jre local security composition, wrapper guard, 17 unit cases and developer/CI/review records; production Java/library declarations unchanged",
   "source_tree_digest_method": "SHA256 of sorted relative src paths, NUL, and binary SHA256 of each file",
@@ -13,7 +13,7 @@
     ".github/workflows/gradle.yml": "998ba6394eb737091d0b3f6eed36cbbb690b32b48f0cb60924c0e8e4d84518c7",
     ".githooks/pre-push": "90c6120d0f27d89aa7b3825c98954e78d3cd9e302095e5e87f7163028ccce7dd",
     "gradle/portswigger-policy.gradle": "c5b6f1689d9675f0594886ab9610e78bfb4617d3f9f1d438de46c1fdad91f143",
-    "docs/portswigger-review.json": "4276a964154a7d9ef7323c9f8cf71e8ecc2a9a463bf68db1ed13ba11f16c2644",
+    "docs/portswigger-review.json": "a8f0e593991db69e46b1a1492324e71483903c4ea3668163c0a4f3732aa9f01f",
     "docs/portswigger-compliance.md": "f35de0f29e50c1106d331a1c44861ecb60ed1f1b9dcc0b9e98979619cb627f25",
     "gradle/validation-jdk.json": "7dcf232c5fc6ef9817b3901c8ce538594985b8281fe2de65ac76c987dba338d3",
     "build.gradle": "a4bb533a47d9c4fdf544b46a174de54631f10e09c6937a4682949fcca8774752",
@@ -46,8 +46,8 @@
     "docs/toolchain-security-update-2026-11-18.json": "991cdba7638846f7a1d59d96560e421931dc262214af9964660c9cc7c58d913a",
     "gradle/bootstrap/ReviewedGradle.java": "4c4ac4c3e2b0e69e29ff0499d5923349132d5c78aacc0642ddb06f2fe41b9c80",
     "gradle/security-toolchain.properties": "cb2c3ebec6a4bae10c4fa120d3affb474b459e8d87f6da69b61482dc059745b3",
-    "docs/gradle-security-patch.json": "0c5f51996544e5845c237fa7f5e95f7f4e98d8f7ae4fb83dcdfaa5787e041d57",
-    "docs/gradle-security-patch.md": "783eb7733a367ba0f6efa6cc5cfb455040af2e9a49bbf83d8a775b96b46ec92f",
+    "docs/gradle-security-patch.json": "3101ffa24e5d61fcc6c6cdd99212f5b6106f43c73c828eec9e192f1cc390b9cf",
+    "docs/gradle-security-patch.md": "804e107b2556e9b66613f1919bbfc1d96d5ad930174a0af48171767e51a10176",
     "src/test/java/ReviewedGradleTest.java": "4ab7837c689d7f0028fdf2d2fd67475778a7bd6332a9c8c98d9972c582c85688"
   },
   "output": {
@@ -67,13 +67,13 @@
     "java_major": 21,
     "platform": "Windows x64",
     "purpose": "Known recorded Gradle/Guava/JDK advisories patched; complete inventory/provenance and live-host release admission remain blocked",
-    "github_runner_image": "ubuntu24 20261111.127.1 (observed on successful security PR run; managed image)",
-    "github_workflow_run": false,
+    "github_runner_image": "ubuntu24 20261111.370.1",
+    "github_workflow_run": true,
     "ci_jdk_pin": "gradle/ci-jdk.json",
     "ci_observed_runtime": "21.0.13.1+2-LTS",
     "composition_sha256": "e7c4060f30684138b2b0e60c1a980135e50d26457bd9dc9a3b3cdd9abe97d747",
     "composition_review": "docs/gradle-security-patch.json",
-    "current_ci_status": "New composition pending Linux PR validation; previous receipts retained as historical"
+    "current_ci_status": "Actual Linux security-composition PR CI passed; exact receipt retained, final evidence-text follow-up requires its own CI"
   },
   "build": "gradlew.bat build fullUiTestPlan --offline --dependency-verification strict --console=plain; no clean or live host run",
   "test_results": {
@@ -159,6 +159,23 @@
       "java_runtime": "21.0.13.1+2-LTS",
       "checks": "Exact public tested-commit checkout, 12 bootstrap tests, vendor hash/identity acquisition, strict online dependency acquisition and offline build/test/package, eight source-review fixtures and reviewed push gate",
       "scope": "Linux build/CI execution only. Not a Burp UI/OS compatibility or release approval."
+    },
+    {
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/irsdl/BurpSuiteSharpenerEx/actions/runs/44318611310",
+      "head_sha": "76bc15116c001b25ac47a2d9a166fece552dc93c",
+      "tested_merge_sha": "b59e3ff0ecf8c707f854cdf7926efaef82c42c1f",
+      "completed_utc": "2026-11-18T13:55:55Z",
+      "runner_family": "ubuntu-24.04",
+      "runner_image": "ubuntu24 20261111.370.1",
+      "git": "2.56.1",
+      "python": "3.12.3",
+      "jdk_vendor_build": "Corretto-21.0.13.1.2",
+      "java_runtime": "21.0.13.1+2-LTS",
+      "raw_log_sha256": "98a6639684fe814eba30cde1ffd6c1a1fc1b5caf8cda86b1f01663ade559e939",
+      "checks": "Exact tested-public-commit checkout, 12 JDK bootstrap unit cases, exact vendor JDK, canonical toolchain acquisition with pinned composition digest, strict locked acquisition, offline normal test/package/daemon identity and eight review fixtures with push gate",
+      "scope": "Actual Linux build/toolchain execution only; no Linux/macOS Burp host or output jar equality claim. Final follow-up changes only review/evidence text; its CI must also pass before merge."
     }
   ]
 }
