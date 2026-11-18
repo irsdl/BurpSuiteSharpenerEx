@@ -128,7 +128,21 @@
     "release_identity": "Reviewed vendor/build/platform in both archives without executing them",
     "bootstrap_guards": "12 standard-library unit tests passed; no network in tests",
     "offline_build": "Clean build and packaging passed with Corretto 21.0.13.1.2; 329 tests, zero failures/errors/skips",
-    "ci": "pending",
+    "ci": {
+      "url": "https://github.com/irsdl/BurpSuiteSharpenerEx/actions/runs/44307321081",
+      "head_sha": "bc6abea8e70553dc0c54d6836bab09443aeab83e",
+      "tested_merge_sha": "86fc44754508c07c74b22111b396fbd0b964d052",
+      "completed_utc": "2026-11-18T12:48:21Z",
+      "conclusion": "success",
+      "runner_family": "ubuntu-24.04",
+      "runner_image": "ubuntu24 20261111.127.1",
+      "git": "2.56.1",
+      "python": "3.12.3",
+      "jdk_vendor_build": "Corretto-21.0.13.1.2",
+      "java_runtime": "21.0.13.1+2-LTS",
+      "checks": "Exact public tested-commit checkout, 12 bootstrap tests, vendor hash/identity acquisition, strict online dependency acquisition and offline build/test/package, eight source-review fixtures and reviewed push gate",
+      "scope": "Linux build/CI execution only. Not a Burp UI/OS compatibility or release approval."
+    },
     "standalone_packaged_smoke": "Passed real Windows x64 JNA memory, FlatLaf, syntax editor/theme, multi-release selection and excluded library checks",
     "harness_plan": "Passed 33-case catalog compilation/self-checks without launching Burp",
     "real_ci_archive": "Exact reviewed Linux artifact passed checksum, full safe extraction and vendor/build/platform identity validation on Windows. Linux execution remains pending actual CI; no cross-OS runtime claim."

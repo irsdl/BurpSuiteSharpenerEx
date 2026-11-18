@@ -12393,6 +12393,1031 @@
     "additional_guava_advisory": "https://github.com/google/guava/security/advisories/GHSA-v5x9-67m3-7m56",
     "jdk_review": "docs/toolchain-security-update-2026-11-18.json",
     "actions_disposition": "Removed both active marketplace Actions and their npm runtime trees from the workflow. Newer official candidate records below remain historical rejected candidates; no Action is relabelled or repackaged.",
-    "remaining": "Gradle 8.9 diagnostic wrapper, native/provenance/managed-runner and full host evidence gaps still block release."
+    "remaining": "Gradle 8.9 diagnostic wrapper, native/provenance/managed-runner and full host evidence gaps still block release.",
+    "removed_actions": {
+      "evaluation_utc": "2026-11-18T12:52:01.132696+00:00",
+      "actions": [
+        {
+          "repo": "actions/checkout",
+          "sha": "df4cb1c069e1874edd31b4311f1884172cec0e10",
+          "source": "https://raw.githubusercontent.com/actions/checkout/df4cb1c069e1874edd31b4311f1884172cec0e10/package-lock.json",
+          "metadata_sha256": "6828be43ab2918f00c5f8a4ef88b2bb5fabb0ed3345e3c41b2b2351877860063",
+          "queries": [
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@actions/core"
+              },
+              "version": "1.10.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "uuid"
+              },
+              "version": "8.3.2"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@actions/exec"
+              },
+              "version": "1.1.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@actions/github"
+              },
+              "version": "6.0.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@actions/http-client"
+              },
+              "version": "2.2.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@actions/io"
+              },
+              "version": "1.1.3"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@actions/tool-cache"
+              },
+              "version": "2.0.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "uuid"
+              },
+              "version": "3.4.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@fastify/busboy"
+              },
+              "version": "2.1.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@octokit/auth-token"
+              },
+              "version": "4.0.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@octokit/core"
+              },
+              "version": "5.2.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@octokit/endpoint"
+              },
+              "version": "9.0.6"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@octokit/graphql"
+              },
+              "version": "7.1.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@octokit/openapi-types"
+              },
+              "version": "22.1.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@octokit/plugin-paginate-rest"
+              },
+              "version": "9.2.2"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@octokit/openapi-types"
+              },
+              "version": "20.0.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@octokit/types"
+              },
+              "version": "12.6.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@octokit/plugin-rest-endpoint-methods"
+              },
+              "version": "10.4.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@octokit/request"
+              },
+              "version": "8.4.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@octokit/request-error"
+              },
+              "version": "5.1.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@octokit/types"
+              },
+              "version": "13.4.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "before-after-hook"
+              },
+              "version": "2.2.3"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "deprecation"
+              },
+              "version": "2.3.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "once"
+              },
+              "version": "1.4.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "semver"
+              },
+              "version": "6.3.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "tunnel"
+              },
+              "version": "0.0.6"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "undici"
+              },
+              "version": "5.29.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "universal-user-agent"
+              },
+              "version": "6.0.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "uuid"
+              },
+              "version": "9.0.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "wrappy"
+              },
+              "version": "1.0.2"
+            }
+          ],
+          "response": {
+            "results": [
+              {},
+              {
+                "vulns": [
+                  {
+                    "id": "GHSA-w5hq-g745-h8pq",
+                    "modified": "2026-09-10T03:51:03.663336Z"
+                  }
+                ]
+              },
+              {},
+              {},
+              {},
+              {},
+              {},
+              {
+                "vulns": [
+                  {
+                    "id": "GHSA-w5hq-g745-h8pq",
+                    "modified": "2026-09-10T03:51:03.663336Z"
+                  }
+                ]
+              },
+              {
+                "vulns": [
+                  {
+                    "id": "GHSA-gxm5-99cw-xjw9",
+                    "modified": "2026-10-05T22:45:04.558942Z"
+                  },
+                  {
+                    "id": "GHSA-x8mw-p69m-v3mx",
+                    "modified": "2026-10-02T23:30:05.651087Z"
+                  }
+                ]
+              },
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {
+                "vulns": [
+                  {
+                    "id": "GHSA-2m5v-pch6-74hx",
+                    "modified": "2026-10-27T19:15:22.407771Z"
+                  },
+                  {
+                    "id": "GHSA-2mjp-6q6p-2qxm",
+                    "modified": "2026-09-10T03:50:36.493109Z"
+                  },
+                  {
+                    "id": "GHSA-35p6-xmwp-9g52",
+                    "modified": "2026-09-10T03:51:07.666603Z"
+                  },
+                  {
+                    "id": "GHSA-4992-7rv2-5pvq",
+                    "modified": "2026-09-10T03:50:37.246920Z"
+                  },
+                  {
+                    "id": "GHSA-8xcm-r25x-g524",
+                    "modified": "2026-09-10T03:51:13.567076Z"
+                  },
+                  {
+                    "id": "GHSA-9fm3-97px-rjf6",
+                    "modified": "2026-10-27T19:15:22.400702Z"
+                  },
+                  {
+                    "id": "GHSA-g8m3-5g58-fq7m",
+                    "modified": "2026-09-10T03:51:08.663204Z"
+                  },
+                  {
+                    "id": "GHSA-g9mf-h72j-4rw9",
+                    "modified": "2026-09-10T03:50:33.216915Z"
+                  },
+                  {
+                    "id": "GHSA-m8rv-5g2x-5cg5",
+                    "modified": "2026-09-10T03:51:14.281925Z"
+                  },
+                  {
+                    "id": "GHSA-p88m-4jfj-68fv",
+                    "modified": "2026-09-10T03:51:09.228344Z"
+                  },
+                  {
+                    "id": "GHSA-qrxm-fqhp-jwvm",
+                    "modified": "2026-10-27T19:15:22.403573Z"
+                  },
+                  {
+                    "id": "GHSA-r53p-7pc4-xj5r",
+                    "modified": "2026-09-29T18:30:41.154532Z"
+                  },
+                  {
+                    "id": "GHSA-v3r7-h72x-cjcm",
+                    "modified": "2026-09-10T03:51:14.535204Z"
+                  },
+                  {
+                    "id": "GHSA-v9p9-hfj2-hcw8",
+                    "modified": "2026-09-10T03:50:41.228925Z"
+                  },
+                  {
+                    "id": "GHSA-vrm6-8vpv-qv8q",
+                    "modified": "2026-09-10T03:50:41.264792Z"
+                  },
+                  {
+                    "id": "GHSA-vxpw-j846-p89q",
+                    "modified": "2026-11-04T03:45:10.197249Z"
+                  }
+                ]
+              },
+              {},
+              {
+                "vulns": [
+                  {
+                    "id": "GHSA-w5hq-g745-h8pq",
+                    "modified": "2026-09-10T03:51:03.663336Z"
+                  }
+                ]
+              },
+              {}
+            ]
+          },
+          "coverage": "Declared non-dev package-lock entries; not independent proof that the minified executable bundle exactly matches the lock",
+          "disposition": "Action and all its npm dependencies removed from active workflow"
+        },
+        {
+          "repo": "actions/setup-java",
+          "sha": "be666c2fcd27ec809703dec50e508c2fdc7f6654",
+          "source": "https://raw.githubusercontent.com/actions/setup-java/be666c2fcd27ec809703dec50e508c2fdc7f6654/package-lock.json",
+          "metadata_sha256": "9bc80c655721acbed21dfbd3290ba844a5be18eafd22cf4103d07d2ffe2713e6",
+          "queries": [
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@actions/cache"
+              },
+              "version": "5.0.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@actions/core"
+              },
+              "version": "2.0.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@actions/exec"
+              },
+              "version": "2.0.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@actions/http-client"
+              },
+              "version": "3.0.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@actions/io"
+              },
+              "version": "2.0.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "semver"
+              },
+              "version": "6.3.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@actions/core"
+              },
+              "version": "1.11.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@actions/exec"
+              },
+              "version": "1.1.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@actions/glob"
+              },
+              "version": "0.5.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@actions/http-client"
+              },
+              "version": "2.2.3"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@actions/io"
+              },
+              "version": "1.1.3"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@actions/tool-cache"
+              },
+              "version": "2.0.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@azure/abort-controller"
+              },
+              "version": "1.1.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@azure/core-auth"
+              },
+              "version": "1.10.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@azure/abort-controller"
+              },
+              "version": "2.1.2"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@azure/core-client"
+              },
+              "version": "1.10.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@azure/core-http-compat"
+              },
+              "version": "2.3.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@azure/core-lro"
+              },
+              "version": "2.7.2"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@azure/core-paging"
+              },
+              "version": "1.6.2"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@azure/core-rest-pipeline"
+              },
+              "version": "1.22.2"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@azure/core-tracing"
+              },
+              "version": "1.3.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@azure/core-util"
+              },
+              "version": "1.13.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@azure/core-xml"
+              },
+              "version": "1.5.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@azure/logger"
+              },
+              "version": "1.3.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@azure/storage-blob"
+              },
+              "version": "12.29.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@azure/storage-common"
+              },
+              "version": "12.1.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@fastify/busboy"
+              },
+              "version": "2.1.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@oozcitak/dom"
+              },
+              "version": "1.15.8"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@oozcitak/infra"
+              },
+              "version": "1.0.8"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@oozcitak/url"
+              },
+              "version": "1.0.4"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@oozcitak/util"
+              },
+              "version": "8.3.8"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@protobuf-ts/runtime"
+              },
+              "version": "2.11.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@protobuf-ts/runtime-rpc"
+              },
+              "version": "2.11.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@types/node"
+              },
+              "version": "24.1.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "@typespec/ts-http-runtime"
+              },
+              "version": "0.3.2"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "agent-base"
+              },
+              "version": "7.1.4"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "balanced-match"
+              },
+              "version": "1.0.2"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "brace-expansion"
+              },
+              "version": "1.1.12"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "concat-map"
+              },
+              "version": "0.0.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "debug"
+              },
+              "version": "4.3.4"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "esprima"
+              },
+              "version": "4.0.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "events"
+              },
+              "version": "3.3.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "fast-xml-parser"
+              },
+              "version": "5.3.3"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "http-proxy-agent"
+              },
+              "version": "7.0.2"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "https-proxy-agent"
+              },
+              "version": "7.0.6"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "minimatch"
+              },
+              "version": "3.1.2"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "ms"
+              },
+              "version": "2.1.2"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "semver"
+              },
+              "version": "7.7.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "sprintf-js"
+              },
+              "version": "1.0.3"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "strnum"
+              },
+              "version": "2.1.2"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "tslib"
+              },
+              "version": "2.8.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "tunnel"
+              },
+              "version": "0.0.6"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "undici"
+              },
+              "version": "5.29.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "undici-types"
+              },
+              "version": "7.8.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "uuid"
+              },
+              "version": "3.4.0"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "xmlbuilder2"
+              },
+              "version": "2.4.1"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "argparse"
+              },
+              "version": "1.0.10"
+            },
+            {
+              "package": {
+                "ecosystem": "npm",
+                "name": "js-yaml"
+              },
+              "version": "3.14.0"
+            }
+          ],
+          "response": {
+            "results": [
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {
+                "vulns": [
+                  {
+                    "id": "GHSA-gxm5-99cw-xjw9",
+                    "modified": "2026-10-05T22:45:04.558942Z"
+                  },
+                  {
+                    "id": "GHSA-x8mw-p69m-v3mx",
+                    "modified": "2026-10-02T23:30:05.651087Z"
+                  }
+                ]
+              },
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {
+                "vulns": [
+                  {
+                    "id": "GHSA-3jxr-9vmj-r5cp",
+                    "modified": "2026-09-10T03:51:10.092354Z"
+                  },
+                  {
+                    "id": "GHSA-6j4f-fj2g-mc7p",
+                    "modified": "2026-09-30T00:00:03.836613Z"
+                  },
+                  {
+                    "id": "GHSA-f886-m6hf-6m8v",
+                    "modified": "2026-09-10T03:51:00.342356Z"
+                  },
+                  {
+                    "id": "GHSA-mh99-v99m-4gvg",
+                    "modified": "2026-09-10T03:50:12.282849Z"
+                  },
+                  {
+                    "id": "GHSA-q2hr-2g5m-vwhr",
+                    "modified": "2026-09-30T00:00:03.849541Z"
+                  },
+                  {
+                    "id": "GHSA-qhr7-859c-m2p7",
+                    "modified": "2026-09-30T00:00:04.402763Z"
+                  },
+                  {
+                    "id": "GHSA-rgw5-rvv9-x895",
+                    "modified": "2026-09-10T03:51:14.535270Z"
+                  }
+                ]
+              },
+              {},
+              {},
+              {},
+              {},
+              {
+                "vulns": [
+                  {
+                    "id": "GHSA-37qj-frw5-hhjh",
+                    "modified": "2026-09-10T03:50:32.638909Z"
+                  },
+                  {
+                    "id": "GHSA-474x-hrwr-fgx4",
+                    "modified": "2026-11-10T21:15:03.074649Z"
+                  },
+                  {
+                    "id": "GHSA-8gc5-j5rx-235r",
+                    "modified": "2026-09-10T03:50:38.199635Z"
+                  },
+                  {
+                    "id": "GHSA-fj3w-jwp8-x2g3",
+                    "modified": "2026-09-10T03:50:34.765253Z"
+                  },
+                  {
+                    "id": "GHSA-gh4j-gqv2-49f6",
+                    "modified": "2026-11-18T00:45:13.731912Z"
+                  },
+                  {
+                    "id": "GHSA-jmr7-xgp7-cmfj",
+                    "modified": "2026-09-10T03:50:35.274601Z"
+                  },
+                  {
+                    "id": "GHSA-jp2q-39xq-3w4g",
+                    "modified": "2026-09-10T03:50:39.873055Z"
+                  },
+                  {
+                    "id": "GHSA-m7jm-9gc2-mpf2",
+                    "modified": "2026-09-10T03:50:35.317514Z"
+                  }
+                ]
+              },
+              {},
+              {},
+              {
+                "vulns": [
+                  {
+                    "id": "GHSA-23c5-xmqv-rm74",
+                    "modified": "2026-09-10T03:50:59.274637Z"
+                  },
+                  {
+                    "id": "GHSA-3ppc-4f35-3m26",
+                    "modified": "2026-09-10T03:50:33.812431Z"
+                  },
+                  {
+                    "id": "GHSA-7r86-cg39-jmmj",
+                    "modified": "2026-09-10T03:50:34.376990Z"
+                  }
+                ]
+              },
+              {},
+              {},
+              {},
+              {},
+              {},
+              {},
+              {
+                "vulns": [
+                  {
+                    "id": "GHSA-2m5v-pch6-74hx",
+                    "modified": "2026-10-27T19:15:22.407771Z"
+                  },
+                  {
+                    "id": "GHSA-2mjp-6q6p-2qxm",
+                    "modified": "2026-09-10T03:50:36.493109Z"
+                  },
+                  {
+                    "id": "GHSA-35p6-xmwp-9g52",
+                    "modified": "2026-09-10T03:51:07.666603Z"
+                  },
+                  {
+                    "id": "GHSA-4992-7rv2-5pvq",
+                    "modified": "2026-09-10T03:50:37.246920Z"
+                  },
+                  {
+                    "id": "GHSA-8xcm-r25x-g524",
+                    "modified": "2026-09-10T03:51:13.567076Z"
+                  },
+                  {
+                    "id": "GHSA-9fm3-97px-rjf6",
+                    "modified": "2026-10-27T19:15:22.400702Z"
+                  },
+                  {
+                    "id": "GHSA-g8m3-5g58-fq7m",
+                    "modified": "2026-09-10T03:51:08.663204Z"
+                  },
+                  {
+                    "id": "GHSA-g9mf-h72j-4rw9",
+                    "modified": "2026-09-10T03:50:33.216915Z"
+                  },
+                  {
+                    "id": "GHSA-m8rv-5g2x-5cg5",
+                    "modified": "2026-09-10T03:51:14.281925Z"
+                  },
+                  {
+                    "id": "GHSA-p88m-4jfj-68fv",
+                    "modified": "2026-09-10T03:51:09.228344Z"
+                  },
+                  {
+                    "id": "GHSA-qrxm-fqhp-jwvm",
+                    "modified": "2026-10-27T19:15:22.403573Z"
+                  },
+                  {
+                    "id": "GHSA-r53p-7pc4-xj5r",
+                    "modified": "2026-09-29T18:30:41.154532Z"
+                  },
+                  {
+                    "id": "GHSA-v3r7-h72x-cjcm",
+                    "modified": "2026-09-10T03:51:14.535204Z"
+                  },
+                  {
+                    "id": "GHSA-v9p9-hfj2-hcw8",
+                    "modified": "2026-09-10T03:50:41.228925Z"
+                  },
+                  {
+                    "id": "GHSA-vrm6-8vpv-qv8q",
+                    "modified": "2026-09-10T03:50:41.264792Z"
+                  },
+                  {
+                    "id": "GHSA-vxpw-j846-p89q",
+                    "modified": "2026-11-04T03:45:10.197249Z"
+                  }
+                ]
+              },
+              {},
+              {
+                "vulns": [
+                  {
+                    "id": "GHSA-w5hq-g745-h8pq",
+                    "modified": "2026-09-10T03:51:03.663336Z"
+                  }
+                ]
+              },
+              {},
+              {},
+              {
+                "vulns": [
+                  {
+                    "id": "GHSA-2883-xcg3-v3hh",
+                    "modified": "2026-09-08T21:30:05.575808Z"
+                  },
+                  {
+                    "id": "GHSA-52cp-r559-cp3m",
+                    "modified": "2026-09-10T03:50:12.263307Z"
+                  },
+                  {
+                    "id": "GHSA-5p4m-2wfm-xmqj",
+                    "modified": "2026-09-10T03:50:53.407436Z"
+                  },
+                  {
+                    "id": "GHSA-h67p-54hq-rp68",
+                    "modified": "2026-09-10T03:50:49.729923Z"
+                  },
+                  {
+                    "id": "GHSA-mh29-5h37-fv8m",
+                    "modified": "2026-09-10T03:50:58.469126Z"
+                  }
+                ]
+              }
+            ]
+          },
+          "coverage": "Declared non-dev package-lock entries; not independent proof that the minified executable bundle exactly matches the lock",
+          "disposition": "Action and all its npm dependencies removed from active workflow"
+        }
+      ]
+    }
   }
 }

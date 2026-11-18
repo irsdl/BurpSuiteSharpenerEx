@@ -18,6 +18,11 @@
   wrong sources/hashes/identities, redirects, path escapes, links, limits and
   preservation of existing destinations. CI keeps read-only permissions and
   publication disabled; the managed runner image is not an immutable tool pin.
+  A fresh query of both removed baseline lockfiles found 5 and 7 flagged declared
+  runtime package/version entries; source SHAs, metadata hashes and query coverage
+  are retained in the security JSON. This is not a claim that their minified
+  bundles were independently reproduced. [PR #56 CI passed](https://github.com/irsdl/BurpSuiteSharpenerEx/actions/runs/44307321081)
+  and logged the exact patched runtime, native Git/Python versions and runner image.
 - Refreshed OSV checks for **36 inventoried Maven coordinates**, including parent
   metadata: no matching advisories returned. Runtime/test versions and dependency
   locks are unchanged. This is dated query coverage, not a guarantee of security.
