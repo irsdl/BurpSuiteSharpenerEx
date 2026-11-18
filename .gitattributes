@@ -3,3 +3,4 @@
 gradlew text eol=lf
 # Preserve upstream licence and notice bytes across Windows/Unix checkouts.
 licenses/third-party/** -text
+.github/scripts/*.py text eol=lf

@@ -1,0 +1,15 @@
+{
+  "purpose": "Exact Linux x64 JDK input for the validation workflow; runner OS packages remain managed inputs",
+  "vendor": "Amazon Corretto",
+  "version": "21.0.13.1.2",
+  "java_runtime": "21.0.13.1+2-LTS",
+  "platform": "linux-x64",
+  "filename": "amazon-corretto-21.0.13.1.2-linux-x64.tar.gz",
+  "source": "https://corretto.aws/downloads/resources/21.0.13.1.2/amazon-corretto-21.0.13.1.2-linux-x64.tar.gz",
+  "sha256": "2aaa2a9a43143b20ff0b28c8d0da27407b97dc40b160d9a2f60a26965815e948",
+  "signature_source": "https://corretto.aws/downloads/resources/21.0.13.1.2/amazon-corretto-21.0.13.1.2-linux-x64.tar.gz.sig",
+  "signature_key_source": "https://yum.corretto.aws/corretto.key",
+  "signature_fingerprint": "6DC3636DAE534049C8B94623A122542AB04F24E3",
+  "publication_utc": "2026-11-18T00:46:24Z",
+  "review": "docs/toolchain-security-update-2026-11-18.json"
+}

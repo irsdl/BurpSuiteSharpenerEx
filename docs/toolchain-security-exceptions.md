@@ -1,5 +1,10 @@
 # Build-tool security exceptions
 
+The current 2026-11-18 JDK security patch and exact Windows/Linux pins are recorded
+in [the follow-up](toolchain-security-update-2026-11-18.json). That update supersedes
+the local JDK selection below. This dated review retains its original findings;
+the unresolved Gradle/provenance findings still block release.
+
 Evaluation: 2026-11-16 UTC. Status: **Corretto security update applied and
 tested under the user's approved age exception. Gradle's age exception is
 approved, but its upgrade remains blocked by additional security findings.**

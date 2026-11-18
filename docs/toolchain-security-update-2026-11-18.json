@@ -1,0 +1,151 @@
+{
+  "evaluation_utc": "2026-11-18T12:21:01.287734+00:00",
+  "component": "Amazon Corretto JDK 21",
+  "previous_local_version": "21.0.13.0.11",
+  "previous_ci_runtime": "Oracle 21+35-LTS-2513 observed in main CI",
+  "selected_version": "21.0.13.1.2",
+  "java_runtime": "21.0.13.1+2-LTS",
+  "release_source": "https://github.com/corretto/corretto-21/releases/tag/21.0.13.1.2",
+  "fix_evidence": "https://github.com/corretto/corretto-21/blob/21.0.13.1.2/CHANGELOG.md",
+  "cves": [
+    {
+      "id": "CVE-2026-114938",
+      "source": "https://cveawg.mitre.org/api/cve/CVE-2026-114938",
+      "record_sha256": "a07773c89af5fe63ed658537e1c2c97b1e07962416f91055ce5c0b7fa25ab1d6",
+      "cna": "43595867-4340-4103-b7a2-9a5208d29a85",
+      "recorded_utc": "2026-11-18T12:21:01.287734+00:00"
+    },
+    {
+      "id": "CVE-2026-114939",
+      "source": "https://cveawg.mitre.org/api/cve/CVE-2026-114939",
+      "record_sha256": "7ad4e64429bb8b091f893f9fa4e4a43c53b3fecbb40d767382f5632c4059a5b3",
+      "cna": "43595867-4340-4103-b7a2-9a5208d29a85",
+      "recorded_utc": "2026-11-18T12:21:01.287734+00:00"
+    },
+    {
+      "id": "CVE-2026-114940",
+      "source": "https://cveawg.mitre.org/api/cve/CVE-2026-114940",
+      "record_sha256": "e644260e50051acefa205181e7dab39c6d2da5178f73cb3c670ffc0a2aa15dcd",
+      "cna": "43595867-4340-4103-b7a2-9a5208d29a85",
+      "recorded_utc": "2026-11-18T12:21:01.287734+00:00"
+    },
+    {
+      "id": "CVE-2026-114941",
+      "source": "https://cveawg.mitre.org/api/cve/CVE-2026-114941",
+      "record_sha256": "f20eedcb22c532727395fa6c6521376cb1ac90a3a5d13bcda65a493c54c2c493",
+      "cna": "43595867-4340-4103-b7a2-9a5208d29a85",
+      "recorded_utc": "2026-11-18T12:21:01.287734+00:00"
+    },
+    {
+      "id": "CVE-2026-114942",
+      "source": "https://cveawg.mitre.org/api/cve/CVE-2026-114942",
+      "record_sha256": "9b309026d5d57201a08d8288d9128041e858a30f8baedf814227d468de29ab3d",
+      "cna": "43595867-4340-4103-b7a2-9a5208d29a85",
+      "recorded_utc": "2026-11-18T12:21:01.287734+00:00"
+    },
+    {
+      "id": "CVE-2026-114943",
+      "source": "https://cveawg.mitre.org/api/cve/CVE-2026-114943",
+      "record_sha256": "c33b5405c4ee71168accc794193ea311980fa3eeea8acee82e311d3eeab63b2f",
+      "cna": "43595867-4340-4103-b7a2-9a5208d29a85",
+      "recorded_utc": "2026-11-18T12:21:01.287734+00:00"
+    },
+    {
+      "id": "CVE-2026-114944",
+      "source": "https://cveawg.mitre.org/api/cve/CVE-2026-114944",
+      "record_sha256": "d13765d2d0bc735fefd198d400bc893b03cf7e2b2d2747583c0fc6cdfc60111f",
+      "cna": "43595867-4340-4103-b7a2-9a5208d29a85",
+      "recorded_utc": "2026-11-18T12:21:01.287734+00:00"
+    },
+    {
+      "id": "CVE-2026-114945",
+      "source": "https://cveawg.mitre.org/api/cve/CVE-2026-114945",
+      "record_sha256": "540d08a229a9f153bcc1c5ed52243a362216f746a59da5b2fb9ab761e8d4b841",
+      "cna": "43595867-4340-4103-b7a2-9a5208d29a85",
+      "recorded_utc": "2026-11-18T12:21:01.287734+00:00"
+    },
+    {
+      "id": "CVE-2026-114946",
+      "source": "https://cveawg.mitre.org/api/cve/CVE-2026-114946",
+      "record_sha256": "5e5556c9137387e12ae25fc836ee252328033d5cada32314fc2cb86b148edd1f",
+      "cna": "43595867-4340-4103-b7a2-9a5208d29a85",
+      "recorded_utc": "2026-11-18T12:21:01.287734+00:00"
+    }
+  ],
+  "applicability": "Vendor lists fixes in compiler, core/runtime, TLS and security components used by this build. No non-applicability waiver asserted. Oracle CNA records are corroborating records; Corretto applicability/fixes come from its vendor changelog.",
+  "necessity": "Replace the existing local validation build and unpinned GA CI runtime with the narrowest currently published stable Java 21 security build.",
+  "artifacts": [
+    {
+      "source": "https://corretto.aws/downloads/resources/21.0.13.1.2/amazon-corretto-21.0.13.1.2-windows-x64-jdk.zip",
+      "filename": "amazon-corretto-21.0.13.1.2-windows-x64-jdk.zip",
+      "sha256": "e91d8d38fe7af1e13ddde5c65d6c0cdd62d68fe091e9003464f5b45c422fb683",
+      "bytes": 202681918,
+      "publication_http": "Wed, 18 Nov 2026 00:46:29 GMT",
+      "signature_source": "https://corretto.aws/downloads/resources/21.0.13.1.2/amazon-corretto-21.0.13.1.2-windows-x64-jdk.zip.sig",
+      "signature_fingerprint": "6DC3636DAE534049C8B94623A122542AB04F24E3",
+      "signature_result": "valid with previously reviewed vendor-distributed key",
+      "version_publication_utc": "2026-11-17T20:04:17+00:00",
+      "artifact_publication_utc": "2026-11-18T00:46:29+00:00",
+      "effective_publication_utc": "2026-11-18T00:46:29+00:00",
+      "ordinary_age_qualification_utc": "2026-12-19T00:46:29+00:00",
+      "age_days": 0,
+      "canonical_checksum_source": "https://github.com/corretto/corretto-21/releases/tag/21.0.13.1.2",
+      "licence": "OpenJDK GPLv2 with Classpath Exception; original vendor legal files preserved"
+    },
+    {
+      "source": "https://corretto.aws/downloads/resources/21.0.13.1.2/amazon-corretto-21.0.13.1.2-linux-x64.tar.gz",
+      "filename": "amazon-corretto-21.0.13.1.2-linux-x64.tar.gz",
+      "sha256": "2aaa2a9a43143b20ff0b28c8d0da27407b97dc40b160d9a2f60a26965815e948",
+      "bytes": 209273107,
+      "publication_http": "Wed, 18 Nov 2026 00:46:24 GMT",
+      "signature_source": "https://corretto.aws/downloads/resources/21.0.13.1.2/amazon-corretto-21.0.13.1.2-linux-x64.tar.gz.sig",
+      "signature_fingerprint": "6DC3636DAE534049C8B94623A122542AB04F24E3",
+      "signature_result": "valid with previously reviewed vendor-distributed key",
+      "version_publication_utc": "2026-11-17T20:04:17+00:00",
+      "artifact_publication_utc": "2026-11-18T00:46:24+00:00",
+      "effective_publication_utc": "2026-11-18T00:46:24+00:00",
+      "ordinary_age_qualification_utc": "2026-12-19T00:46:24+00:00",
+      "age_days": 0,
+      "canonical_checksum_source": "https://github.com/corretto/corretto-21/releases/tag/21.0.13.1.2",
+      "licence": "OpenJDK GPLv2 with Classpath Exception; original vendor legal files preserved"
+    }
+  ],
+  "provenance": "Both binaries match SHA-256 values independently published in the canonical release and valid detached signatures under the same vendor-distributed key used in the earlier review. Per-platform reproducible native-build proof is not claimed.",
+  "age_exception": {
+    "authorization_record": "docs/toolchain-security-approval.json",
+    "authorization_source": "Existing user approval for younger official security fixes in this active dependency task; reiterated request to patch vulnerable components on 2026-11-18.",
+    "human_security_approver": "Repository maintainer irsdl, via the recorded user instruction; no agent self-approval",
+    "approval_recorded_utc": "2026-11-16T14:52:07.115658+00:00",
+    "scope": "Age only, for these exact two official stable security-fix artifacts; no publication or unresolved-vulnerability waiver",
+    "owner": "Repository maintainer irsdl",
+    "first_follow_up_utc": "2026-11-23T00:00:00Z",
+    "expiry_utc": "2026-12-17T00:00:00Z",
+    "follow_up": "Recheck weekly. Existing authorization expiry is retained; these artifacts reach ordinary age eligibility after that expiry, so renew approval or defer use then."
+  },
+  "validation": {
+    "artifact_hashes": "passed",
+    "vendor_signatures": "passed",
+    "release_identity": "Reviewed vendor/build/platform in both archives without executing them",
+    "bootstrap_guards": "12 standard-library unit tests passed; no network in tests",
+    "offline_build": "Clean build and packaging passed with Corretto 21.0.13.1.2; 329 tests, zero failures/errors/skips",
+    "ci": {
+      "url": "https://github.com/irsdl/BurpSuiteSharpenerEx/actions/runs/44307321081",
+      "head_sha": "bc6abea8e70553dc0c54d6836bab09443aeab83e",
+      "tested_merge_sha": "86fc44754508c07c74b22111b396fbd0b964d052",
+      "completed_utc": "2026-11-18T12:48:21Z",
+      "conclusion": "success",
+      "runner_family": "ubuntu-24.04",
+      "runner_image": "ubuntu24 20261111.127.1",
+      "git": "2.56.1",
+      "python": "3.12.3",
+      "jdk_vendor_build": "Corretto-21.0.13.1.2",
+      "java_runtime": "21.0.13.1+2-LTS",
+      "checks": "Exact public tested-commit checkout, 12 bootstrap tests, vendor hash/identity acquisition, strict online dependency acquisition and offline build/test/package, eight source-review fixtures and reviewed push gate",
+      "scope": "Linux build/CI execution only. Not a Burp UI/OS compatibility or release approval."
+    },
+    "standalone_packaged_smoke": "Passed real Windows x64 JNA memory, FlatLaf, syntax editor/theme, multi-release selection and excluded library checks",
+    "harness_plan": "Passed 33-case catalog compilation/self-checks without launching Burp",
+    "real_ci_archive": "Exact reviewed Linux artifact passed checksum, full safe extraction and vendor/build/platform identity validation on Windows. Linux execution remains pending actual CI; no cross-OS runtime claim."
+  },
+  "decision": "Apply to local Windows validation and the Linux CI pin. Remaining Gradle/provenance/host release blockers remain unresolved."
+}

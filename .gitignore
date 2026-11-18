@@ -15,3 +15,6 @@ gradle-app.setting
 .claude/
 # local guidance with machine-specific paths, keep out of the repo
 CLAUDE.md
+# Local Python tooling/test bytecode
+__pycache__/
+*.py[cod]

@@ -373,5 +373,30 @@
     "normal_unit_tests": 329,
     "implementation": "Shared capability callback object; bounded 1024 message-ID/colour pairs consumed once, no request content retained; no marker headers added.",
     "community_current_status": "Current 33-group Community rerun timed out at temporary-project startup while desktop control was unavailable. No assertions ran and no activation was requested. A new run is required; the earlier 21 passing groups apply only to their original jar/catalog."
+  },
+  "evidence_retention": {
+    "recorded_utc": "2026-11-18T12:33:19.966076Z",
+    "status": "raw-historical-reports-unavailable",
+    "cause": "A clean Gradle rebuild removed the ignored build/reports/full-ui-tests directory before its raw evidence was backed up.",
+    "retained": "Committed historical outcomes, host/jar/catalog identities and report/fixture hashes remain unchanged. They are summaries, not replacement raw reports.",
+    "recovery": "Checked current session recorded tool outputs for byte-identical originals; no candidate matched the pre-existing committed report digests. No report was reconstructed or fabricated.",
+    "missing_files": [
+      "build/reports/full-ui-tests/run-4404772676211810369/results.json",
+      "build/reports/full-ui-tests/run-4113113849295277172/results.json",
+      "build/reports/full-ui-tests/run-7010986422276154052/results.json",
+      "build/reports/full-ui-tests/run-10314410243201332353/results.json",
+      "build/reports/full-ui-tests/run-15996794770530199463/results.json",
+      "build/reports/full-ui-tests/run-906803053519482575/results.json",
+      "build/reports/full-ui-tests/run-4324643879006165322/results.json",
+      "build/reports/full-ui-tests/run-7356438686490956248/results.json",
+      "build/reports/full-ui-tests/run-7356438686490956248/fixture-highlighting.json",
+      "build/reports/full-ui-tests/run-15984634390862306397/results.json",
+      "build/reports/full-ui-tests/run-15984634390862306397/fixture-highlighting.json",
+      "build/reports/full-ui-tests/run-6341438930188719353/results.json",
+      "build/reports/full-ui-tests/run-6341438930188719353/fixture-highlighting.json",
+      "build/reports/full-ui-tests/run-12052984523566881743/results.json"
+    ],
+    "release_disposition": "New real-host runs required to supply raw release evidence.",
+    "new_default_directory": "temp/full-ui-test-reports/; ignored and outside Gradle clean output"
   }
 }

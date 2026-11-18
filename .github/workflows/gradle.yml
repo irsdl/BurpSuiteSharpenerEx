@@ -6,8 +6,8 @@ on:
   pull_request:
     branches: [main]
 
-# Diagnostic validation only. Publication remains blocked pending the reviewed
-# toolchain and manual host evidence in docs/portswigger-review.json.
+# Publication remains blocked pending the remaining Gradle/provenance and host
+# findings in docs/portswigger-review.json. No marketplace Actions are executed.
 # Never delete previous releases/tags or publish automatically on push.
 permissions:
   contents: read
@@ -15,19 +15,35 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3 (2026-06-02); existing baseline, admission pending
-        with:
-          persist-credentials: false
-      - name: Set up JDK 21 (diagnostic baseline; exact CI admission pending)
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0 (2026-01-22)
-        with:
-          distribution: oracle
-          java-version: '21'
+      - name: Check out the exact tested public commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_SERVER_URL" == 'https://github.com' ]]
+          [[ "$GITHUB_REPOSITORY" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]
+          [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
+          git init --quiet .
+          git remote add origin "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git"
+          git -c credential.helper= -c protocol.version=2 fetch --no-tags --depth=1 origin "$GITHUB_SHA"
+          git checkout --detach FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          if configured_hooks=$(git config --get core.hooksPath); then
+            test "$configured_hooks" = '.githooks'
+          fi
+          git config --local core.hooksPath .githooks
+      - name: Test pinned JDK acquisition guards
+        run: python3 -I -m unittest discover -s .github/scripts -p 'test_*.py'
+      - name: Acquire the exact reviewed security JDK
+        run: python3 -I .github/scripts/acquire_ci_jdk.py --destination "$RUNNER_TEMP/sharpener-reviewed-jdk"
       - name: Record runner identity
         run: |
           printf 'Runner image: %s %s\n' "$ImageOS" "$ImageVersion"
+          git --version
+          python3 --version
           java -version
+          cat "$JAVA_HOME/release"
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Acquire locked verified dependencies

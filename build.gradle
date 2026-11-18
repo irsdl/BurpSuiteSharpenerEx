@@ -109,6 +109,8 @@ tasks.register('verifyPackagedJar') {
                 if (!names.contains(name)) throw new GradleException("Missing packaged resource: $name")
             }
             if (names.any { it.startsWith('burp/api/') || it.startsWith('org/junit/') ||
+                    it.startsWith('.github/') || it == 'gradle/ci-jdk.json' ||
+                    it == 'gradle/validation-jdk.json' ||
                     it.startsWith('ninja/burpsuite/fulluitest/') || it == 'ui-cases.json' ||
                     it.startsWith('org/mockito/') || it.startsWith('net/bytebuddy/') ||
                     it.startsWith('com/google/common/') || it.startsWith('org/fife/ui/autocomplete/') }) {
