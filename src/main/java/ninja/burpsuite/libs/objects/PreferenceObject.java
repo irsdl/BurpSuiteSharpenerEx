@@ -4,7 +4,7 @@
 
 package ninja.burpsuite.libs.objects;
 
-import com.coreyd97.BurpExtenderUtilities.Preferences;
+import ninja.burpsuite.libs.thirdparty.burpextenderutilities.Preferences;
 
 import java.lang.reflect.Type;
 

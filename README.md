@@ -16,7 +16,7 @@ Refer to the "Burp Suite Compatibility and Reporting Errors" section for detaile
 
 ## Installation
 
-* Download the latest jar file built by GitHub from [/releases/latest](https://github.com/irsdl/BurpSuiteSharpenerEx/releases/latest), or by going through the [Workflows' Artifacts](https://github.com/irsdl/BurpSuiteSharpenerEx/actions).
+* Download the latest published jar from [/releases/latest](https://github.com/irsdl/BurpSuiteSharpenerEx/releases/latest).
 * Add it to Burp Suite using the `Extensions` tab
 
 ## Features
@@ -43,18 +43,21 @@ Refer to the "Burp Suite Compatibility and Reporting Errors" section for detaile
 * Ability to detect off-screen Burp Suite window to bring it to the centre
 * Ability to highlight HTTP and WebSocket requests in proxy by detecting the "tempcolorCOLORNAME" pattern and removing it
 * Ability to highlight HTTP and WebSocket requests and responses in proxy by detecting the "permcolorCOLORNAME" pattern
+* Logger HTTP highlighting using the same markers, including traffic sent by other Burp tools
 
 ## Burp Suite Compatibility and Reporting Errors
 
-This extension targets the most recent Burp Suite release. It was last tested with the pro version 2026.4.3, the most recent stable release at the time of this documentation. It is also compatible with the community edition. The minimum supported version is Burp Suite 2024.2, as that is the first release that requires Java 21.
+Sharpener targets current Burp Stable and Early Adopter, including Community Edition. The latest Windows Professional Early Adopter 2026.11 run passed 23 automated UI case groups, including real Proxy/Logger marker colouring, with no failed assertions. An earlier 4.93 jar passed 21 groups in Community 2026.3.3; the expanded highlighter rerun timed out at startup before any assertions ran. Clipboard testing and eight manual groups remain pending. Current Stable, other 2026 releases, macOS and Linux remain unverified. See the exact jars and results in the [live evidence](docs/full-ui-validation.json).
 
-All changes are released from the `main` branch. See [CHANGES.md](CHANGES.md) for the change history of each release.
+Java 21 is required (Burp 2024.2 or later). This bytecode baseline does not establish API compatibility with every older Burp release. See the [host validation checklist](docs/burp-ui-compatibility.md) and [current compliance findings](docs/portswigger-compliance.md).
+
+Releases are prepared from `main`. Version 4.93 is unreleased; see [CHANGES.md](CHANGES.md) for the change history.
 
 We actively use this extension and occasionally observe potential errors, particularly when Burp Suite updates its core functionalities or UI. As an open-source project, we heavily rely on community feedback for enhancements and bug fixes. If you encounter any issues, kindly report them on our [issues page](https://github.com/irsdl/BurpSuiteSharpenerEx/issues). Additionally, if you value our work, please consider [sponsoring](https://github.com/sponsors/irsdl) this project.
 
 ## Using the Legacy Extension
 
-In the latest version of this extension, only the most recent version of Burp Suite is supported, as noted above. For older versions of Burp Suite, you can use the legacy version of the extension or refer to the original repository.
+For Burp versions outside the targets described above, the legacy extension and original repository remain available. Compatibility with every earlier 2026 release has not been established.
 The older versions of this extension can be downloaded from the legacy branch (with no support):
 
 * [Legacy-Extension branch releases](https://github.com/mdsecresearch/BurpSuiteSharpener/tree/Legacy-Extension/release)
@@ -164,18 +167,24 @@ Fixed mouse actions on the Repeater and Intruder tabs (not configurable):
 
 ## Contributing
 
-Pull requests are welcome. A few rules keep the automated release pipeline working:
+Pull requests are welcome. Pushes and releases have separate validation gates:
 
-* All changes go through pull requests into the `main` branch (direct pushes are blocked).
-* Build with `./gradlew jar` (requires JDK 21). The test suite must pass: `./gradlew build` runs it headless.
+* AI-assisted maintenance follows [AGENTS.md](AGENTS.md), including the dependency, toolchain, and GitHub Actions admission policy.
+* Before every push, review the live PortSwigger guidance and update the [compliance evidence](docs/portswigger-review.json), then run `./gradlew verifyPushReadiness --offline --dependency-verification strict`. Enable the versioned pre-push hook in each clone with `git config --local core.hooksPath .githooks`; preserve existing custom hooks. See the [full procedure](docs/portswigger-compliance.md).
+* Review the dated [dependency evidence](docs/dependency-review.md) before updating locks or verification hashes. Acquire reviewed inputs with `./gradlew resolveDependencies --dependency-verification strict`, then build with `./gradlew build --offline --dependency-verification strict`.
+* Submit changes through pull requests into `main`; maintainers must configure the required GitHub checks.
+* Build with `./gradlew build` (requires JDK 21); this runs the tests headless and verifies packaging. `jar` alone is insufficient validation.
+* Full live UI regressions are opt-in: use `./gradlew fullUiTestPlan` to list cases and follow [the full UI suite guide](docs/full-ui-tests.md) to run `fullUiTest` after major changes. These heavy tests are excluded from normal builds, quick tests and the production jar.
 * New or changed behaviour must be covered by test cases in `src/test/java`. The extension cannot run outside Burp Suite, so tests use mocked Montoya interfaces and plain Swing components.
-* Releases are created automatically when a pull request that bumps the version is merged. To make a release:
+* Compatibility work targets both Burp Stable and Early Adopter. See the [compatibility design and host validation checklist](docs/burp-ui-compatibility.md); simulated layouts do not replace loading the jar in both release channels.
+* Keep Windows, macOS and Linux supported. Native changes need guarded portable paths and live evidence for each OS/channel before release; see [platform icons and dynamic host testing](docs/platform-icons-and-testing.md). Windows icon changes apply to running windows, preserving existing launcher files and pinned shortcuts.
+* Publication is manual and currently blocked by unresolved compliance/security/host evidence. CI uses read-only permissions and never publishes or deletes releases/tags. Before any tag push, GitHub release/asset upload or BApp submission, complete the [release checklist](docs/portswigger-compliance.md) and pass `./gradlew verifyReleaseReadiness --offline --dependency-verification strict`. Passing checks does not itself authorize publishing. For a release:
   * Bump `version` in `src/main/resources/extension.properties`. It must stay parseable as a number (for example `4.7`), because the update checker compares it numerically.
-  * Add a matching section at the top of [CHANGES.md](CHANGES.md) with the exact heading format `## Version X.Y (YYYY-MM-DD)`. CI copies that section into the GitHub release notes.
+  * Add a brief, factual section at the top of [CHANGES.md](CHANGES.md) with the exact heading format `## Version X.Y (YYYY-MM-DD)`. Mark it unreleased until publication; use it for release notes after the release gates pass. CI does not publish releases.
 
 ## Thanks To
 
-* Corey Arthur [CoreyD97](https://twitter.com/CoreyD97) for [Burp-Montoya-Utilities](https://github.com/CoreyD97/Burp-Montoya-Utilities/)
+* Corey Arthur [CoreyD97](https://twitter.com/CoreyD97) for [Burp-Montoya-Utilities](https://github.com/CoreyD97/Burp-Montoya-Utilities/). A small part of it (the preferences classes) is now maintained inside this repository under `libs/thirdparty/`; the rest of the library is no longer bundled. See the NOTICE file.
 * Bruno Demarche (for initial Swing hack inspiration)
 
 Please feel free to report bugs, suggest features, or send pull requests.

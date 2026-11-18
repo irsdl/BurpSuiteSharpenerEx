@@ -6,7 +6,7 @@
 
 package ninja.burpsuite.extension.sharpener.uiControllers.shortcuts;
 
-import com.coreyd97.BurpExtenderUtilities.Preferences;
+import ninja.burpsuite.libs.thirdparty.burpextenderutilities.Preferences;
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
 
 import javax.swing.*;
@@ -35,6 +35,7 @@ public final class ShortcutsDialog {
     }
 
     public static void show(ExtensionSharedParameters sharedParameters) {
+        if (sharedParameters.get_mainFrameUsingMontoya() == null || sharedParameters.isUnloaded()) return;
         List<ShortcutMappings.ShortcutActionDef> configurable = ShortcutMappings.getConfigurableActionDefinitions();
         ShortcutMappings.EffectiveShortcuts effective =
                 ShortcutMappings.resolve(ShortcutMappings.getSavedOverrides(sharedParameters));

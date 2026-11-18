@@ -1,0 +1,67 @@
+{
+  "approval_recorded_utc": "2026-11-16T14:52:07.115658+00:00",
+  "approval_record_time_basis": "Time the current user instruction was recorded; exact message timestamp was not supplied",
+  "human_approver": "Repository maintainer irsdl (local Git identity Soroush Dalili; connected GitHub account irsdl)",
+  "source": "Current user instruction in this conversation",
+  "instruction": "I was about to approve patching vulnerable dependencies even if they are under 30 days",
+  "interpretation": "Authorize the age exceptions for official fixes to known vulnerabilities within the current dependency update task",
+  "scope": "Age gate only for reviewed current-task security fixes; no blanket approval for future/unrelated upgrades, unresolved vulnerabilities, non-applicability waivers, or publication",
+  "follow_up_owner": "Repository maintainer irsdl",
+  "first_review_utc": "2026-11-23T00:00:00Z",
+  "expiry_utc": "2026-12-17T00:00:00Z",
+  "decisions": [
+    {
+      "component": "Amazon Corretto JDK",
+      "version": "21.0.13.0.11",
+      "runtime": "21.0.13+11-LTS",
+      "platform": "Windows x64",
+      "artifact": {
+        "source": "https://corretto.aws/downloads/resources/21.0.13.0.11/amazon-corretto-21.0.13.0.11-windows-x64-jdk.zip",
+        "filename": "amazon-corretto-21.0.13.0.11-windows-x64-jdk.zip",
+        "sha256": "2245721d8cec120ebddf60a6981a13baa89d82997dab621a0ee6a5849beee233",
+        "publication_http": "Fri, 30 Oct 2026 01:04:05 GMT",
+        "size": 202661723
+      },
+      "advisory": "CVE-2026-114820 and vendor October Java 21 security fixes",
+      "vendor_fix_evidence": "https://github.com/corretto/corretto-21/blob/21.0.13.0.11/CHANGELOG.md",
+      "signature_key_source": "https://yum.corretto.aws/corretto.key",
+      "signature_fingerprint": "6DC3636DAE534049C8B94623A122542AB04F24E3",
+      "signature_result": "Cryptographically verified with vendor-distributed public key; rehashed cached canonical zip before extraction",
+      "decision": "Applied to local validation; no global Java installation or CI changed",
+      "ordinary_age_qualification_not_before_utc": "2026-11-30T01:04:05Z",
+      "validation": "Clean offline strict build: 266 passed, 0 failures/errors/skipped; packaged checks and isolated dependency smoke passed"
+    },
+    {
+      "component": "Gradle",
+      "version": "8.14.7",
+      "artifacts": [
+        {
+          "source": "https://services.gradle.org/distributions/gradle-8.14.7-bin.zip",
+          "filename": "gradle-8.14.7-bin.zip",
+          "sha256": "903bfc4bc7622323124054c10f509246212a1902948bdaf26c379cca8735e856",
+          "publication_http": "Wed, 11 Nov 2026 07:33:58 GMT",
+          "size": 139424091
+        },
+        {
+          "source": "https://raw.githubusercontent.com/gradle/gradle/v8.14.7/gradle/wrapper/gradle-wrapper.jar",
+          "filename": "gradle-wrapper.jar",
+          "sha256": "ad16bca46cb71bb5887c546860d93992aeee35c1fdaf4a242b0a612375d937e0",
+          "publication_http": null,
+          "size": 44309
+        }
+      ],
+      "advisories_fixed": [
+        "GHSA-3cfg-jpcr-gfp3",
+        "GHSA-gqrr-4j89-5267",
+        "GHSA-pcp8-98xm-c6pr"
+      ],
+      "advisories_remaining": [
+        "GHSA-xxph-c9ww-hj94",
+        "GHSA-j288-q9x7-2f5v",
+        "GHSA-v5x9-67m3-7m56"
+      ],
+      "decision": "Age exception approved, but upgrade not applied: embedded Guava/Commons Lang findings remain without approved technical disposition",
+      "ordinary_age_qualification_not_before_utc": "2026-12-12T07:33:58Z"
+    }
+  ]
+}

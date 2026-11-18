@@ -18,6 +18,19 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DelayedTaskRunnerTest {
 
     @Test
+    void failingTaskIsReportedWithoutKillingTheSharedTimer() throws Exception {
+        CountDownLatch reported = new CountDownLatch(1);
+        CountDownLatch next = new CountDownLatch(1);
+        DelayedTaskRunner runner = new DelayedTaskRunner(failure -> reported.countDown());
+        try {
+            runner.schedule(new TimerTask() { public void run() { throw new IllegalStateException("test"); } }, 0);
+            assertTrue(reported.await(2, TimeUnit.SECONDS));
+            runner.schedule(new TimerTask() { public void run() { next.countDown(); } }, 0);
+            assertTrue(next.await(2, TimeUnit.SECONDS));
+        } finally { runner.stop(); }
+    }
+
+    @Test
     void aScheduledTaskRunsBeforeStop() throws InterruptedException {
         DelayedTaskRunner runner = new DelayedTaskRunner();
         CountDownLatch latch = new CountDownLatch(1);

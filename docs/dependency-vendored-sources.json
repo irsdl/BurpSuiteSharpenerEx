@@ -1,0 +1,55 @@
+{
+  "upstream": "https://github.com/CoreyD97/Burp-Montoya-Utilities/tree/b7faf563",
+  "licence": "AGPL-3.0",
+  "modifications": "Repackaged locally; unchanged by this dependency update",
+  "files": [
+    {
+      "path": "src/main/java/ninja/burpsuite/libs/thirdparty/burpextenderutilities/DefaultGsonProvider.java",
+      "sha256": "71120ed4197e56a02ce1046fe106d1d9c752dd54e65ae4bb7e0fbf040fed56a2"
+    },
+    {
+      "path": "src/main/java/ninja/burpsuite/libs/thirdparty/burpextenderutilities/GsonUtilities.java",
+      "sha256": "2fafd48738318b40ae21a295f727eac2dd65bcd94f25f8710cbbee761bfc504f"
+    },
+    {
+      "path": "src/main/java/ninja/burpsuite/libs/thirdparty/burpextenderutilities/IGsonProvider.java",
+      "sha256": "aece9f933eb76e023a084d644f2ab6c3ed503575873ca10797842f4cefb9a4a8"
+    },
+    {
+      "path": "src/main/java/ninja/burpsuite/libs/thirdparty/burpextenderutilities/ILogProvider.java",
+      "sha256": "3582b51eae46b26e9299fe6a9034f548e542764c7f0209b1821994a15aee9d0b"
+    },
+    {
+      "path": "src/main/java/ninja/burpsuite/libs/thirdparty/burpextenderutilities/PreferenceListener.java",
+      "sha256": "dc111ba7e350965cefdccf0cd154a01a86bc42d70763374859db363643425d4e"
+    },
+    {
+      "path": "src/main/java/ninja/burpsuite/libs/thirdparty/burpextenderutilities/Preferences.java",
+      "sha256": "23c345755fd62647c6761d325814ffe37cd67572a4d1a93d91fd0ad0dfd910d8"
+    },
+    {
+      "path": "src/main/java/ninja/burpsuite/libs/thirdparty/burpextenderutilities/UnmanagedSettingException.java",
+      "sha256": "c830b796b67e170cacc5eb9ac5e612583047240b3800c4e88fed3f7d0d431df5"
+    },
+    {
+      "path": "src/main/java/ninja/burpsuite/libs/thirdparty/burpextenderutilities/nameManager/KeyNotReservedException.java",
+      "sha256": "cc293113747a1589cb645c719ea8c76384db75867735dc2f0dc05475d94bd011"
+    },
+    {
+      "path": "src/main/java/ninja/burpsuite/libs/thirdparty/burpextenderutilities/nameManager/NameCollisionException.java",
+      "sha256": "14a7050efe3db1074df42bd20bd57b03a6f1aff83b07239632f25ab9fc4c5750"
+    },
+    {
+      "path": "src/main/java/ninja/burpsuite/libs/thirdparty/burpextenderutilities/nameManager/NameManager.java",
+      "sha256": "54d09c683ae66c62c91524eb0a884499ab0ae3d3b9711f54f9167adcdbf9ae0e"
+    },
+    {
+      "path": "src/main/java/ninja/burpsuite/libs/thirdparty/burpextenderutilities/typeadapter/AtomicIntegerTypeAdapter.java",
+      "sha256": "539840d9053e8a65968eaca0d8f508225a5247bed529f88535c5a79841e19e74"
+    },
+    {
+      "path": "src/main/java/ninja/burpsuite/libs/thirdparty/burpextenderutilities/typeadapter/ByteArrayToBase64TypeAdapter.java",
+      "sha256": "83ef9fb0a07196ecd8c61a7528ff853acde8a6431879626855550608df8cbbb7"
+    }
+  ]
+}

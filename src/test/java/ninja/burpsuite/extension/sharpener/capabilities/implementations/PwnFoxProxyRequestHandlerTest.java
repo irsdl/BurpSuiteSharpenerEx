@@ -15,7 +15,7 @@ import burp.api.montoya.internal.ObjectFactoryLocator;
 import burp.api.montoya.proxy.http.InterceptedRequest;
 import burp.api.montoya.proxy.http.ProxyRequestReceivedAction;
 import burp.api.montoya.proxy.http.ProxyRequestToBeSentAction;
-import com.coreyd97.BurpExtenderUtilities.Preferences;
+import ninja.burpsuite.libs.thirdparty.burpextenderutilities.Preferences;
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
 import ninja.burpsuite.libs.burp.generic.ExtendedPreferences;
 import ninja.burpsuite.libs.objects.PreferenceObject;

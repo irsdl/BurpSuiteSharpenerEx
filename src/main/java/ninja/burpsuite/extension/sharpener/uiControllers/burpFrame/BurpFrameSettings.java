@@ -6,7 +6,7 @@
 
 package ninja.burpsuite.extension.sharpener.uiControllers.burpFrame;
 
-import com.coreyd97.BurpExtenderUtilities.Preferences;
+import ninja.burpsuite.libs.thirdparty.burpextenderutilities.Preferences;
 import com.google.gson.reflect.TypeToken;
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
 import ninja.burpsuite.extension.sharpener.uiControllers.shortcuts.ShortcutMappings;
@@ -92,6 +92,10 @@ public class BurpFrameSettings extends StandardSettings {
 
     @Override
     public void loadSettings() {
+        if (sharedParameters.get_mainFrameUsingMontoya() == null) {
+            sharedParameters.reportCompatibilityIssue("frame customisation", null);
+            return;
+        }
         sharedParameters.printDebugMessage("loadSettings");
 
         String newTitle = sharedParameters.preferences.safeGetStringSetting("BurpTitle");
@@ -134,6 +138,7 @@ public class BurpFrameSettings extends StandardSettings {
 
     @Override
     public void unloadSettings() {
+        if (sharedParameters.get_mainFrameUsingMontoya() == null) return;
         sharedParameters.printDebugMessage("reset Burp title and icon");
 
         if (burpFrameListeners != null) {

@@ -6,7 +6,7 @@
 
 package ninja.burpsuite.extension.sharpener.uiSelf.topMenu;
 
-import com.coreyd97.BurpExtenderUtilities.Preferences;
+import ninja.burpsuite.libs.thirdparty.burpextenderutilities.Preferences;
 import ninja.burpsuite.extension.sharpener.ExtensionMainClass;
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
 import ninja.burpsuite.extension.sharpener.capabilities.implementations.PwnFoxSettings;
@@ -26,8 +26,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.net.URI;
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 public final class TopMenu extends javax.swing.JMenu {
@@ -401,32 +399,12 @@ public final class TopMenu extends javax.swing.JMenu {
                         // It seems the extension is dead and we are left with a top menu bar
                     }
 
-                    try {
-                        // a private one-shot daemon timer, on purpose not the shared runner:
-                        // this cleanup must still fire after unload has stopped the shared timer
-                        new Timer("SharpenerTopMenuCleanup", true).schedule(
-                                new TimerTask() {
-                                    @Override
-                                    public void run() {
-                                        SwingUtilities.invokeLater(() -> {
-                                            // This is useful when the extension has been unloaded but the menu is still there because of an error
-                                            // We should force removing the top menu bar from Burp using all native libraries
-                                            JRootPane rootPane = topMenuForExtension.getRootPane();
-                                            if (rootPane != null) {
-                                                JTabbedPane rootTabbedPane = (JTabbedPane) rootPane.getContentPane().getComponent(0);
-                                                JFrame mainFrame = (JFrame) rootTabbedPane.getRootPane().getParent();
-                                                JMenuBar mainMenuBar = mainFrame.getJMenuBar();
-                                                mainMenuBar.remove(topMenuForExtension);
-                                                mainFrame.validate();
-                                                mainFrame.repaint();
-                                            }
-                                        });
-                                    }
-                                },
-                                5000 // 5 seconds-delay to ensure all has been settled!
-                        );
-                    } catch (Exception e) {
-
+                    // Synchronous EDT cleanup by identity. Never leave a timer alive
+                    // after unload or guess at Burp's component positions.
+                    if (sharedParameters.isUnloaded() && topMenuForExtension.getParent() instanceof JMenuBar bar) {
+                        bar.remove(topMenuForExtension);
+                        bar.revalidate();
+                        bar.repaint();
                     }
                 }
             });
@@ -469,12 +447,9 @@ public final class TopMenu extends javax.swing.JMenu {
             JMenuItem showProjectPage = new JMenuItem(new AbstractAction("Project Page (Opens a Browser)") {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
-                    new Thread(() -> {
-                        try {
+                    sharedParameters.backgroundTasks.submit("open project page", () -> {
                             Desktop.getDesktop().browse(new URI(sharedParameters.extensionURL));
-                        } catch (Exception e) {
-                        }
-                    }).start();
+                    });
                 }
             });
             showProjectPage.setToolTipText("Will be opened in the default browser");
@@ -483,12 +458,9 @@ public final class TopMenu extends javax.swing.JMenu {
             JMenuItem reportAnIssue = new JMenuItem(new AbstractAction("Report Bug/Feature (Opens a Browser)") {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
-                    new Thread(() -> {
-                        try {
+                    sharedParameters.backgroundTasks.submit("open issue tracker", () -> {
                             Desktop.getDesktop().browse(new URI(sharedParameters.extensionIssueTracker));
-                        } catch (Exception e) {
-                        }
-                    }).start();
+                    });
                 }
             });
             reportAnIssue.setToolTipText("Will be opened in the default browser");

@@ -78,6 +78,7 @@ public class BurpUITools {
     }
 
     public static boolean switchToMainTab(String tabName, JTabbedPane tabbedPane) {
+        if (tabName == null || tabbedPane == null) return false;
         boolean result = false;
         for (Component component : tabbedPane.getComponents()) {
             int componentIndex = tabbedPane.indexOfComponent(component);
@@ -86,7 +87,7 @@ public class BurpUITools {
             }
 
             String componentTitle = tabbedPane.getTitleAt(componentIndex);
-            if (componentTitle.trim().equalsIgnoreCase(tabName.trim())) {
+            if (componentTitle != null && componentTitle.trim().equalsIgnoreCase(tabName.trim())) {
                 tabbedPane.setSelectedIndex(componentIndex);
                 result = true;
                 break;
@@ -108,24 +109,18 @@ public class BurpUITools {
 
     // This is case-insensitive to prevent confusion
     public static boolean isMenuBarLoaded(String toolbarName, JMenuBar menuBar) {
-        boolean result = false;
-        for (int i = 0; i < menuBar.getMenuCount(); i++) {
-            JMenuItem item = menuBar.getMenu(i);
-            if (item.getText().trim().equalsIgnoreCase(toolbarName.trim())) {
-                result = true;
-                break;
-            }
-        }
-        return result;
+        return getMenuItem(toolbarName, menuBar) != null;
     }
 
     // This is case-insensitive to prevent confusion
     public static void removeMenuBarByName(String toolbarName, JMenuBar menuBar, boolean repaintUI) {
-        for (int i = 0; i < menuBar.getMenuCount(); i++) {
+        if (menuBar == null || toolbarName == null)
+            return;
+        // Iterate backwards so adjacent leftover menus are all removed.
+        for (int i = menuBar.getMenuCount() - 1; i >= 0; i--) {
             JMenuItem item = menuBar.getMenu(i);
-            if (item.getText().trim().equalsIgnoreCase(toolbarName.trim())) {
+            if (menuNameMatches(item, toolbarName)) {
                 menuBar.remove(i);
-                // break; // we may have more than one menu so this line needs to be commented
             }
         }
 
@@ -143,10 +138,12 @@ public class BurpUITools {
 
     // This is case-insensitive to prevent confusion
     public static JMenuItem getMenuItem(String toolbarName, JMenuBar menuBar) {
+        if (menuBar == null || toolbarName == null)
+            return null;
         JMenuItem result = null;
         for (int i = 0; i < menuBar.getMenuCount(); i++) {
             JMenuItem item = menuBar.getMenu(i);
-            if (item.getText().trim().equalsIgnoreCase(toolbarName.trim())) {
+            if (menuNameMatches(item, toolbarName)) {
                 result = item;
                 break;
             }
@@ -154,32 +151,23 @@ public class BurpUITools {
         return result;
     }
 
+    private static boolean menuNameMatches(JMenuItem item, String toolbarName) {
+        // JMenuBar can also contain labels, buttons, and spacers. getMenu()
+        // returns null for these components, even though they count as entries.
+        return item != null && item.getText() != null
+                && item.getText().trim().equalsIgnoreCase(toolbarName.trim());
+    }
+
     // This is case-insensitive to prevent confusion
     public static MenuElement getSubMenuComponentFromMain(String toolbarName, String subItemName, JMenuBar menuBar) {
-        MenuElement result = null;
         JMenuItem mainMenuItem = getMenuItem(toolbarName, menuBar);
-        if (mainMenuItem != null) {
-            for (int i = 0; i < mainMenuItem.getSubElements()[0].getSubElements().length - 1; i++) {
-                MenuElement item = mainMenuItem.getSubElements()[0].getSubElements()[i];
-                if (item instanceof JMenuItem finalObj) {
-                    if (finalObj.getText().equalsIgnoreCase(subItemName)) {
-                        result = finalObj;
-                        break;
-                    }
-                } else if (item instanceof JMenu finalObj) {
-                    if (finalObj.getText().equalsIgnoreCase(subItemName)) {
-                        result = finalObj;
-                        break;
-                    }
-                } else if (item instanceof JCheckBoxMenuItem finalObj) {
-                    if (finalObj.getText().equalsIgnoreCase(subItemName)) {
-                        result = finalObj;
-                        break;
-                    }
-                }
+        if (mainMenuItem instanceof JMenu menu && subItemName != null) {
+            for (Component child : menu.getMenuComponents()) {
+                if (child instanceof JMenuItem item && menuNameMatches(item, subItemName))
+                    return item;
             }
         }
-        return result;
+        return null;
     }
 
     // This used to work before right click detach was introduced in burp in 2023

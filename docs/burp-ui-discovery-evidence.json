@@ -1,0 +1,31 @@
+{
+  "evaluation_date_utc": "2026-11-16",
+  "host_build_reported_by_user": "20261100000055090",
+  "host_channel": "Early Adopter 2026.11",
+  "host_platform": "Windows x64",
+  "host_jvm": "OpenJDK 64-Bit Server VM 26.0.2+10-55",
+  "method": "Read-only JDK Attach agent, public Swing access on EDT, isolated classloader for the exact extension jar. No host bytecode transformations, UI/settings changes, message content or arbitrary project titles recorded.",
+  "reproduction": {
+    "extension_version": "4.93",
+    "jar_sha256": "1129ba2c0f69a53c7b4520beb24df962ec1484eb0f4e2ed60a25af262d9f3f29",
+    "findMainTabs_result": "null",
+    "main_candidate_tabs": 15,
+    "main_candidate_depth_from_frame_content": 2,
+    "rejection": "An unrelated sidebar reached depth 16 after the correct pane had already been matched.",
+    "visited_before_rejection": 189
+  },
+  "patched_check": {
+    "extension_version": "4.93",
+    "jar_sha256": "a0ee247aace22c32ccfe96ddd82b4b29d4b37df12ec977a810812b9c22ef50b8",
+    "findMainTabs_result": "Correct live main JTabbedPane returned",
+    "change": "Complete the nearest matching breadth-first layer, reject equally near matches, and skip deeper branches once that layer is complete.",
+    "automated_tests": 291,
+    "test_failures_errors_skips": 0,
+    "new_regressions": [
+      "Main pane survives an unrelated sidebar deeper than the search limit in either sibling order",
+      "Nearest candidate wins while equally near main panes remain ambiguous",
+      "Tool pane survives an unrelated deep sidebar"
+    ]
+  },
+  "scope_limit": "Only the discovery method from the packaged jar was executed against the live tree. The user's loaded extension was not replaced or reloaded; full Stable/Early Adopter functional, load/unload/reload and release admission checks remain pending."
+}

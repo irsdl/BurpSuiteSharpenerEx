@@ -1,0 +1,21 @@
+#!/bin/sh
+set -eu
+
+cd "$(git rev-parse --show-toplevel)"
+task=verifyPushReadiness
+head=$(git rev-parse HEAD)
+while read -r local_ref local_sha remote_ref remote_sha; do
+    case "$local_sha" in 0000000000000000000000000000000000000000) continue ;; esac
+    commit=$(git rev-parse "$local_sha^{commit}")
+    if [ "$commit" != "$head" ]; then
+        echo 'Check out and review the ref being pushed before pushing it.' >&2
+        exit 1
+    fi
+    case "$remote_ref" in refs/tags/*) task=verifyReleaseReadiness ;; esac
+done
+if [ -n "$(git status --porcelain)" ]; then
+    echo 'Commit the reviewed changes before pushing; the working tree must match the pushed commit.' >&2
+    exit 1
+fi
+echo "Running $task; use the reviewed JDK 21 and verified offline cache."
+sh ./gradlew "$task" --offline --dependency-verification strict --console=plain

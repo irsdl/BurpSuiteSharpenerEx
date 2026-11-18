@@ -1,0 +1,221 @@
+{
+  "evaluation_utc": "2026-11-16T14:28:30.231560+00:00",
+  "natives": [
+    {
+      "artifact": "com.formdev:flatlaf:3.7.2",
+      "entry": "com/formdev/flatlaf/natives/flatlaf-windows-arm64.dll",
+      "sha256": "1c63bac895f42bd873a6e643af8864b73a4ec3fb51620db2f60ca45ec589964a",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "com.formdev:flatlaf:3.7.2",
+      "entry": "com/formdev/flatlaf/natives/flatlaf-windows-x86.dll",
+      "sha256": "272403ff3ad0f699c3651b5fea6c33562371302ee8f78bb336e6a9a7a6d99bb3",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "com.formdev:flatlaf:3.7.2",
+      "entry": "com/formdev/flatlaf/natives/flatlaf-windows-x86_64.dll",
+      "sha256": "533407841892e294f70e4f1443ebddecbea83b7f0bd2af876181505073b677d5",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "com.formdev:flatlaf:3.7.2",
+      "entry": "com/formdev/flatlaf/natives/libflatlaf-linux-arm64.so",
+      "sha256": "5cb60b7846f72ca5a3cb7936f1fb848c76e7eb047c959eeb4fbf6fec77c6fe57",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "com.formdev:flatlaf:3.7.2",
+      "entry": "com/formdev/flatlaf/natives/libflatlaf-linux-x86_64.so",
+      "sha256": "e1ec96c7f00c764206e5f55046de017ed28a2669afe4b469f883ea690fd1659a",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "com.formdev:flatlaf:3.7.2",
+      "entry": "com/formdev/flatlaf/natives/libflatlaf-macos-arm64.dylib",
+      "sha256": "2265193840cf441dbf6efde2cf4bde65f253b75ade1b3b61242d556e54146f9a",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "com.formdev:flatlaf:3.7.2",
+      "entry": "com/formdev/flatlaf/natives/libflatlaf-macos-x86_64.dylib",
+      "sha256": "16516128d3a84f7abd6b2640733e2717d5dd0dd9bb9d9860914dd8df15febc0b",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.bytebuddy:byte-buddy-agent:1.17.7",
+      "entry": "win32-x86/attach_hotspot_windows.dll",
+      "sha256": "810f94c4a2f5ca1a072c19859f7954fed9aa3a1dcb0d601e92d2338793202e72",
+      "scope": "test"
+    },
+    {
+      "artifact": "net.bytebuddy:byte-buddy-agent:1.17.7",
+      "entry": "win32-x86-64/attach_hotspot_windows.dll",
+      "sha256": "16d424423f9b09accf132ad35dbeaa52ac9f6bd45bba1406b89df851f651db20",
+      "scope": "test"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/win32-x86/jnidispatch.dll",
+      "sha256": "752d597cee7e95cb517327146bf42f124c0d6c0bc48b3ecc3b1b3b0531a52f44",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/aix-ppc/libjnidispatch.a",
+      "sha256": "f33d3b4c2ca35fac8befc502b408e5b5851f8850c397d59f0094459fe455d0c1",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/aix-ppc64/libjnidispatch.a",
+      "sha256": "be8a1c6a282c637cf0ce217c331ee82a3643c59ef166fdbaabf1f27c3d7fd0dc",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/darwin-x86-64/libjnidispatch.jnilib",
+      "sha256": "69cca8bbe2f0ff3fc412481e73333d5b49fc3a1ba2ff564a0af9495d7e6b531d",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/darwin-aarch64/libjnidispatch.jnilib",
+      "sha256": "70c9af22ba3ce12128881b4654422ce69a6f96fc238333731cf718601b536245",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/linux-x86/libjnidispatch.so",
+      "sha256": "546ec7cc6548de411cc52a1069295301308437080be014cda2346ccd0f99bf55",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/linux-x86-64/libjnidispatch.so",
+      "sha256": "ca07953d595210082339753d9e818a1fdb40509a17a41914d9a2cb0d2df6b6af",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/linux-arm/libjnidispatch.so",
+      "sha256": "b2a32135dea251fde4027f536345420001bc921e21baf82b2e01ce2753da2097",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/linux-armel/libjnidispatch.so",
+      "sha256": "d9db010b0336cdbf643c38921c1c04519f811bee0f45824b6872661a25d64ed2",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/linux-aarch64/libjnidispatch.so",
+      "sha256": "f18fa2c973b2b9ea2dfa6d36d397e0bb743aa2aa09876e2a3b8c87a5e67bf8b6",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/linux-ppc/libjnidispatch.so",
+      "sha256": "fbde8c5b108934e75c7008562e95b209535bf4996b3bc246ec5e425a0757a903",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/linux-ppc64le/libjnidispatch.so",
+      "sha256": "aaa31a2220e270f69259d930540c5682b1bd662a6d774918605e62cd562d5d11",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/linux-mips64el/libjnidispatch.so",
+      "sha256": "0025cd4345faec5a7d9fc8c88f187016dbaf4a6ef411cd6c8907e199d952528d",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/linux-loongarch64/libjnidispatch.so",
+      "sha256": "6c55d9ec3efaaee1843795648246b3fe52de09d3990984c5b8a580cc803c6bc9",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/linux-s390x/libjnidispatch.so",
+      "sha256": "b31df7050aa22907e5caae2ef81db83e2900b7b6e683080f6f5681373a71e400",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/linux-riscv64/libjnidispatch.so",
+      "sha256": "f817ac611184e31fd84ac2d223ff8f9312300fbc025adfb5cadbfefb8d1a2c13",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/sunos-x86/libjnidispatch.so",
+      "sha256": "fdba3f2f4220fb407c7841b2f49efd4fe1c06dca26c9768513e13461ed1520c5",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/sunos-x86-64/libjnidispatch.so",
+      "sha256": "4a0b0b11369d4f88437700e8ee3557cb518ec017bfe2df3bd49faf82e60e8f8e",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/sunos-sparc/libjnidispatch.so",
+      "sha256": "5ae26c1d50dd6836d0bafb1af2a6c39eb4084be42f0a05da0645d31feed1efad",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/sunos-sparcv9/libjnidispatch.so",
+      "sha256": "ccd720895968a885d423facf63615c7f16490f94d946ecb5fefdd4951c62297c",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/dragonflybsd-x86-64/libjnidispatch.so",
+      "sha256": "c0c6e64b476d726d86e996af1397491bbff9ccadcba1e0c4639a8f1ae5454062",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/freebsd-x86/libjnidispatch.so",
+      "sha256": "784b2a955b1504dec96fa8b87972bcb2815ecfa818fe5c2e57ed9073cab0592c",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/freebsd-x86-64/libjnidispatch.so",
+      "sha256": "3c4d14c74bb6798c76b43cad4395b8bdaa9181a7991e160a376f87bb1ab13ced",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/freebsd-aarch64/libjnidispatch.so",
+      "sha256": "bca4aece4b834fd04301d5896482f657d06d6860e2d03089c0cc78eea65dd492",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/openbsd-x86-64/libjnidispatch.so",
+      "sha256": "ee3b7bfa0887b7388ad598dea98281ae40907bafa8cf56b406427aecd3d2ecdd",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/win32-x86-64/jnidispatch.dll",
+      "sha256": "5a7ff949f6d93d86491eb5b26b1cfc60051168a60622650224b89995ac420023",
+      "scope": "runtime"
+    },
+    {
+      "artifact": "net.java.dev.jna:jna:5.19.1",
+      "entry": "com/sun/jna/win32-aarch64/jnidispatch.dll",
+      "sha256": "b8f98be314234cf12b5b46c29652f70c0f6abb93ae19b63d3fe2692062aa699d",
+      "scope": "runtime"
+    }
+  ]
+}

@@ -17,17 +17,14 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.TimerTask;
 import java.util.function.Consumer;
 
 public final class SubTabsListenersV2 {
     private final Consumer<MouseEvent> mouseEventConsumer;
     private final ExtensionSharedParameters sharedParameters;
-    private boolean _isUpdateInProgress = false;
-    private ArrayList<BurpUITools.MainTabs> accessibleTabs;
+    private final java.util.Map<JTabbedPane, Runnable> listenerCleanup = new java.util.IdentityHashMap<>();
     private final boolean _isShortcutEnabled = true;
 
     // Records every tab selection change in the navigation history, including
@@ -79,228 +76,61 @@ public final class SubTabsListenersV2 {
     // created every time, which used to leave stale component listeners behind.
     public void refreshListeners() {
         removeTabListener();
-        addTabListener();
+        if (!sharedParameters.isUnloaded()) addTabListener();
     }
 
     public void addTabListener() {
-        sharedParameters.printDebugMessage("addSubTabListener");
-        accessibleTabs = new ArrayList<>();
-
-        for (BurpUITools.MainTabs supportedTab : sharedParameters.getAllSubTabSupportedTabs()) {
-            addListenerToSupportedTabbedPanels(supportedTab);
+        for (BurpUITools.MainTabs tool : sharedParameters.getAllSubTabSupportedTabs()) {
+            JTabbedPane pane = sharedParameters.get_toolTabbedPane(tool);
+            if (pane == null || listenerCleanup.containsKey(pane)) continue;
+            sharedParameters.runOptionalFeature(tool + " tab listeners", () -> attach(pane, tool));
         }
+    }
+
+    private void requestRescan(BurpUITools.MainTabs tool) {
+        if (sharedParameters.isUnloaded() || sharedParameters.allSettings == null
+                || sharedParameters.allSettings.subTabsSettings == null) return;
+        sharedParameters.allSettings.subTabsSettings.scheduleTabRescan(tool);
+    }
+
+    private void attach(JTabbedPane pane, BurpUITools.MainTabs tool) {
+        PropertyChangeListener property = event -> {
+            if ("indexForTabComponent".equals(event.getPropertyName())) requestRescan(tool);
+        };
+        // Container events are a public Swing fallback if Burp changes its header property events.
+        ContainerListener container = new ContainerAdapter() {
+            @Override public void componentAdded(ContainerEvent event) { requestRescan(tool); }
+            @Override public void componentRemoved(ContainerEvent event) { requestRescan(tool); }
+        };
+        ComponentListener component = new ComponentAdapter() {
+            @Override public void componentShown(ComponentEvent event) { requestRescan(tool); }
+            @Override public void componentHidden(ComponentEvent event) { requestRescan(tool); }
+        };
+        MouseListener mouse = new MouseAdapterExtensionHandler(mouseEventConsumer, MouseEvent.MOUSE_RELEASED);
+        ChangeListener history = new TabSelectionHistoryRecorder(tool);
+        // Keep the actual pane and exact listener identities, including after Burp replaces it.
+        listenerCleanup.put(pane, () -> {
+            pane.removePropertyChangeListener("indexForTabComponent", property);
+            pane.removeContainerListener(container);
+            pane.removeComponentListener(component);
+            pane.removeMouseListener(mouse);
+            pane.removeChangeListener(history);
+            if (_isShortcutEnabled) ShortcutMappings.uninstallFromComponent(pane);
+        });
+        pane.addPropertyChangeListener("indexForTabComponent", property);
+        pane.addContainerListener(container);
+        pane.addComponentListener(component);
+        pane.addMouseListener(mouse);
+        pane.addChangeListener(history);
+        if (_isShortcutEnabled)
+            ShortcutMappings.installOnTabbedPane(pane,
+                    ShortcutMappings.getSavedOverrides(sharedParameters), buildShortcutHandlers());
     }
 
     public void removeTabListener() {
-        sharedParameters.printDebugMessage("removeSubTabListener");
-        accessibleTabs = new ArrayList<>();
-
-        for (BurpUITools.MainTabs supportedTab : sharedParameters.getAllSubTabSupportedTabs()) {
-            removeListenerFromTabbedPanels(supportedTab);
-        }
-
-    }
-
-    private void addListenerToSupportedTabbedPanels(BurpUITools.MainTabs toolName) {
-        var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(toolName);
-        if (currentToolTabbedPane == null) {
-            sharedParameters.printDebugMessage("addListenerToSupportedTabbedPanels: Listener could not be added for " + toolName.toString());
-            return;
-        }
-
-        sharedParameters.printDebugMessage("Adding listener to " + toolName);
-
-        accessibleTabs.add(toolName);
-
-
-        // this is a dirty hack to keep the colours as they go black after drag and drop!
-        // this also makes sure we always have the latest version of the tabs saved in the variables after add/remove
-        // this is enough for repeater but Intruder changes the colour, so it should be higher
-        PropertyChangeListener tabPropertyChangeListener = evt -> {
-            if (!get_isUpdateInProgress() && evt.getPropertyName().equalsIgnoreCase("indexForTabComponent")) {
-                // this is a dirty hack to keep the colours as they change after drag and drop!
-                // this also makes sure we always have the latest version of the tabs saved in the variables after add/remove
-                // this is in charge of adding the right click menu to the new tabs by doing this
-                set_isUpdateInProgress(true);
-
-                int delay = 3000; // this is enough for repeater but Intruder changes the colour, so it should be higher
-                if (toolName.equals(BurpUITools.MainTabs.Intruder)) {
-                    delay = 10000;
-                }
-
-                sharedParameters.delayedTasks.schedule(
-                        new TimerTask() {
-                            @Override
-                            public void run() {
-                                if (sharedParameters.isUnloaded())
-                                    return;
-                                SwingUtilities.invokeLater(() -> {
-                                    if (sharedParameters.isUnloaded())
-                                        return;
-                                    set_isUpdateInProgress(true);
-                                    sharedParameters.allSettings.subTabsSettings.loadSettings(toolName);
-                                    sharedParameters.allSettings.subTabsSettings.saveSettings(toolName);
-                                    set_isUpdateInProgress(false);
-                                });
-                            }
-                        },
-                        delay
-                );
-            }
-        };
-
-        // Loading all the tabs
-
-        currentToolTabbedPane.addPropertyChangeListener("indexForTabComponent", tabPropertyChangeListener);
-
-        // when Burp Suite is loaded for the first time, Repeater and Intruder tabs are empty in the latest versions rather than having one tab
-        // This is to address the issue of component change when the first tab is being created
-        currentToolTabbedPane.addComponentListener(new ComponentListener() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-            }
-
-            @Override
-            public void componentMoved(ComponentEvent e) {
-            }
-
-            @Override
-            public void componentShown(ComponentEvent e) {
-            }
-
-            @Override
-            public void componentHidden(ComponentEvent e) {
-                sharedParameters.delayedTasks.schedule(
-                        new TimerTask() {
-                            @Override
-                            public void run() {
-                                if (sharedParameters.isUnloaded())
-                                    return;
-                                SwingUtilities.invokeLater(() -> {
-                                    if (sharedParameters.isUnloaded())
-                                        return;
-                                    // This will be triggered when Burp creates items in Repeater or Intruder
-                                    BurpUITools.MainTabs currentToolName = BurpUITools.getMainTabsObjFromString(sharedParameters.get_rootTabbedPaneUsingMontoya().getTitleAt(sharedParameters.get_rootTabbedPaneUsingMontoya().indexOfComponent(((Component) e.getSource()).getParent())));
-                                    var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(currentToolName);
-                                    if (currentToolTabbedPane != null) {
-                                        // the listener is registered under the "indexForTabComponent" property, so the guard must query the same name
-                                        if (currentToolTabbedPane.getPropertyChangeListeners("indexForTabComponent").length == 0)
-                                            currentToolTabbedPane.addPropertyChangeListener("indexForTabComponent", tabPropertyChangeListener);
-
-                                        addSubTabsListener(currentToolName);
-
-                                        // as there is no other getComponentListeners by default, we can remove them all
-                                        for (ComponentListener cl : currentToolTabbedPane.getComponentListeners()) {
-                                            currentToolTabbedPane.removeComponentListener(cl);
-                                        }
-
-                                        sharedParameters.allSettings.subTabsSettings.loadSettings(currentToolName);
-                                        sharedParameters.allSettings.subTabsSettings.saveSettings(currentToolName);
-                                        set_isUpdateInProgress(false);
-                                    }
-                                });
-                            }
-                        },
-                        5000 // 5 seconds delay just in case Burp is very slow on the device
-                );
-            }
-        });
-
-        addSubTabsListener(toolName);
-    }
-
-
-    private void addSubTabsListener(BurpUITools.MainTabs toolName) {
-        var toolTabbedPane = sharedParameters.get_toolTabbedPane(toolName);
-        if (toolTabbedPane == null) {
-            sharedParameters.printDebugMessage("addSubTabsListener: Listener could not be added for " + toolName.toString());
-            return;
-        }
-        if (sharedParameters.allSubTabContainerHandlers.get(toolName) == null ||
-                (sharedParameters.allSubTabContainerHandlers.get(toolName).size() != toolTabbedPane.getTabCount() - 1 && !sharedParameters.isTabGroupSupportedByDefault)) {
-            ArrayList<SubTabsContainerHandler> subTabsContainerHandlers = new ArrayList<>();
-            for (int subTabIndex = 0; subTabIndex < toolTabbedPane.getTabCount(); subTabIndex++) {
-                SubTabsContainerHandler subTabsContainerHandler = new SubTabsContainerHandler(sharedParameters, toolTabbedPane, subTabIndex, false);
-                subTabsContainerHandlers.add(subTabsContainerHandler);
-            }
-
-            sharedParameters.allSubTabContainerHandlers.put(toolName, subTabsContainerHandlers);
-        }
-
-        // remove old instances first so repeated calls do not stack mouse listeners
-        for (MouseListener mouseListener : toolTabbedPane.getMouseListeners()) {
-            if (mouseListener instanceof MouseAdapterExtensionHandler) {
-                toolTabbedPane.removeMouseListener(mouseListener);
-            }
-        }
-        toolTabbedPane.addMouseListener(new MouseAdapterExtensionHandler(mouseEventConsumer, MouseEvent.MOUSE_RELEASED));
-
-        // record all selection changes in the navigation history, only one recorder per pane
-        boolean hasHistoryRecorder = false;
-        for (ChangeListener changeListener : toolTabbedPane.getChangeListeners()) {
-            if (changeListener instanceof TabSelectionHistoryRecorder) {
-                hasHistoryRecorder = true;
-                break;
-            }
-        }
-        if (!hasHistoryRecorder) {
-            toolTabbedPane.addChangeListener(new TabSelectionHistoryRecorder(toolName));
-        }
-
-        if (_isShortcutEnabled) {
-            ShortcutMappings.installOnTabbedPane(toolTabbedPane,
-                    ShortcutMappings.getSavedOverrides(sharedParameters), buildShortcutHandlers());
-        }
-        //tabComponent.removeMouseListener(tabComponent.getMouseListeners()[1]); --> this will remove the current right click menu!
-
-        sharedParameters.printDebugMessage("Menu has now been loaded for " + toolName.toString());
-    }
-
-    private void removeListenerFromTabbedPanels(BurpUITools.MainTabs toolName) {
-        var currentToolTabbedPane = sharedParameters.get_toolTabbedPane(toolName);
-        if (currentToolTabbedPane == null) {
-            sharedParameters.printDebugMessage("removeListenerFromTabbedPanels: Listener could not be removed for " + toolName.toString());
-            return;
-        }
-
-        if (!sharedParameters.getAllSubTabSupportedTabs().contains(toolName)) return;
-
-        accessibleTabs.add(toolName);
-
-        // as there is no other PropertyChangeListener with propertyName of "indexForTabComponent" by default, we can remove them all
-        PropertyChangeListener[] pclArray = currentToolTabbedPane.getPropertyChangeListeners("indexForTabComponent");
-        for (PropertyChangeListener pcl : pclArray) {
-            currentToolTabbedPane.removePropertyChangeListener("indexForTabComponent", pcl);
-        }
-
-        // as there is no other getComponentListeners by default, we can remove them all
-        // this prevents the tab-change component listener from accumulating on every reload
-        for (ComponentListener cl : currentToolTabbedPane.getComponentListeners()) {
-            currentToolTabbedPane.removeComponentListener(cl);
-        }
-
-        for (MouseListener mouseListener : currentToolTabbedPane.getMouseListeners()) {
-            if (mouseListener instanceof MouseAdapterExtensionHandler) {
-                currentToolTabbedPane.removeMouseListener(mouseListener);
-            }
-        }
-
-        // as there is no other getKeyListeners by default, we can remove them all
-        for (KeyListener keyListener : currentToolTabbedPane.getKeyListeners()) {
-            currentToolTabbedPane.removeKeyListener(keyListener);
-        }
-
-        // remove the navigation history recorder
-        for (ChangeListener changeListener : currentToolTabbedPane.getChangeListeners()) {
-            if (changeListener instanceof TabSelectionHistoryRecorder) {
-                currentToolTabbedPane.removeChangeListener(changeListener);
-            }
-        }
-
-        // removes all Sharpener key bindings and restores the native ones
-        if (_isShortcutEnabled) {
-            ShortcutMappings.uninstallFromComponent(currentToolTabbedPane);
-        }
+        for (Runnable cleanup : listenerCleanup.values())
+            sharedParameters.runOptionalFeature("tab listener cleanup", cleanup);
+        listenerCleanup.clear();
     }
 
     // Maps every shortcut action key to its handler. Used by ShortcutMappings when
@@ -326,11 +156,4 @@ public final class SubTabsListenersV2 {
         return handlers;
     }
 
-    private void set_isUpdateInProgress(boolean _isUpdateInProgress) {
-        this._isUpdateInProgress = _isUpdateInProgress;
-    }
-
-    private boolean get_isUpdateInProgress() {
-        return this._isUpdateInProgress;
-    }
 }
