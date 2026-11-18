@@ -57,7 +57,11 @@ does not prove full security, responsiveness, or live Burp compatibility.
 3. Run `./gradlew portswiggerReviewDigest --offline --dependency-verification strict`.
    After the review, record that input digest and the real upstream-check UTC.
    The digest covers source, resources, build, workflow, hooks, policy, notices
-   and docs. It normalises text CRLF to LF. It excludes the report itself and
+   and docs in a Git checkout. It includes tracked files even under ignored paths
+   and non-ignored new candidates; ignored untracked IDE/tool output is excluded.
+   The root `.gitignore` is included. Eight push-gate fixture checks enforce this
+   selection and integrity, including text newline normalization and binary changes.
+   It normalises text CRLF to LF. It excludes the report itself and
    generated build evidence to avoid self-reference; review those separately.
 4. Run `./gradlew verifyPushReadiness --offline --dependency-verification strict`.
    On Windows use `.\gradlew.bat`. Commit the reviewed snapshot only when authorized,

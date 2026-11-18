@@ -45,6 +45,9 @@ the current input digest from `portswiggerReviewDigest`. A digest is a snapshot
 identifier, not proof of review: never refresh dates, statuses, or hashes without
 actually reviewing the changed inputs and official guidance. Preserve truthful
 pending/blocked results; never turn missing host or security evidence into a pass.
+Review gates require a Git checkout. Their digest includes tracked files even
+under ignored paths and non-ignored new candidates; ignored untracked local
+tooling must not affect it. Keep the input-selection regression checks passing.
 
 Before pushing, run `./gradlew verifyPushReadiness --offline
 --dependency-verification strict` using the reviewed JDK/cache. This builds,

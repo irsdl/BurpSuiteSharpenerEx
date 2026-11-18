@@ -1,18 +1,30 @@
 // Repository review gates; these validate evidence, not PortSwigger acceptance.
 def reviewFile = file('docs/portswigger-review.json')
-def reviewInputs = fileTree(rootDir) {
-    include 'src/**', 'gradle/**', 'licenses/**', 'docs/**', '.github/**', '.githooks/**'
-    include 'AGENTS.md', 'README.md', 'CHANGES.md', 'LICENSE', 'NOTICE', '.gitattributes'
-    include 'build.gradle', 'gradle.properties', 'gradle.lockfile', 'gradlew', 'gradlew.bat'
-    exclude 'docs/portswigger-review.json', 'docs/dependency-build-evidence.json'
+
+// Ignore untracked IDE/tool output, but retain tracked files under ignored paths.
+// Normal build/package tasks need no Git; only review gates require a checkout.
+def reviewPaths = { File directory ->
+    def names = providers.exec {
+        workingDir directory
+        commandLine 'git', 'ls-files', '--cached', '--others', '--exclude-standard', '-z'
+    }.standardOutput.asText.get().split('\u0000')
+    def roots = ['AGENTS.md', 'README.md', 'CHANGES.md', 'LICENSE', 'NOTICE',
+                 '.gitattributes', '.gitignore', 'build.gradle', 'gradle.properties',
+                 'gradle.lockfile', 'gradlew', 'gradlew.bat'] as Set
+    names.findAll { path ->
+        path && new File(directory, path).isFile() &&
+                !(path in ['docs/portswigger-review.json', 'docs/dependency-build-evidence.json']) &&
+                (path in roots || ['src/', 'gradle/', 'licenses/', 'docs/', '.github/', '.githooks/'].any { path.startsWith(it) })
+    }.toSet().sort()
 }
-def reviewDigest = {
+
+def reviewDigestFor = { File directory ->
     def digest = java.security.MessageDigest.getInstance('SHA-256')
-    reviewInputs.files.sort { rootDir.toPath().relativize(it.toPath()).toString().replace('\\', '/') }.each { input ->
-        def path = rootDir.toPath().relativize(input.toPath()).toString().replace('\\', '/')
+    reviewPaths(directory).each { path ->
+        def input = new File(directory, path)
         byte[] bytes = input.bytes
-        if (path ==~ /.*\.(java|properties|md|json|ya?ml|gradle|lockfile|xml|txt|sh|bat|form|html)/ ||
-                input.name in ['gradlew', 'pre-push', '.gitattributes', 'LICENSE', 'NOTICE']) {
+        if (path ==~ /.*\.(java|properties|md|json|ya?ml|gradle|lockfile|xml|txt|sh|ps1|bat|form|html)/ ||
+                input.name in ['gradlew', 'pre-push', '.gitattributes', '.gitignore', 'LICENSE', 'NOTICE']) {
             bytes = new String(bytes, 'UTF-8').replace('\r\n', '\n').getBytes('UTF-8')
         }
         digest.update(path.getBytes('UTF-8'))
@@ -21,6 +33,67 @@ def reviewDigest = {
     }
     digest.digest().encodeHex().toString()
 }
+def reviewDigest = { reviewDigestFor(rootDir) }
+
+tasks.register('verifyPortswiggerReviewInputSelection') {
+    group = 'verification'
+    description = 'Check ignored tooling isolation without excluding tracked or new review inputs.'
+    doLast {
+        temporaryDir.mkdirs()
+        def fixture = java.nio.file.Files.createTempDirectory(temporaryDir.toPath(), 'git-fixture-').toFile()
+        def git = { List<String> arguments ->
+            providers.exec {
+                workingDir fixture
+                commandLine(['git'] + arguments)
+            }.standardOutput.asText.get()
+        }
+        def write = { String path, String contents ->
+            def target = new File(fixture, path)
+            target.parentFile.mkdirs()
+            target.setText(contents, 'UTF-8')
+            target
+        }
+        git(['init', '--quiet'])
+        write('.gitignore', '.github/modernize/\n')
+        def source = write('src/fixture.java', 'class Fixture {}\n')
+        git(['add', '.'])
+        def baseline = reviewDigestFor(fixture)
+        def ignored = write('.github/modernize/private-hook.sh', 'local tooling\n')
+        if (reviewDigestFor(fixture) != baseline)
+            throw new GradleException('Ignored untracked tooling changed the review digest')
+        write('temp/local.txt', 'out of scope\n')
+        if (reviewDigestFor(fixture) != baseline)
+            throw new GradleException('Out-of-scope local files changed the review digest')
+        write('.github/workflows/new.yml', 'name: review me\n')
+        def withCandidate = reviewDigestFor(fixture)
+        if (withCandidate == baseline)
+            throw new GradleException('New non-ignored workflow was omitted')
+        git(['add', '-f', '.github/modernize/private-hook.sh'])
+        def withTracked = reviewDigestFor(fixture)
+        if (withTracked == withCandidate)
+            throw new GradleException('Tracked file under an ignored directory was omitted')
+        ignored.setText('changed tracked tooling\n', 'UTF-8')
+        def withChangedTracked = reviewDigestFor(fixture)
+        if (withChangedTracked == withTracked)
+            throw new GradleException('Tracked ignored-file modification was omitted')
+        source.setText('class Fixture {}\r\n', 'UTF-8')
+        if (reviewDigestFor(fixture) != withChangedTracked)
+            throw new GradleException('Text newline normalization differs between platforms')
+        def binary = new File(fixture, 'src/fixture.png')
+        binary.bytes = [0, 1, 2] as byte[]
+        git(['add', '-f', 'src/fixture.png'])
+        def withBinary = reviewDigestFor(fixture)
+        binary.bytes = [0, 1, 3] as byte[]
+        if (reviewDigestFor(fixture) == withBinary)
+            throw new GradleException('Changed binary review input was omitted')
+        def beforeIgnore = reviewDigestFor(fixture)
+        write('.gitignore', '.github/modernize/\n# reviewed ignore policy\n')
+        if (reviewDigestFor(fixture) == beforeIgnore)
+            throw new GradleException('Changed root ignore policy was omitted')
+        println 'Review input selection: eight isolation/integrity checks passed.'
+    }
+}
+
 def readReview = {
     if (!reviewFile.isFile()) throw new GradleException('Missing docs/portswigger-review.json')
     new groovy.json.JsonSlurper().parse(reviewFile)
@@ -35,7 +108,7 @@ tasks.register('portswiggerReviewDigest') {
 tasks.register('verifyPushReadiness') {
     group = 'verification'
     description = 'Build and validate a fresh, source-bound review before pushing.'
-    dependsOn tasks.named('build')
+    dependsOn tasks.named('build'), tasks.named('verifyPortswiggerReviewInputSelection')
     doLast {
         def review = readReview()
         if (review.schema_version != 1 || review.reviewed_input_sha256 != reviewDigest())
