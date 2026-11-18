@@ -60,5 +60,11 @@ class WindowsAppUserModelIdTest {
         // Null windows must fail safely on every OS without touching native code
         assertNull(WindowsAppUserModelId.getAppUserModelId(null));
         assertFalse(WindowsAppUserModelId.setAppUserModelId(null, "some.id"));
+        assertFalse(WindowsAppUserModelId.setTaskbarProperties(null,
+                new WindowsAppUserModelId.TaskbarProperties("some.id", "icon.ico,0")));
+    }
+
+    @Test void relaunchIconUsesTheDocumentedPropertyId() {
+        assertEquals(3, WindowsAppUserModelId.PKEY_RELAUNCH_ICON_RESOURCE_PID);
     }
 }

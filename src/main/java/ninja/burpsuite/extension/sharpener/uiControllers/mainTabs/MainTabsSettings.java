@@ -55,6 +55,14 @@ public class MainTabsSettings extends StandardSettings {
 
     @Override
     public void loadSettings() {
+        if (mainTabsListeners != null) {
+            mainTabsListeners.removeTabListener(null);
+            mainTabsListeners = null;
+        }
+        if (sharedParameters.get_rootTabbedPaneUsingMontoya() == null) {
+            sharedParameters.reportCompatibilityIssue("main tool tabs", null);
+            return;
+        }
         sharedParameters.printDebugMessage("loadSettings");
         MainTabsStyleHandler.resetMainTabsStylesFromSettings_noUiLock(sharedParameters);
         // Adding listeners to Main Tool Tabs
@@ -67,7 +75,7 @@ public class MainTabsSettings extends StandardSettings {
     @Override
     public void unloadSettings() {
         // remove listener for main tools' tabs
-        if (mainTabsListeners != null && sharedParameters.get_isUILoaded()) {
+        if (mainTabsListeners != null) {
             mainTabsListeners.removeTabListener(sharedParameters.get_rootTabbedPaneUsingMontoya());
         }
 

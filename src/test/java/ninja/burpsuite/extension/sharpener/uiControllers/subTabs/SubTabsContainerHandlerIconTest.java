@@ -327,6 +327,30 @@ public class SubTabsContainerHandlerIconTest {
     }
 
     @Test
+    void namedNativeLabelControlsSurviveIconSetAndReset() {
+        sharedParameters.isTabTextColorSetByBackground = false;
+        tabOneTitleField = addNewBurpSubTab("1");
+        JComponent header = tabComponent(0);
+        header.remove(tabOneCloseButton);
+        JLabel close = new JLabel("x");
+        close.setName("closeButton");
+        JLabel group = new JLabel("group");
+        group.setName("groupButton");
+        header.add(close, BorderLayout.LINE_END);
+        header.add(group, BorderLayout.LINE_START);
+        SubTabsContainerHandler handler = createHandler(0);
+
+        handler.setIcon("tick", 16, true);
+        assertTrue(handler.hasIcon());
+        assertSame(header, close.getParent());
+        assertSame(header, group.getParent());
+        handler.removeIcon(true);
+        assertFalse(handler.hasIcon());
+        assertSame(header, close.getParent());
+        assertSame(header, group.getParent());
+    }
+
+    @Test
     void oldBurpSetIconStillUsesTheFlowLayout() {
         sharedParameters.isTabTextColorSetByBackground = true;
         tabOneTitleField = addNewBurpSubTab("1");
@@ -341,5 +365,25 @@ public class SubTabsContainerHandlerIconTest {
         // old Burp must not be touched by the layout repair
         handler.removeIcon(true);
         assertInstanceOf(FlowLayout.class, tabComponent.getLayout());
+    }
+    @Test
+    void nativeLabelsAndAdditionalHostListenersArePreserved() {
+        tabOneTitleField = addNewBurpSubTab("1");
+        JPanel header = (JPanel) toolTabbedPane.getTabComponentAt(0);
+        JLabel nativeStatus = new JLabel("native status");
+        header.add(nativeStatus, BorderLayout.LINE_START);
+        java.beans.PropertyChangeListener hostListener = event -> {};
+        tabOneTitleField.addPropertyChangeListener(hostListener);
+        int hostCount = tabOneTitleField.getPropertyChangeListeners().length;
+        SubTabsContainerHandler handler = new SubTabsContainerHandler(sharedParameters, toolTabbedPane, 0, true);
+        assertTrue(handler.addSubTabWatcher());
+        assertEquals(hostCount + 1, tabOneTitleField.getPropertyChangeListeners().length);
+        assertFalse(handler.hasIcon());
+        handler.setIcon("tick", 16, true);
+        handler.removeIcon(true);
+        handler.removeSubTabWatcher();
+        assertSame(header, nativeStatus.getParent());
+        assertEquals(hostCount, tabOneTitleField.getPropertyChangeListeners().length);
+        assertTrue(java.util.Arrays.asList(tabOneTitleField.getPropertyChangeListeners()).contains(hostListener));
     }
 }

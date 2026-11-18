@@ -6,6 +6,7 @@ package ninja.burpsuite.libs.burp.generic;
 
 import ninja.burpsuite.libs.generic.ImageHelper;
 import ninja.burpsuite.libs.generic.WindowsAppUserModelId;
+import ninja.burpsuite.libs.generic.WindowsIconResource;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,7 +15,6 @@ import java.awt.event.WindowFocusListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class BurpTitleAndIcon {
 
@@ -22,8 +22,7 @@ public class BurpTitleAndIcon {
     static final int[] ICON_SIZES = {16, 24, 32, 48, 64, 128};
 
     // Windows AppUserModelID used while a custom icon is active.
-    // It detaches Burp windows from the native launcher, so the taskbar
-    // uses the window icon instead of the launcher exe icon.
+    // Used with an explicit relaunch ICO resource for installed launchers.
     static final String CUSTOM_WINDOWS_APP_ID = "ninja.burpsuite.sharpener.customicon";
 
     public static void resetTitle(BurpExtensionSharedParameters sharedParameters) {
@@ -31,14 +30,15 @@ public class BurpTitleAndIcon {
     }
 
     public static void resetIcon(BurpExtensionSharedParameters sharedParameters) {
+        long sequence = sharedParameters.iconUpdateSequence.incrementAndGet();
         SwingUtilities.invokeLater(() -> {
-            List<Image> originalIcons = sharedParameters.get_originalBurpIcons();
-            if (originalIcons != null && !originalIcons.isEmpty()) {
-                for (Window window : Window.getWindows()) {
-                    window.setIconImages(originalIcons);
-                }
-            }
+            if (sequence != sharedParameters.iconUpdateSequence.get()) return;
+            sharedParameters.originalWindowIconImages.forEach((window, icons) -> {
+                if (window.isDisplayable()) window.setIconImages(icons);
+            });
+            sharedParameters.originalWindowIconImages.clear();
             restoreOsTaskbarIcon(sharedParameters);
+            sharedParameters.windowsTaskbarIconResource = null;
             sharedParameters.printDebugMessage("Burp Suite icon has been reset");
         });
         removeMainFrameWindowFocusListener(sharedParameters);
@@ -80,6 +80,7 @@ public class BurpTitleAndIcon {
             // skip windows that already carry exactly these icons, so the focus
             // refresh is a no-op unless Burp rewrote them or a new window appeared
             if (!iconsAlreadyApplied(window.getIconImages(), icons)) {
+                sharedParameters.originalWindowIconImages.putIfAbsent(window, new ArrayList<>(window.getIconImages()));
                 window.setIconImages(icons);
                 anyWindowUpdated = true;
             }
@@ -106,31 +107,46 @@ public class BurpTitleAndIcon {
     }
 
     private static void setIcons_noUiLock(BurpExtensionSharedParameters sharedParameters, List<Image> icons) {
+        long sequence = sharedParameters.iconUpdateSequence.get();
         SwingUtilities.invokeLater(() -> {
-            setIcons(sharedParameters, icons);
+            if (!sharedParameters.isUnloaded() && sequence == sharedParameters.iconUpdateSequence.get())
+                setIcons(sharedParameters, icons);
         });
     }
 
     public static void setIcon(BurpExtensionSharedParameters sharedParameters, String imgPath, boolean isResource) {
-        BufferedImage baseImage;
-        if (isResource) {
-            baseImage = ImageHelper.loadImageResource(sharedParameters.extensionClass, imgPath);
-        } else {
-            baseImage = ImageHelper.loadImageFile(imgPath);
-        }
+        long sequence = sharedParameters.iconUpdateSequence.incrementAndGet();
+        sharedParameters.backgroundTasks.submit("load application icon", () -> {
+            BufferedImage baseImage;
+            if (isResource) {
+                baseImage = ImageHelper.loadImageResource(sharedParameters.extensionClass, imgPath);
+            } else {
+                baseImage = ImageHelper.loadImageFile(imgPath);
+            }
 
-        List<Image> iconList = buildIconList(baseImage);
-        if (!iconList.isEmpty()) {
-            setIcons_noUiLock(sharedParameters, iconList);
-            installIconRefreshListener(sharedParameters, iconList);
-        } else {
-            sharedParameters.printlnError("Image could not be loaded to be used as the Burp Suite icon: " + imgPath);
-        }
+            List<Image> iconList = buildIconList(baseImage);
+            if (!iconList.isEmpty()) {
+                String iconResource = null;
+                if (WindowsAppUserModelId.isWindows()) {
+                    try { iconResource = WindowsIconResource.cache(iconList); }
+                    catch (Exception failure) { sharedParameters.reportCompatibilityIssue("Windows taskbar icon resource", failure); }
+                }
+                String resource = iconResource;
+                SwingUtilities.invokeLater(() -> {
+                    if (sharedParameters.isUnloaded() || sequence != sharedParameters.iconUpdateSequence.get()) return;
+                    sharedParameters.windowsTaskbarIconResource = resource;
+                    setIcons(sharedParameters, iconList);
+                    installIconRefreshListener(sharedParameters, iconList);
+                });
+            } else {
+                sharedParameters.printlnError("Image could not be loaded to be used as the Burp Suite icon: " + imgPath);
+            }
+        });
     }
 
     // Applies the icon to OS taskbars that ignore window icons:
     // the macOS Dock (java.awt.Taskbar) and the Windows taskbar (AppUserModelID).
-    private static void applyOsTaskbarIcon(BurpExtensionSharedParameters sharedParameters, List<Image> icons) {
+    static void applyOsTaskbarIcon(BurpExtensionSharedParameters sharedParameters, List<Image> icons) {
         try {
             Image largestIcon = icons.get(icons.size() - 1);
             // the dock icon is process wide, not per window, so one successful call is
@@ -157,24 +173,27 @@ public class BurpTitleAndIcon {
         }
 
         try {
-            if (WindowsAppUserModelId.isWindows()) {
+            if (WindowsAppUserModelId.isWindows() && sharedParameters.windowsTaskbarIconResource != null) {
+                var desired = new WindowsAppUserModelId.TaskbarProperties(CUSTOM_WINDOWS_APP_ID,
+                        sharedParameters.windowsTaskbarIconResource);
                 for (Frame frame : Frame.getFrames()) {
-                    if (!frame.isDisplayable() || sharedParameters.originalWindowAppIds.containsKey(frame)) {
+                    if (!frame.isDisplayable()) {
                         continue;
                     }
-                    String originalAppId = WindowsAppUserModelId.getAppUserModelId(frame);
-                    if (WindowsAppUserModelId.setAppUserModelId(frame, CUSTOM_WINDOWS_APP_ID)) {
-                        sharedParameters.originalWindowAppIds.put(frame, originalAppId == null ? "" : originalAppId);
-                        sharedParameters.printDebugMessage("Windows AppUserModelID has been set on: " + frame.getTitle());
+                    var original = WindowsAppUserModelId.getTaskbarProperties(frame);
+                    if (desired.equals(original)) continue;
+                    sharedParameters.originalWindowTaskbarProperties.putIfAbsent(frame, original);
+                    if (!WindowsAppUserModelId.setTaskbarProperties(frame, desired)) {
+                        throw new IllegalStateException("Windows rejected the taskbar icon properties");
                     }
                 }
             }
         } catch (Exception | LinkageError e) {
-            sharedParameters.printDebugMessage("Could not update the Windows AppUserModelID: " + e.getMessage());
+            sharedParameters.reportCompatibilityIssue("Windows taskbar icon", e);
         }
     }
 
-    private static void restoreOsTaskbarIcon(BurpExtensionSharedParameters sharedParameters) {
+    static void restoreOsTaskbarIcon(BurpExtensionSharedParameters sharedParameters) {
         sharedParameters.appliedOsTaskbarIconImage = null;
         try {
             if (sharedParameters.originalTaskbarIconSaved && !GraphicsEnvironment.isHeadless() && Taskbar.isTaskbarSupported()) {
@@ -191,16 +210,16 @@ public class BurpTitleAndIcon {
 
         try {
             if (WindowsAppUserModelId.isWindows()) {
-                synchronized (sharedParameters.originalWindowAppIds) {
-                    for (Map.Entry<Window, String> entry : sharedParameters.originalWindowAppIds.entrySet()) {
+                synchronized (sharedParameters.originalWindowTaskbarProperties) {
+                    for (var entry : sharedParameters.originalWindowTaskbarProperties.entrySet()) {
                         Window window = entry.getKey();
                         if (window == null || !window.isDisplayable()) {
                             continue;
                         }
-                        String originalAppId = entry.getValue();
-                        WindowsAppUserModelId.setAppUserModelId(window, originalAppId.isEmpty() ? null : originalAppId);
+                        if (!WindowsAppUserModelId.setTaskbarProperties(window, entry.getValue()))
+                            sharedParameters.printlnError("Could not restore a Windows taskbar icon property");
                     }
-                    sharedParameters.originalWindowAppIds.clear();
+                    sharedParameters.originalWindowTaskbarProperties.clear();
                 }
             }
         } catch (Exception | LinkageError e) {
@@ -216,21 +235,26 @@ public class BurpTitleAndIcon {
     // even when Burp or another extension adds its own focus listener later.
     static void installIconRefreshListener(BurpExtensionSharedParameters sharedParameters, List<Image> iconList) {
         removeMainFrameWindowFocusListener(sharedParameters);
+        Window frame = sharedParameters.get_mainFrameUsingMontoya();
+        if (frame == null) return;
 
         WindowFocusListener mainFrameWindowFocusListener = new WindowFocusListener() {
 
             @Override
             public void windowGainedFocus(WindowEvent e) {
-                setIcons_noUiLock(sharedParameters, iconList);
+                if (sharedParameters.iconRefreshWindowFocusListener == this)
+                    setIcons_noUiLock(sharedParameters, iconList);
             }
 
             @Override
             public void windowLostFocus(WindowEvent e) {
-                setIcons_noUiLock(sharedParameters, iconList);
+                if (sharedParameters.iconRefreshWindowFocusListener == this)
+                    setIcons_noUiLock(sharedParameters, iconList);
             }
         };
 
-        sharedParameters.get_mainFrameUsingMontoya().addWindowFocusListener(mainFrameWindowFocusListener);
+        frame.addWindowFocusListener(mainFrameWindowFocusListener);
+        sharedParameters.iconRefreshWindow = frame;
         sharedParameters.iconRefreshWindowFocusListener = mainFrameWindowFocusListener;
     }
 
@@ -238,7 +262,9 @@ public class BurpTitleAndIcon {
         WindowFocusListener listener = sharedParameters.iconRefreshWindowFocusListener;
         if (listener != null) {
             sharedParameters.iconRefreshWindowFocusListener = null;
-            sharedParameters.get_mainFrameUsingMontoya().removeWindowFocusListener(listener);
+            if (sharedParameters.iconRefreshWindow != null)
+                sharedParameters.iconRefreshWindow.removeWindowFocusListener(listener);
+            sharedParameters.iconRefreshWindow = null;
         }
     }
 }

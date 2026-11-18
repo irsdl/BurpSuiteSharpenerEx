@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<verification-metadata xmlns="https://schema.gradle.org/dependency-verification" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://schema.gradle.org/dependency-verification https://schema.gradle.org/dependency-verification/dependency-verification-1.3.xsd">
+   <configuration>
+      <verify-metadata>true</verify-metadata>
+      <verify-signatures>false</verify-signatures>
+   </configuration>
+   <components>
+      <component group="com.fifesoft" name="rsyntaxtextarea" version="4.0.1">
+         <artifact name="rsyntaxtextarea-4.0.1.jar">
+            <sha256 value="fbe88919231bc468f9dddbd4450ef30634612a6e2ef3f84dff4f2789c8fc508e" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="rsyntaxtextarea-4.0.1.module">
+            <sha256 value="fc63dfe591f12b88b81388620300d3581edd2ef44176237e35a5b6ab6ea7acbf" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="com.formdev" name="flatlaf" version="3.7.2">
+         <artifact name="flatlaf-3.7.2.jar">
+            <sha256 value="917aff3963c88d797d0fd9b9ccbd70f7681c101df9d11c59e2bc7a3a6c0fabf4" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="flatlaf-3.7.2.module">
+            <sha256 value="42690dc5ec1212e41434e55b738a1c74ab592d077a016603dc5d3e9159836ed2" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="com.google.code.findbugs" name="jsr305" version="3.0.2">
+         <artifact name="jsr305-3.0.2.jar">
+            <sha256 value="766ad2a0783f2687962c8ad74ceecc38a28b9f72a2d085ee438b7813e928d0c7" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="jsr305-3.0.2.pom">
+            <sha256 value="19889dbdf1b254b2601a5ee645b8147a974644882297684c798afe5d63d78dfe" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="com.google.code.gson" name="gson" version="2.14.0">
+         <artifact name="gson-2.14.0.jar">
+            <sha256 value="2cbd119bf1961c28788310963dc80ba65f58cdeec1dd139c8bdb1240faa2c36f" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="gson-2.14.0.pom">
+            <sha256 value="1fa0122c0e3733192642861c36be4c6f799a795327a23bdd2922691b6e9ba480" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="com.google.code.gson" name="gson-parent" version="2.14.0">
+         <artifact name="gson-parent-2.14.0.pom">
+            <sha256 value="82b0f6694c5758ab8bb07e05630208d50f589d4b5e04fd0a046d59cdf7ba3d1d" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="com.google.errorprone" name="error_prone_annotations" version="2.48.0">
+         <artifact name="error_prone_annotations-2.48.0.jar">
+            <sha256 value="b49c5c958316ed67a09c699dda9aa749caf434d51d863dea599ef36a49b9c855" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="error_prone_annotations-2.48.0.pom">
+            <sha256 value="189e09ad0489c325e90daaa9d5c8f406330602fa366609bca07cbcdad03ab9da" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="com.google.errorprone" name="error_prone_parent" version="2.48.0">
+         <artifact name="error_prone_parent-2.48.0.pom">
+            <sha256 value="b33fa8a45c9f1794a5008c0b2d83a84eb28b5d0117a6d156f003f9f09be7410f" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="net.bytebuddy" name="byte-buddy" version="1.17.7">
+         <artifact name="byte-buddy-1.17.7.jar">
+            <sha256 value="3575dcb8a98faf943d3c1595c47a16047c4fce8a83ebbb26262f1a2f67546357" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="byte-buddy-1.17.7.pom">
+            <sha256 value="ee7fba8569c3bb5c1e91e5812fd9f4a0f31be27e568d5354e1adfd19119f97b3" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="net.bytebuddy" name="byte-buddy-agent" version="1.17.7">
+         <artifact name="byte-buddy-agent-1.17.7.jar">
+            <sha256 value="a9ba887dca252ad61b7d5153294f34e6f3bdf4b2736b04373d13615a695fc0ff" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="byte-buddy-agent-1.17.7.pom">
+            <sha256 value="814ee42d6b0117f4b8d1eb6b1d62c16db4c0b597d83b3ad8daa5781eb145d7dc" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="net.bytebuddy" name="byte-buddy-parent" version="1.17.7">
+         <artifact name="byte-buddy-parent-1.17.7.pom">
+            <sha256 value="8a57e20dcce00da71c33ef3e19d9dd858fe9d2042ca2e2bca27871700d52698c" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="net.java.dev.jna" name="jna" version="5.19.1">
+         <artifact name="jna-5.19.1.jar">
+            <sha256 value="4fb141dd8ef6b0585ffceea4bc49602fbc6312fa977e2c488794ea3e6aafecae" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="jna-5.19.1.pom">
+            <sha256 value="911b754a03b66af0fed2bbdfdc3a86807360dd036ad3b481ef5162c685e456bf" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="net.portswigger.burp.extensions" name="montoya-api" version="2026.7">
+         <artifact name="montoya-api-2026.7.jar">
+            <sha256 value="cb852b7b883290fcc1d21b13d80fa10f5b13a0f57335d710d2b1e5956ecb2a94" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="montoya-api-2026.7.module">
+            <sha256 value="87c5a99032e898afb7d4da0f35aa6d5f02102d0ce2fd0af1f06086527e900cc5" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.apache" name="apache" version="39">
+         <artifact name="apache-39.pom">
+            <sha256 value="71752ed4c2435a1d8385fe0a4d330f39d04efec89f0d1ba5d1598d39f7397a44" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.apache.commons" name="commons-lang3" version="3.21.0">
+         <artifact name="commons-lang3-3.21.0.jar">
+            <sha256 value="a2af247ec4db6eb8947e18e23e0433e4871a7c5d0a40e1f92e46ede54ae1defe" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="commons-lang3-3.21.0.pom">
+            <sha256 value="9420ac3c5efb5bcf804552a7bec00a2d857120977fc12151f7606a67ba7a184d" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.apache.commons" name="commons-parent" version="105">
+         <artifact name="commons-parent-105.pom">
+            <sha256 value="31a68daabb4b361453788b9045ac87a6ae87c705e578facd99e4d9ddb6a481e9" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.apiguardian" name="apiguardian-api" version="1.1.2">
+         <artifact name="apiguardian-api-1.1.2.jar">
+            <sha256 value="b509448ac506d607319f182537f0b35d71007582ec741832a1f111e5b5b70b38" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="apiguardian-api-1.1.2.module">
+            <sha256 value="e08028131375b357d1d28734e9a4fb4216da84b240641cb3ef7e7c7d628223fc" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.javassist" name="javassist" version="3.28.0-GA">
+         <artifact name="javassist-3.28.0-GA.jar">
+            <sha256 value="57d0a9e9286f82f4eaa851125186997f811befce0e2060ff0a15a77f5a9dd9a7" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="javassist-3.28.0-GA.pom">
+            <sha256 value="c36a7c13da3a4852aa881bdf9db60b9e4d1af146ec2afb5398f96d5983f6d5dd" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.jspecify" name="jspecify" version="1.0.0">
+         <artifact name="jspecify-1.0.0.jar">
+            <sha256 value="1fad6e6be7557781e4d33729d49ae1cdc8fdda6fe477bb0cc68ce351eafdfbab" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="jspecify-1.0.0.module">
+            <sha256 value="d307ca77a54e18ac1ef1aaed4e5bbe014bd2f49f29e1d2f813e47c278283195b" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.junit" name="junit-bom" version="5.14.4">
+         <artifact name="junit-bom-5.14.4.pom">
+            <sha256 value="5706e8f29a0a07f56efbbea4a0670793414194bb8d24d8143ba1e787a2f32856" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.junit" name="junit-bom" version="6.1.3">
+         <artifact name="junit-bom-6.1.3.module">
+            <sha256 value="9f5d57dadcfa07f7b38efcfb22b052ece188922a1df76b5a98e44a1df7a7701b" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.junit.jupiter" name="junit-jupiter" version="6.1.3">
+         <artifact name="junit-jupiter-6.1.3.jar">
+            <sha256 value="6b0a14075c74221de53047e363860b7d19fce802bebc152df2c35c4089c6c379" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="junit-jupiter-6.1.3.module">
+            <sha256 value="ca7b7dd4508d57a9dc105102aa93fb5bc960b2095601534b9311f951ffb39979" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.junit.jupiter" name="junit-jupiter-api" version="6.1.3">
+         <artifact name="junit-jupiter-api-6.1.3.jar">
+            <sha256 value="555d6cf20fa1710884dd01b86cc5785397ba73e21ada2d4b784f5f1a14dcafc4" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="junit-jupiter-api-6.1.3.module">
+            <sha256 value="ad9909c1fa88a579b2821a091a196c45a84bcd0f4fc7357990fdc73d3801c8a5" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.junit.jupiter" name="junit-jupiter-engine" version="6.1.3">
+         <artifact name="junit-jupiter-engine-6.1.3.jar">
+            <sha256 value="414559e78bbfa3bdb2eab009ac3ab1e22369ac31117c270a0bd666da115c5c6c" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="junit-jupiter-engine-6.1.3.module">
+            <sha256 value="626a29f286c36d0f6f36409644371e12a3fe2bfcbb881e13f8265ac9de96bb77" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.junit.jupiter" name="junit-jupiter-params" version="6.1.3">
+         <artifact name="junit-jupiter-params-6.1.3.jar">
+            <sha256 value="05c51cedba2c06a9770707391e006cee825876937dea580b94a265ce145d4939" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="junit-jupiter-params-6.1.3.module">
+            <sha256 value="9ec7795f4aeb92578fb4d43b6a73c324fff216ca971f3910335073882c78a167" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.junit.platform" name="junit-platform-commons" version="6.1.3">
+         <artifact name="junit-platform-commons-6.1.3.jar">
+            <sha256 value="a4774ae923c109544034aeae7c762cf017fbcdd1342403ba90e0921984b608c3" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="junit-platform-commons-6.1.3.module">
+            <sha256 value="a6f1218616341b599f6aa029a3768c6f956ab1d3216ed7250e4be5d79adfce7d" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.junit.platform" name="junit-platform-engine" version="6.1.3">
+         <artifact name="junit-platform-engine-6.1.3.jar">
+            <sha256 value="21ad7ad3a35beda16387979317be1833a72a71d812f9a66ee4b9a7bafb56334c" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="junit-platform-engine-6.1.3.module">
+            <sha256 value="70f5020adb4c91575025499a804b266e8fc2d027aa6e78febfa372be3a88cef5" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.junit.platform" name="junit-platform-launcher" version="6.1.3">
+         <artifact name="junit-platform-launcher-6.1.3.jar">
+            <sha256 value="1dec64b1fc0b7c47a11302aa5b4d37d8160c041b396e27067709ce775601a7b6" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="junit-platform-launcher-6.1.3.module">
+            <sha256 value="62d2198a3a779c54316bbe839e51623b3a6bd111e672d586dd9a3bbb222569e6" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.mockito" name="mockito-bom" version="4.11.0">
+         <artifact name="mockito-bom-4.11.0.pom">
+            <sha256 value="d8531a746c988f7f68ed5f188cdea945006aea993ec5df9e524e0d27d61491da" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.mockito" name="mockito-core" version="5.24.0">
+         <artifact name="mockito-core-5.24.0.jar">
+            <sha256 value="97a1f835ad84075255aa37809e4379eff541273c02c6201cbad49bd5950932cd" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="mockito-core-5.24.0.pom">
+            <sha256 value="718074bfcba3592e3283a1cbcff2eb0163dddd742e2ed22d54a78eafedadc062" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.objenesis" name="objenesis" version="3.3">
+         <artifact name="objenesis-3.3.jar">
+            <sha256 value="02dfd0b0439a5591e35b708ed2f5474eb0948f53abf74637e959b8e4ef69bfeb" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="objenesis-3.3.pom">
+            <sha256 value="ba0c40da2669a048b6e24ef7066a471f0fbcbfcc509e6a3e856ca4ddfa614ad3" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.objenesis" name="objenesis-parent" version="3.3">
+         <artifact name="objenesis-parent-3.3.pom">
+            <sha256 value="305c384aa2f1e1c7fe53a96da41c3ec35243b97d428d24a8f779818cc10be4ff" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.opentest4j" name="opentest4j" version="1.3.0">
+         <artifact name="opentest4j-1.3.0.jar">
+            <sha256 value="48e2df636cab6563ced64dcdff8abb2355627cb236ef0bf37598682ddf742f1b" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="opentest4j-1.3.0.module">
+            <sha256 value="48bf1d6c8b5dc94f74652bd17900f654deb714350248cf5e8fca27b9090c8e0d" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.reflections" name="reflections" version="0.10.2">
+         <artifact name="reflections-0.10.2.jar">
+            <sha256 value="938a2d08fe54050d7610b944d8ddc3a09355710d9e6be0aac838dbc04e9a2825" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="reflections-0.10.2.pom">
+            <sha256 value="b6caa3eb7d35bd756ed6eb0a2a81868b8d3c0f6f42244feae41760ac66306d87" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.slf4j" name="slf4j-api" version="1.7.32">
+         <artifact name="slf4j-api-1.7.32.jar">
+            <sha256 value="3624f8474c1af46d75f98bc097d7864a323c81b3808aa43689a6e1c601c027be" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+         <artifact name="slf4j-api-1.7.32.pom">
+            <sha256 value="001cde5b3c6ba91070425cfe9f2e695e4aeb8bc290a2d4cd96531127ab244fe5" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.slf4j" name="slf4j-parent" version="1.7.32">
+         <artifact name="slf4j-parent-1.7.32.pom">
+            <sha256 value="5ab349d0f4c7bc08ed0ef1f4d9386cb1940a2f4d6f152150e16dbbecc0b83c70" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+      <component group="org.sonatype.oss" name="oss-parent" version="7">
+         <artifact name="oss-parent-7.pom">
+            <sha256 value="b51f8867c92b6a722499557fc3a1fdea77bdf9ef574722fe90ce436a29559454" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
+         </artifact>
+      </component>
+   </components>
+</verification-metadata>

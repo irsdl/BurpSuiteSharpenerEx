@@ -1,107 +1,36 @@
-# This workflow will build a Java project with Gradle
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
-
-name: Java CI with Gradle
+name: Java CI and PortSwigger review
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
+
+# Diagnostic validation only. Publication remains blocked pending the reviewed
+# toolchain and manual host evidence in docs/portswigger-review.json.
+# Never delete previous releases/tags or publish automatically on push.
+permissions:
+  contents: read
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3 (2026-06-02)
-      - name: Set up JDK 21
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3 (2026-06-02); existing baseline, admission pending
+        with:
+          persist-credentials: false
+      - name: Set up JDK 21 (diagnostic baseline; exact CI admission pending)
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0 (2026-01-22)
         with:
-          distribution: 'oracle'
+          distribution: oracle
           java-version: '21'
-          cache: 'gradle'
+      - name: Record runner identity
+        run: |
+          printf 'Runner image: %s %s\n' "$ImageOS" "$ImageVersion"
+          java -version
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-      - name: Build with Gradle
-        run: ./gradlew build
-      - name: Creating the jar file
-        run: ./gradlew jar
-      - name: Upload artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1 (2026-04-10)
-        with:
-          path: ./releases/*.jar
-          name: Downloadable Extension File
-      # The release steps below must only run for pushes to main.
-      # On pull_request events the ref is not a branch, so they would wrongly
-      # use the early_adopter_ prefix and replace a release from a PR build.
-      - name: Get previous tag for the branch
-        if: github.event_name == 'push'
-        id: get_previous_tag
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            PREFIX="main_"
-          else
-            PREFIX="early_adopter_"
-          fi
-          PREVIOUS_TAG=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                             https://api.github.com/repos/${{ github.repository }}/git/refs/tags \
-                             | jq -r ".[] | select(.ref | startswith(\"refs/tags/${PREFIX}\")) | .ref" \
-                             | sort -V | tail -n 1 | sed "s|refs/tags/||")
-          
-          # Check if we found a tag
-          if [[ -z "$PREVIOUS_TAG" ]]; then
-              echo "No previous tag found for prefix ${PREFIX}."
-              echo "PREVIOUS_TAG=" >> $GITHUB_ENV
-          else
-              echo "PREVIOUS_TAG=$PREVIOUS_TAG" >> $GITHUB_ENV
-          fi
-      - name: Delete the previous tag
-        if: github.event_name == 'push' && env.PREVIOUS_TAG != ''
-        run: |
-          gh release delete ${{ env.PREVIOUS_TAG }} -y
-          git push origin --delete ${{ env.PREVIOUS_TAG }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Extract new version
-        if: github.event_name == 'push'
-        id: get_version
-        run: |
-          VERSION=$(grep "^version=" src/main/resources/extension.properties | awk -F'=' '{print $2}')
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-      - name: Set release tag based on branch
-        if: github.event_name == 'push'
-        id: vars
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "RELEASE_TAG=main_${VERSION}" >> $GITHUB_ENV
-          else
-            echo "RELEASE_TAG=early_adopter_${VERSION}" >> $GITHUB_ENV
-          fi
-      - name: Build release notes from CHANGES.md
-        if: github.event_name == 'push'
-        run: |
-          # Copy the section of the released version from CHANGES.md.
-          # The heading format must be: ## Version X.Y (YYYY-MM-DD)
-          awk -v ver="$VERSION" '
-            index($0, "## Version " ver " ") == 1 {found=1; next}
-            found && /^## / {exit}
-            found {print}
-          ' CHANGES.md > release_notes.md
-
-          if [[ ! -s release_notes.md ]]; then
-            echo "This jar file has been built by GitHub automatically." > release_notes.md
-          fi
-          echo "" >> release_notes.md
-          echo "Full change history: https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/CHANGES.md" >> release_notes.md
-      - name: Create Release using GitHub CLI
-        if: github.event_name == 'push'
-        run: |
-          gh release create ${{ env.RELEASE_TAG }} ./releases/*.jar \
-            --title "Release ${{ env.RELEASE_TAG }}" \
-            --notes-file release_notes.md \
-            --repo ${{ github.repository }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Acquire locked verified dependencies
+        run: ./gradlew resolveDependencies --dependency-verification strict --console=plain
+      - name: Build and check PortSwigger push review offline
+        run: ./gradlew verifyPushReadiness --offline --dependency-verification strict --console=plain

@@ -1,0 +1,33 @@
+{
+  "evaluation_date_utc": "2026-11-16",
+  "extension_version": "4.93",
+  "jar_sha256": "b5275106d2ab0568606fb7468c342070e976cbbd7016819101c25478b30df806",
+  "host": {
+    "os_family": "windows",
+    "architecture": "x64",
+    "channel": "early-adopter",
+    "burp_build": "20261100000055090",
+    "launch_mode": "Existing installed BurpSuite.exe with dedicated temporary data directory and project; extension autoload and auto-update disabled",
+    "jre": "Bundled OpenJDK 26.0.2+10-55"
+  },
+  "scope": "Packaged production icon set/reset functions with frame/log adapter; actual installed main frame selected by main-tab discovery plus an auxiliary displayable Swing test fixture. Not full extension initialization or a real detached Burp tool test.",
+  "results": {
+    "main_frame_app_id_and_relaunch_icon_resource": "passed native property readback",
+    "auxiliary_window_shell_properties": "passed native property readback",
+    "java_window_icons": "six sizes applied",
+    "windows_load_image_w": "ICO accepted at 16/24/32/48/64/128 pixels; each HICON destroyed",
+    "reset": "original main shell properties and icon list restored; listener and snapshots removed",
+    "debugger": "JDI connected to 127.0.0.1:5017 and detached successfully",
+    "cleanup": "owned test instance closed; no listening debug socket remains",
+    "installed_launcher_integrity": "SHA-256 identical before and after testing",
+    "automated_tests": 299,
+    "failures_errors_skips": 0
+  },
+  "limitations": [
+    "Computer-use access to Burp Suite was not approved, so actual taskbar presentation remains visually unverified.",
+    "Existing pinned launcher shortcuts were not modified or tested; they can retain their own icon.",
+    "macOS Dock set/reset and Linux Windows-native guards were tested with mocks on Windows; live macOS/Linux testing has not occurred.",
+    "Full functional/load/unload/reload and large-project validation for all six platform/channel combinations remains pending."
+  ],
+  "changes": "Windows-only ICO/relaunch resource handling using existing JNA and JDK codecs; macOS Dock and Linux Swing paths retained. No dependency versions or launcher files changed."
+}

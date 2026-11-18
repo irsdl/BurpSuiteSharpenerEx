@@ -220,7 +220,7 @@ public class MainTabsStyleHandlerTest {
     }
 
     @Test
-    void unsetRepairsATabStyledBeforeTheOriginalLookWasSaved() throws Exception {
+    void unsetPreservesUnownedLabelsAndFormattingInAnUnknownHeader() throws Exception {
         // mimics a tab left styled by an older extension version: icon present, bold title,
         // and no saved original look
         rootTabbedPane.addTab("Proxy", new JPanel());
@@ -235,7 +235,27 @@ public class MainTabsStyleHandlerTest {
         MainTabsStyleHandler.unsetMainTabsStyle_noUiLock(sharedParameters, BurpUITools.MainTabs.Proxy);
         flushUiThread();
 
-        assertSame(titleTextField, tabComponent.getComponent(0));
-        assertFalse(titleTextField.getFont().isBold());
+        assertSame(oldIconLabel, tabComponent.getComponent(0));
+        assertSame(titleTextField, tabComponent.getComponent(1));
+        assertTrue(titleTextField.getFont().isBold());
+    }
+    @Test
+    void emptyDefaultAndChangedHeadersAreLeftUsable() throws Exception {
+        rootTabbedPane.addTab("Proxy", new JPanel());
+        setStyle(BurpUITools.MainTabs.Proxy); // Swing's default header is null.
+        MainTabsStyleHandler.unsetMainTabsStyle(sharedParameters, BurpUITools.MainTabs.Proxy);
+        JPanel header = new JPanel();
+        rootTabbedPane.setTabComponentAt(0, header);
+        setStyle(BurpUITools.MainTabs.Proxy);
+        JLabel nativeIcon = new JLabel("native status");
+        JTextField title = new JTextField("Proxy");
+        JButton nativeButton = new JButton("new control");
+        header.add(nativeIcon); header.add(title); header.add(nativeButton);
+        LayoutManager nativeLayout = header.getLayout();
+        setStyle(BurpUITools.MainTabs.Proxy);
+        MainTabsStyleHandler.unsetMainTabsStyle(sharedParameters, BurpUITools.MainTabs.Proxy);
+        assertEquals(3, header.getComponentCount());
+        assertSame(nativeIcon, header.getComponent(0));
+        assertSame(nativeLayout, header.getLayout());
     }
 }

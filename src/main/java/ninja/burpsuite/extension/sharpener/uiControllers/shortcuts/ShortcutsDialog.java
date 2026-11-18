@@ -35,6 +35,7 @@ public final class ShortcutsDialog {
     }
 
     public static void show(ExtensionSharedParameters sharedParameters) {
+        if (sharedParameters.get_mainFrameUsingMontoya() == null || sharedParameters.isUnloaded()) return;
         List<ShortcutMappings.ShortcutActionDef> configurable = ShortcutMappings.getConfigurableActionDefinitions();
         ShortcutMappings.EffectiveShortcuts effective =
                 ShortcutMappings.resolve(ShortcutMappings.getSavedOverrides(sharedParameters));

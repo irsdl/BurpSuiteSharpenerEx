@@ -1,0 +1,101 @@
+// Repository review gates; these validate evidence, not PortSwigger acceptance.
+def reviewFile = file('docs/portswigger-review.json')
+def reviewInputs = fileTree(rootDir) {
+    include 'src/**', 'gradle/**', 'licenses/**', 'docs/**', '.github/**', '.githooks/**'
+    include 'AGENTS.md', 'README.md', 'CHANGES.md', 'LICENSE', 'NOTICE', '.gitattributes'
+    include 'build.gradle', 'gradle.properties', 'gradle.lockfile', 'gradlew', 'gradlew.bat'
+    exclude 'docs/portswigger-review.json', 'docs/dependency-build-evidence.json'
+}
+def reviewDigest = {
+    def digest = java.security.MessageDigest.getInstance('SHA-256')
+    reviewInputs.files.sort { rootDir.toPath().relativize(it.toPath()).toString().replace('\\', '/') }.each { input ->
+        def path = rootDir.toPath().relativize(input.toPath()).toString().replace('\\', '/')
+        byte[] bytes = input.bytes
+        if (path ==~ /.*\.(java|properties|md|json|ya?ml|gradle|lockfile|xml|txt|sh|bat|form|html)/ ||
+                input.name in ['gradlew', 'pre-push', '.gitattributes', 'LICENSE', 'NOTICE']) {
+            bytes = new String(bytes, 'UTF-8').replace('\r\n', '\n').getBytes('UTF-8')
+        }
+        digest.update(path.getBytes('UTF-8'))
+        digest.update((byte) 0)
+        digest.update(java.security.MessageDigest.getInstance('SHA-256').digest(bytes))
+    }
+    digest.digest().encodeHex().toString()
+}
+def readReview = {
+    if (!reviewFile.isFile()) throw new GradleException('Missing docs/portswigger-review.json')
+    new groovy.json.JsonSlurper().parse(reviewFile)
+}
+
+tasks.register('portswiggerReviewDigest') {
+    group = 'verification'
+    description = 'Print the current input digest for a completed PortSwigger review; does not approve it.'
+    doLast { println "PortSwigger review input SHA-256: ${reviewDigest()}" }
+}
+
+tasks.register('verifyPushReadiness') {
+    group = 'verification'
+    description = 'Build and validate a fresh, source-bound review before pushing.'
+    dependsOn tasks.named('build')
+    doLast {
+        def review = readReview()
+        if (review.schema_version != 1 || review.reviewed_input_sha256 != reviewDigest())
+            throw new GradleException('PortSwigger review is missing or stale. Review AGENTS.md and docs/portswigger-compliance.md, then update the evidence and digest.')
+        def checked = java.time.Instant.parse(review.upstream_checked_utc)
+        def age = java.time.Duration.between(checked, java.time.Instant.now())
+        if (age.isNegative() || age > java.time.Duration.ofHours(24))
+            throw new GradleException('Re-read both official PortSwigger pages before pushing; upstream review is older than 24 hours.')
+        if (review.criteria.collect { it.id }.sort() != (1..12).toList() ||
+                review.criteria.any { it.reviewed != true || !it.evidence ||
+                    !(it.result in ['satisfied', 'not-applicable', 'pending', 'blocked']) } ||
+                review.ai_review.reviewed != true || !review.ai_review.evidence ||
+                !(review.ai_review.result in ['satisfied', 'not-applicable', 'pending', 'blocked']))
+            throw new GradleException('Review all 12 BApp criteria and AI applicability, with evidence.')
+        def sources = review.sources*.url as Set
+        if (sources != [
+                'https://portswigger.net/burp/documentation/desktop/extend-burp/extensions/creating/creating-ai-extensions/best-practices',
+                'https://portswigger.net/burp/documentation/desktop/extend-burp/extensions/creating/bapp-store-acceptance-criteria'] as Set)
+            throw new GradleException('Review must identify both canonical PortSwigger sources.')
+        if ((review.criteria.any { it.result in ['pending', 'blocked'] } ||
+                review.ai_review.result in ['pending', 'blocked']) && !review.release_blockers)
+            throw new GradleException('Unresolved criteria must be recorded as release blockers.')
+        if (!(review.push_disposition in ['reviewed-with-release-blockers', 'reviewed']))
+            throw new GradleException('Push disposition has not been reviewed.')
+        if (review.release_blockers) {
+            def workflow = file('.github/workflows/gradle.yml').text
+            if (workflow =~ /(?m)\bgh\s+(release|api)\b|contents:\s*write|action-gh-release|release-action/)
+                throw new GradleException('Release blockers require publication to remain disabled in CI.')
+            logger.warn('RELEASE BLOCKED: ' + review.release_blockers.join('; '))
+        }
+        println 'Push review checks passed. This is not release approval or BApp Store acceptance.'
+    }
+}
+
+tasks.register('verifyReleaseReadiness') {
+    group = 'verification'
+    description = 'Fail closed until all manual, host, and security release evidence is complete.'
+    dependsOn tasks.named('verifyPushReadiness')
+    doLast {
+        def review = readReview()
+        if (review.release_disposition != 'approved' || review.release_blockers ||
+                review.criteria.any { !(it.result in ['satisfied', 'not-applicable']) } ||
+                !(review.ai_review.result in ['satisfied', 'not-applicable']))
+            throw new GradleException('Release blocked; see docs/portswigger-review.json and docs/portswigger-compliance.md.')
+        def jar = tasks.named('jar').get().archiveFile.get().asFile
+        def hash = java.security.MessageDigest.getInstance('SHA-256').digest(jar.bytes).encodeHex().toString()
+        def evidence = review.release_evidence
+        if (!evidence?.reviewer || evidence.jar_sha256 != hash || evidence.toolchain_and_dependencies_approved != true ||
+                evidence.security_review_current != true || evidence.bapp_listing_reviewed != true)
+            throw new GradleException('Missing current reviewer, jar identity, security/toolchain approval or BApp listing review.')
+        ['stable', 'early-adopter'].each { channel ->
+          ['windows', 'macos', 'linux'].each { platform ->
+            def host = evidence.host_tests?.find { it.channel == channel && it.os_family == platform }
+            if (!host?.burp_build || !host?.edition || !host?.os || !host?.jre ||
+                    !host?.reviewer || !host?.tested_utc || !host?.evidence ||
+                    host.jar_sha256 != hash || host.load_unload_reload_passed != true ||
+                    host.functional_and_large_project_checks_passed != true)
+                throw new GradleException("Missing live $channel / $platform host validation for this exact jar.")
+          }
+        }
+        println 'Release evidence checks passed. PortSwigger alone decides BApp Store acceptance.'
+    }
+}

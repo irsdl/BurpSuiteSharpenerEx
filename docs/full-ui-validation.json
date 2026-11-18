@@ -1,0 +1,377 @@
+{
+  "schema_version": 1,
+  "review_kind": "Observed automated host results; no human release approval",
+  "runs": [
+    {
+      "report": "build/reports/full-ui-tests/run-4404772676211810369/results.json",
+      "jar_sha256": "b40c1137d60d338e702f0cfc27348f547c8a040c6caafc5d20f0cd7d8dc4d443",
+      "host": {
+        "os_family": "windows",
+        "os": "Windows 11",
+        "channel": "early-adopter",
+        "burp_build": "20261100000055090",
+        "edition": "PROFESSIONAL",
+        "jre": "26.0.2+10-55",
+        "launcher": "Installed BurpSuite.exe"
+      },
+      "overall": "FAIL",
+      "counts": {
+        "PASS": 11,
+        "FAIL": 10,
+        "BLOCKED": 1,
+        "NOT_APPLICABLE": 1,
+        "MANUAL_REQUIRED": 8
+      },
+      "confirmed_extension_findings": [
+        "Empty context-menu selection throws instead of returning no actions.",
+        "Native close controls implemented as named labels prevent sub-tab icon layout."
+      ],
+      "harness_findings": [
+        "Shortcut captions use square brackets; matcher expected parentheses.",
+        "PNG decode ran before asynchronous screenshot writers completed."
+      ],
+      "unresolved": [
+        "Title input/action failure needs a live rerun after deferring the accept action.",
+        "Retest corrected controls and all downstream assertions; preserve the original failures.",
+        "Clipboard contained rich formats and was preserved; plain-text precondition required.",
+        "Eight manual cases and other OS/channel hosts remain unverified."
+      ],
+      "owned_process_closed": true,
+      "normal_user_instance_closed": false,
+      "tested_utc": "2026-11-17T15:54:24.621972900Z",
+      "report_sha256": "029e3475a34e152075730ac6158c813ff5863f7eb819e46e2f9dbc41a00eb057",
+      "catalog_sha256": "ef54513ed25459749f99f8ef03b9601d7fdbedd670f00cf81dd33de0a7c06a62"
+    },
+    {
+      "report": "build/reports/full-ui-tests/run-4113113849295277172/results.json",
+      "report_sha256": "d91b8d6bc24b977989673d651053770f596337c8ed28750945f1ced1a3e34102",
+      "tested_utc": "2026-11-17T16:27:03.913760700Z",
+      "jar_sha256": "838baa1372e8dc95e1be95570979462dd26e080948e091436816103e4ee10005",
+      "catalog_sha256": "ef54513ed25459749f99f8ef03b9601d7fdbedd670f00cf81dd33de0a7c06a62",
+      "host": {
+        "burp_build": "20261100000055090",
+        "edition": "PROFESSIONAL",
+        "os": "Windows 11",
+        "jre": "26.0.2+10-55",
+        "os_family": "windows",
+        "channel": "early-adopter",
+        "launcher": "Installed BurpSuite.exe"
+      },
+      "overall": "FAIL",
+      "counts": {
+        "PASS": 17,
+        "FAIL": 4,
+        "BLOCKED": 1,
+        "NOT_APPLICABLE": 1,
+        "MANUAL_REQUIRED": 8
+      },
+      "activation_reused": true,
+      "activation_method": "Existing local registry-backed licence/cache records copied unchanged into test JVM memory; no new activation prompt.",
+      "owned_process_closed": true,
+      "normal_user_instance_closed": false
+    },
+    {
+      "report": "build/reports/full-ui-tests/run-7010986422276154052/results.json",
+      "report_sha256": "1ff61fccc8cc1ed699d1d4d7da9bdf241ab0a7e4b8ec461f6152ff7eef3c32d5",
+      "tested_utc": "2026-11-17T16:29:05.082349300Z",
+      "jar_sha256": "838baa1372e8dc95e1be95570979462dd26e080948e091436816103e4ee10005",
+      "catalog_sha256": "ef54513ed25459749f99f8ef03b9601d7fdbedd670f00cf81dd33de0a7c06a62",
+      "host": {
+        "burp_build": "20261100000055090",
+        "edition": "PROFESSIONAL",
+        "os": "Windows 11",
+        "jre": "26.0.2+10-55",
+        "os_family": "windows",
+        "channel": "early-adopter",
+        "launcher": "Installed BurpSuite.exe"
+      },
+      "overall": "FAIL",
+      "counts": {
+        "PASS": 20,
+        "BLOCKED": 1,
+        "NOT_APPLICABLE": 1,
+        "FAIL": 1,
+        "MANUAL_REQUIRED": 8
+      },
+      "activation_reused": true,
+      "activation_method": "Existing local registry-backed licence/cache records copied unchanged into test JVM memory; no new activation prompt.",
+      "owned_process_closed": true,
+      "normal_user_instance_closed": false
+    },
+    {
+      "report": "build/reports/full-ui-tests/run-10314410243201332353/results.json",
+      "report_sha256": "6ae12b531d2fa8fe5bc46174eb25b5af84f3ef6f6814c9b01c92b28102d92900",
+      "tested_utc": "2026-11-17T16:30:44.927206200Z",
+      "jar_sha256": "838baa1372e8dc95e1be95570979462dd26e080948e091436816103e4ee10005",
+      "catalog_sha256": "ef54513ed25459749f99f8ef03b9601d7fdbedd670f00cf81dd33de0a7c06a62",
+      "host": {
+        "burp_build": "20261100000055090",
+        "edition": "PROFESSIONAL",
+        "os": "Windows 11",
+        "jre": "26.0.2+10-55",
+        "os_family": "windows",
+        "channel": "early-adopter",
+        "launcher": "Installed BurpSuite.exe"
+      },
+      "overall": "INCOMPLETE",
+      "counts": {
+        "PASS": 21,
+        "BLOCKED": 1,
+        "NOT_APPLICABLE": 1,
+        "MANUAL_REQUIRED": 8
+      },
+      "activation_reused": true,
+      "activation_method": "Existing local registry-backed licence/cache records copied unchanged into test JVM memory; no new activation prompt.",
+      "owned_process_closed": true,
+      "normal_user_instance_closed": false
+    },
+    {
+      "report": "build/reports/full-ui-tests/run-15996794770530199463/results.json",
+      "report_sha256": "ca05e569d8fee2043f57cc8c7537d72c8ddd29997debe1a6a14743a05cd3513f",
+      "tested_utc": "2026-11-17T21:31:37.444109700Z",
+      "jar_sha256": "838baa1372e8dc95e1be95570979462dd26e080948e091436816103e4ee10005",
+      "catalog_sha256": "ef54513ed25459749f99f8ef03b9601d7fdbedd670f00cf81dd33de0a7c06a62",
+      "host": {
+        "burp_build": "20260303000047134",
+        "edition": "COMMUNITY_EDITION",
+        "requested_edition": "community",
+        "channel": "stable",
+        "current_release": false,
+        "burp_version": "2026.3.3",
+        "launcher": "Standalone jar"
+      },
+      "overall": "FAIL",
+      "counts": {
+        "FAIL": 1,
+        "BLOCKED": 22,
+        "MANUAL_REQUIRED": 8
+      },
+      "host_jar_filename": "burpsuite_community_v2026.3.3.jar",
+      "host_jar_sha256": "46b60895b2488bc76911795c53a85ae2ef2f5d6ff734b6ec6f5dd616b2b99875",
+      "host_source": "https://portswigger.net/burp/releases/professional-community-2026-3-3",
+      "host_hash_verified_against_official_release": true,
+      "professional_licensing_seeded": false,
+      "project_kind": "temporary in memory",
+      "owned_process_closed": true,
+      "scope": "Harness edition assertion failed before Sharpener actions: COMMUNITY_EDITION alias was corrected and retested. Original failure retained."
+    },
+    {
+      "report": "build/reports/full-ui-tests/run-906803053519482575/results.json",
+      "report_sha256": "3fc41bd84acf9673977cac5dffe6694ebdd1ecdef1f72406c1809bce1242198b",
+      "tested_utc": "2026-11-17T21:33:04.247819900Z",
+      "jar_sha256": "838baa1372e8dc95e1be95570979462dd26e080948e091436816103e4ee10005",
+      "catalog_sha256": "ef54513ed25459749f99f8ef03b9601d7fdbedd670f00cf81dd33de0a7c06a62",
+      "host": {
+        "burp_build": "20260303000047134",
+        "edition": "COMMUNITY_EDITION",
+        "requested_edition": "community",
+        "os": "Windows 11",
+        "jre": "21.0.13+11-LTS",
+        "os_family": "windows",
+        "channel": "stable",
+        "current_release": false,
+        "burp_version": "2026.3.3",
+        "launcher": "Standalone jar"
+      },
+      "overall": "INCOMPLETE",
+      "counts": {
+        "PASS": 21,
+        "BLOCKED": 1,
+        "NOT_APPLICABLE": 1,
+        "MANUAL_REQUIRED": 8
+      },
+      "host_jar_filename": "burpsuite_community_v2026.3.3.jar",
+      "host_jar_sha256": "46b60895b2488bc76911795c53a85ae2ef2f5d6ff734b6ec6f5dd616b2b99875",
+      "host_source": "https://portswigger.net/burp/releases/professional-community-2026-3-3",
+      "host_hash_verified_against_official_release": true,
+      "professional_licensing_seeded": false,
+      "project_kind": "temporary in memory",
+      "owned_process_closed": true,
+      "scope": "Real Community host verified explicitly; 21 exercised UI case groups pass, clipboard and eight manual groups remain incomplete."
+    },
+    {
+      "report": "build/reports/full-ui-tests/run-4324643879006165322/results.json",
+      "report_sha256": "d3c2c55f975db61d0a379f9096663daf2aec2f6f2b5c57a2ee7e56631caa7b58",
+      "tested_utc": "2026-11-17T22:32:43.158508200Z",
+      "jar_sha256": "50c9df7c0ac615411aec6108ee0c1f7d2c2fa95f6c51012fc5762affffb36705",
+      "catalog_sha256": "a2a13fa7041ced305b5985d5ba38aee0e51df732386b7a6d61380bde269b9a38",
+      "host": {
+        "burp_build": "20261100000055090",
+        "edition": "PROFESSIONAL",
+        "requested_edition": "professional",
+        "os": "Windows 11",
+        "jre": "26.0.2+10-55",
+        "os_family": "windows",
+        "channel": "early-adopter",
+        "burp_version": "2026.11",
+        "launcher": "Installed BurpSuite.exe"
+      },
+      "overall": "FAIL",
+      "counts": {
+        "PASS": 21,
+        "BLOCKED": 2,
+        "FAIL": 1,
+        "NOT_APPLICABLE": 1,
+        "MANUAL_REQUIRED": 8
+      },
+      "highlighting_cases": {
+        "proxy-highlighting": "FAIL",
+        "logger-highlighting": "BLOCKED"
+      },
+      "owned_process_closed": true
+    },
+    {
+      "report": "build/reports/full-ui-tests/run-7356438686490956248/results.json",
+      "report_sha256": "fb5917a6f0f1f46b35dbc94d99003a933dc0d742e02051e4b228700e70632c90",
+      "tested_utc": "2026-11-17T22:34:12.501756800Z",
+      "jar_sha256": "50c9df7c0ac615411aec6108ee0c1f7d2c2fa95f6c51012fc5762affffb36705",
+      "catalog_sha256": "a2a13fa7041ced305b5985d5ba38aee0e51df732386b7a6d61380bde269b9a38",
+      "host": {
+        "burp_build": "20261100000055090",
+        "edition": "PROFESSIONAL",
+        "requested_edition": "professional",
+        "os": "Windows 11",
+        "jre": "26.0.2+10-55",
+        "os_family": "windows",
+        "channel": "early-adopter",
+        "burp_version": "2026.11",
+        "launcher": "Installed BurpSuite.exe"
+      },
+      "overall": "FAIL",
+      "counts": {
+        "PASS": 22,
+        "BLOCKED": 1,
+        "FAIL": 1,
+        "NOT_APPLICABLE": 1,
+        "MANUAL_REQUIRED": 8
+      },
+      "highlighting_cases": {
+        "proxy-highlighting": "PASS",
+        "logger-highlighting": "FAIL"
+      },
+      "owned_process_closed": true,
+      "highlight_fixture_report": "build/reports/full-ui-tests/run-7356438686490956248/fixture-highlighting.json",
+      "highlight_fixture_sha256": "dd33c738dd08d5d57cfebe83072422f8665e8dd07a47e2d7dd55782b9ad4a16f"
+    },
+    {
+      "report": "build/reports/full-ui-tests/run-15984634390862306397/results.json",
+      "report_sha256": "d1a186cfdec889b8fbe838d4070adfbf680d7ce3f357e5079c66d04e2df8c3df",
+      "tested_utc": "2026-11-17T22:36:19.830790700Z",
+      "jar_sha256": "50c9df7c0ac615411aec6108ee0c1f7d2c2fa95f6c51012fc5762affffb36705",
+      "catalog_sha256": "a2a13fa7041ced305b5985d5ba38aee0e51df732386b7a6d61380bde269b9a38",
+      "host": {
+        "burp_build": "20261100000055090",
+        "edition": "PROFESSIONAL",
+        "requested_edition": "professional",
+        "os": "Windows 11",
+        "jre": "26.0.2+10-55",
+        "os_family": "windows",
+        "channel": "early-adopter",
+        "burp_version": "2026.11",
+        "launcher": "Installed BurpSuite.exe"
+      },
+      "overall": "FAIL",
+      "counts": {
+        "PASS": 22,
+        "BLOCKED": 1,
+        "FAIL": 1,
+        "NOT_APPLICABLE": 1,
+        "MANUAL_REQUIRED": 8
+      },
+      "highlighting_cases": {
+        "proxy-highlighting": "PASS",
+        "logger-highlighting": "FAIL"
+      },
+      "owned_process_closed": true,
+      "highlight_fixture_report": "build/reports/full-ui-tests/run-15984634390862306397/fixture-highlighting.json",
+      "highlight_fixture_sha256": "003141d480e7f000c9d079c4bf735b7b28993392584aa38760d328513613e21d"
+    },
+    {
+      "report": "build/reports/full-ui-tests/run-6341438930188719353/results.json",
+      "report_sha256": "749367040e90a97934b87191e152fedacfef747be1244cbef3de0a2ca758d8e8",
+      "tested_utc": "2026-11-17T22:40:05.286569800Z",
+      "jar_sha256": "93033ee637a319c973b33d5b7c988a857bb4dfe48bfd4025fd80d3457dae0a67",
+      "catalog_sha256": "a2a13fa7041ced305b5985d5ba38aee0e51df732386b7a6d61380bde269b9a38",
+      "host": {
+        "burp_build": "20261100000055090",
+        "edition": "PROFESSIONAL",
+        "requested_edition": "professional",
+        "os": "Windows 11",
+        "jre": "26.0.2+10-55",
+        "os_family": "windows",
+        "channel": "early-adopter",
+        "burp_version": "2026.11",
+        "launcher": "Installed BurpSuite.exe"
+      },
+      "overall": "INCOMPLETE",
+      "counts": {
+        "PASS": 23,
+        "BLOCKED": 1,
+        "NOT_APPLICABLE": 1,
+        "MANUAL_REQUIRED": 8
+      },
+      "highlighting_cases": {
+        "proxy-highlighting": "PASS",
+        "logger-highlighting": "PASS"
+      },
+      "owned_process_closed": true,
+      "highlight_fixture_report": "build/reports/full-ui-tests/run-6341438930188719353/fixture-highlighting.json",
+      "highlight_fixture_sha256": "2c576d15cd7d2e99f3800d5d5873883ae78b226d114ad3b0a22d891c89fa9a8c"
+    },
+    {
+      "report": "build/reports/full-ui-tests/run-12052984523566881743/results.json",
+      "report_sha256": "632b0f1216dbf7927ce286048dd755616ec8f8b73bc9776483acb9afe2088f45",
+      "tested_utc": "2026-11-17T22:50:42.252202900Z",
+      "jar_sha256": "93033ee637a319c973b33d5b7c988a857bb4dfe48bfd4025fd80d3457dae0a67",
+      "catalog_sha256": "a2a13fa7041ced305b5985d5ba38aee0e51df732386b7a6d61380bde269b9a38",
+      "host": {},
+      "requested_host": {
+        "os_family": "windows",
+        "edition": "community",
+        "version": "2026.3.3",
+        "verified_by_run": false
+      },
+      "overall": "INCOMPLETE",
+      "counts": {
+        "BLOCKED": 25,
+        "MANUAL_REQUIRED": 8
+      },
+      "unresolved": [
+        "Desktop unavailable; launcher timed out before host readiness. No UI assertions ran."
+      ],
+      "owned_process_closed": true
+    }
+  ],
+  "current_disposition": "Current jar on Windows Professional EA 2026.11: 23 PASS, zero FAIL, clipboard BLOCKED, one disabled editor N/A and eight manual groups pending. Both new Proxy/Logger cases pass. Earlier Community 2026.3.3 jar has 21 PASS; the current expanded Community run timed out before startup completed and ran no assertions. No full pass or release approval.",
+  "resolved_findings": [
+    "Empty context-menu selection now returns no actions; three new unit cases and live context case pass.",
+    "Named close/group label controls retain their identity and allow tab icons; unit and live style cases pass.",
+    "Harness matches square-bracket shortcut hints and the two known Find Title parent captions without hiding unknown actions.",
+    "Harness explicitly clicks OK: Burp input dialogs set Cancel as the root default button. Title/rename/regex cases now pass.",
+    "Harness waits for screenshot writers to close files; live PNG cases pass.",
+    "Existing activation cache is included in private in-memory seed; three fresh runs reached developer extension without another activation prompt."
+  ],
+  "activation_preflight_checks": "Synthetic cache survives seeding; project/extension settings excluded; mutations remain in memory; absent cache rejected; prompt matcher tested; startup guard blocks any future activation prompt.",
+  "community_harness_checks": "Explicit edition selection excludes Pro licence/cache data and verifies COMMUNITY_EDITION. Temporary project avoids Pro-only disk project support; isolated JVM temp directory avoids unrelated file cleanup. Standalone launch retains jar manifest JVM options.",
+  "highlighter_validation": {
+    "case_count": 33,
+    "loopback_only": true,
+    "proxy": [
+      "case-insensitive temporary markers removed from URL and body",
+      "multiple temporary markers removed",
+      "origin Content-Length matches rewritten bytes",
+      "permanent request and response markers retained and coloured",
+      "unknown markers unchanged",
+      "disabled capability forwards unchanged requests without highlighting",
+      "live Proxy table-renderer colours differ from baseline"
+    ],
+    "logger": [
+      "temporary Proxy colour preserved after marker removal",
+      "permanent request and response row colours match Proxy palette",
+      "other-tool HTTP marker changes row colour without rewriting its request"
+    ],
+    "normal_unit_tests": 329,
+    "implementation": "Shared capability callback object; bounded 1024 message-ID/colour pairs consumed once, no request content retained; no marker headers added.",
+    "community_current_status": "Current 33-group Community rerun timed out at temporary-project startup while desktop control was unavailable. No assertions ran and no activation was requested. A new run is required; the earlier 21 passing groups apply only to their original jar/catalog."
+  }
+}

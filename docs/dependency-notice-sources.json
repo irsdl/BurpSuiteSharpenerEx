@@ -1,0 +1,112 @@
+{
+  "sources": [
+    {
+      "name": "jna-native-Makefile",
+      "source": "https://raw.githubusercontent.com/java-native-access/jna/5.19.1/native/Makefile",
+      "sha256": "2415a84e4a967557b4ef7d67e3daaca51505a94e5d7d57c88e00fa17ffd808a7"
+    },
+    {
+      "name": "jna-license",
+      "source": "https://raw.githubusercontent.com/java-native-access/jna/5.19.1/LICENSE",
+      "sha256": "07c938b23950ab7d47a24ef35f9f5da3a05ae164278dc959ad6994135ed59ff1"
+    },
+    {
+      "name": "jna-libffi-license",
+      "source": "https://raw.githubusercontent.com/java-native-access/jna/5.19.1/native/libffi/LICENSE",
+      "sha256": "2c9c2acb9743e6b007b91350475308aee44691d96aa20eacef8e199988c8c388"
+    },
+    {
+      "name": "flatlaf-license",
+      "source": "https://raw.githubusercontent.com/JFormDesigner/FlatLaf/3.7.2/LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "name": "gson-license",
+      "source": "https://raw.githubusercontent.com/google/gson/gson-parent-2.14.0/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "name": "javassist-license",
+      "source": "https://raw.githubusercontent.com/jboss-javassist/javassist/rel_3_28_0_ga/License.html",
+      "sha256": "4cb2f5a962422a8385b43f4961905af9b854e619370570a0e61c1f90210aee3a"
+    },
+    {
+      "name": "slf4j-license",
+      "source": "https://raw.githubusercontent.com/qos-ch/slf4j/v_1.7.32/LICENSE.txt",
+      "sha256": "899cb2e2f92e74ec969e477503c6442fb50bec5d523bc87dc40bad3419113c3b"
+    },
+    {
+      "name": "reflections-license",
+      "source": "https://raw.githubusercontent.com/ronmamo/reflections/0.10.2/COPYING.txt",
+      "sha256": "7637386b5f81e8a719ca336233149005e5fa28b5e6054ea7b67de49355b0ad40"
+    },
+    {
+      "name": "error-prone-license",
+      "source": "https://raw.githubusercontent.com/google/error-prone/v2.48.0/COPYING",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "source": "https://repo.maven.apache.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2-sources.jar",
+      "sha256": "1c9e85e272d0708c6a591dc74828c71603053b48cc75ae83cce56912a2aa063b",
+      "publication_http": "Fri, 31 Mar 2017 04:55:51 GMT",
+      "entry": "javax/annotation/Nonnull.java"
+    },
+    {
+      "source": "https://storage.googleapis.com/google-code-archive-source/v2/code.google.com/jsr-305/source-archive.zip",
+      "sha256": "4f29730ba2229df8af699ee139486bf5593052d2fcc2bd0fc3cfe121fd76025b",
+      "entry": "jsr-305/trunk/ri/LICENSE"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/java-native-access/jna/5.19.1/AL2.0",
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "name": "jna Apache option"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/google/gson/gson-parent-2.14.0/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "name": "standard Apache-2.0 text for Javassist Apache option declared by canonical POM"
+    }
+  ],
+  "files": [
+    {
+      "path": "licenses/third-party/error_prone_annotations-2.48.0/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "licenses/third-party/gson-2.14.0/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "licenses/third-party/javassist-3.28.0-GA/Apache-2.0.txt",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "licenses/third-party/javassist-3.28.0-GA/License.html",
+      "sha256": "4cb2f5a962422a8385b43f4961905af9b854e619370570a0e61c1f90210aee3a"
+    },
+    {
+      "path": "licenses/third-party/jna-5.19.1/Apache-2.0.txt",
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+    },
+    {
+      "path": "licenses/third-party/jna-5.19.1/libffi-LICENSE",
+      "sha256": "2c9c2acb9743e6b007b91350475308aee44691d96aa20eacef8e199988c8c388"
+    },
+    {
+      "path": "licenses/third-party/jsr305-3.0.2/LICENSE",
+      "sha256": "fb9bdee1ef51ee85a17d04fda7fbf0ea2af92454b151a252c13cea7a720f3a8b"
+    },
+    {
+      "path": "licenses/third-party/jsr305-3.0.2/SOURCE-NOTICE.txt",
+      "sha256": "b277e165e3630cca3167d9a6ec7c3f0929bc8e6c842e7f096e4ac5737c02b4dd"
+    },
+    {
+      "path": "licenses/third-party/reflections-0.10.2/COPYING.txt",
+      "sha256": "7637386b5f81e8a719ca336233149005e5fa28b5e6054ea7b67de49355b0ad40"
+    },
+    {
+      "path": "licenses/third-party/slf4j-api-1.7.32/LICENSE.txt",
+      "sha256": "899cb2e2f92e74ec969e477503c6442fb50bec5d523bc87dc40bad3419113c3b"
+    }
+  ]
+}

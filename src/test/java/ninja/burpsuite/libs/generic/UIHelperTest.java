@@ -21,6 +21,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 // CI has no display.
 class UIHelperTest {
 
+    @Test
+    void missingParentCancelsPromptsInsteadOfCreatingOrphanWindows() {
+        UIHelper.showMessage("test", "test", null);
+        UIHelper.showWarningMessage("test", null);
+        assertEquals("default", UIHelper.showPlainInputMessage("test", "test", "default", null));
+        assertEquals(javax.swing.JOptionPane.CLOSED_OPTION,
+                UIHelper.askConfirmMessage("test", "test", new String[]{"Yes", "No"}, null));
+        assertEquals("", UIHelper.showFileDialog("", null, null));
+    }
+
     private static final Rectangle SINGLE_SCREEN = new Rectangle(0, 0, 1920, 1080);
 
     // isBoundsOutOfScreen

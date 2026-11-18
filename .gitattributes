@@ -1,0 +1,3 @@
+# Git executes this hook with /bin/sh, including in Git for Windows.
+.githooks/* text eol=lf
+gradlew text eol=lf

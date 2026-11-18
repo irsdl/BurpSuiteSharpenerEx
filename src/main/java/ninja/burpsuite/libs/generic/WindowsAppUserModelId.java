@@ -19,9 +19,9 @@ import java.awt.*;
  * Reads and writes the Windows AppUserModelID property of a window.
  * <p>
  * When Burp Suite is started from its native launcher (install4j exe), the launcher
- * sets a process level AppUserModelID. The Windows taskbar then shows the launcher
- * icon for that ID and ignores the icon set on the window itself. Giving the window
- * its own AppUserModelID breaks that link, so the taskbar uses the window icon again.
+ * sets a process level AppUserModelID. Windows can still use the backing executable
+ * icon after assigning a window ID. Set a real ICO RelaunchIconResource as well,
+ * and preserve both original window properties for reset/unload.
  * <p>
  * This class only uses core JNA. Burp Suite bundles the same JNA classes, so at
  * runtime the parent class loader normally provides them.
@@ -31,6 +31,25 @@ public class WindowsAppUserModelId {
     // PKEY_AppUserModel_ID from the Windows SDK (propkey.h)
     static final String PKEY_APP_USER_MODEL_ID_FMTID = "9F4C2855-9F79-4B39-A8D0-E1D42DE1D5F3";
     static final int PKEY_APP_USER_MODEL_ID_PID = 5;
+    static final int PKEY_RELAUNCH_ICON_RESOURCE_PID = 3;
+
+    public record TaskbarProperties(String appId, String iconResource) {}
+
+    public static TaskbarProperties getTaskbarProperties(Window window) {
+        return new TaskbarProperties(getStringProperty(window, PKEY_APP_USER_MODEL_ID_PID),
+                getStringProperty(window, PKEY_RELAUNCH_ICON_RESOURCE_PID));
+    }
+
+    public static boolean setTaskbarProperties(Window window, TaskbarProperties properties) {
+        if (!isWindows() || window == null || !window.isDisplayable()) return false;
+        TaskbarProperties before = getTaskbarProperties(window);
+        // Set the visual property before identity, so regrouping sees the right icon.
+        if (setStringProperty(window, PKEY_RELAUNCH_ICON_RESOURCE_PID, properties.iconResource())
+                && setAppUserModelId(window, properties.appId())) return true;
+        setStringProperty(window, PKEY_RELAUNCH_ICON_RESOURCE_PID, before.iconResource());
+        setAppUserModelId(window, before.appId());
+        return false;
+    }
 
     // IID_IPropertyStore
     static final String IID_IPROPERTY_STORE = "886D8EEB-8CF2-4446-8D02-CDBA1DBDCF99";
@@ -68,14 +87,19 @@ public class WindowsAppUserModelId {
     }
 
     static boolean isWindowsOsName(String osName) {
-        return osName != null && osName.toLowerCase().startsWith("windows");
+        return osName != null && osName.toLowerCase(java.util.Locale.ROOT).startsWith("windows");
     }
 
     /**
      * Returns the AppUserModelID stored on the window, or null when the window has none.
-     * Returns null on any failure. Must be called on a displayable window.
+     * Native read errors throw rather than masquerade as an absent property.
+     * Must be called on a displayable window.
      */
     public static String getAppUserModelId(Window window) {
+        return getStringProperty(window, PKEY_APP_USER_MODEL_ID_PID);
+    }
+
+    private static String getStringProperty(Window window, int propertyId) {
         if (!isWindows() || window == null || !window.isDisplayable()) {
             return null;
         }
@@ -89,14 +113,14 @@ public class WindowsAppUserModelId {
         try {
             Pointer store = openPropertyStore(hwnd);
             if (store == null) {
-                return null;
+                throw new IllegalStateException("Could not open Windows taskbar property store");
             }
             try {
-                Memory propertyKey = buildAppUserModelIdPropertyKey();
+                Memory propertyKey = buildPropertyKey(propertyId);
                 Memory propVariant = emptyPropVariant();
                 int hr = invokeVtblFunction(store, VTBL_GET_VALUE, new Object[]{store, propertyKey, propVariant});
                 if (hr != 0) {
-                    return null;
+                    throw new IllegalStateException("Could not read Windows taskbar property " + propertyId + ": " + Integer.toHexString(hr));
                 }
                 try {
                     if (propVariant.getShort(0) == VT_LPWSTR) {
@@ -105,6 +129,8 @@ public class WindowsAppUserModelId {
                             return stringPointer.getWideString(0);
                         }
                     }
+                    if (propVariant.getShort(0) != VT_EMPTY)
+                        throw new IllegalStateException("Unexpected Windows taskbar property type");
                     return null;
                 } finally {
                     Ole32.INSTANCE.PropVariantClear(propVariant);
@@ -125,6 +151,10 @@ public class WindowsAppUserModelId {
      * Returns true on success. Must be called on a displayable window.
      */
     public static boolean setAppUserModelId(Window window, String appId) {
+        return setStringProperty(window, PKEY_APP_USER_MODEL_ID_PID, appId);
+    }
+
+    private static boolean setStringProperty(Window window, int propertyId, String appId) {
         if (!isWindows() || window == null || !window.isDisplayable()) {
             return false;
         }
@@ -141,7 +171,7 @@ public class WindowsAppUserModelId {
                 return false;
             }
             try {
-                Memory propertyKey = buildAppUserModelIdPropertyKey();
+                Memory propertyKey = buildPropertyKey(propertyId);
                 Memory propVariant = emptyPropVariant();
 
                 // The value memory must stay referenced until SetValue has copied it.
@@ -192,10 +222,10 @@ public class WindowsAppUserModelId {
     }
 
     // PROPERTYKEY is a GUID followed by a 4 byte property id
-    private static Memory buildAppUserModelIdPropertyKey() {
+    private static Memory buildPropertyKey(int propertyId) {
         Memory memory = new Memory(20);
         memory.write(0, guidToBytes(PKEY_APP_USER_MODEL_ID_FMTID), 0, 16);
-        memory.setInt(16, PKEY_APP_USER_MODEL_ID_PID);
+        memory.setInt(16, propertyId);
         return memory;
     }
 

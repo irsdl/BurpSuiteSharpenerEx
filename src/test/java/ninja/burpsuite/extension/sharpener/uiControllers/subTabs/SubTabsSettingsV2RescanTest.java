@@ -190,4 +190,34 @@ public class SubTabsSettingsV2RescanTest {
         assertNotNull(result);
         verify(mockedSubTabsSettings, never()).scheduleTabRescan(any());
     }
+    @Test
+    void unknownOrReplacedHeadersNeverOverwriteSavedStyles() {
+        repeaterHandlers().add(createHandler(0));
+        repeaterHandlers().add(createHandler(1));
+        // Burp replaces one recognised title with a new header shape before a save.
+        JPanel changedHeader = new JPanel();
+        changedHeader.add(new JLabel("new Burp header"));
+        toolTabbedPane.setTabComponentAt(1, changedHeader);
+        clearInvocations(sharedParameters.preferences);
+        subTabsSettings.saveSettings(BurpUITools.MainTabs.Repeater);
+        verify(sharedParameters.preferences, never()).safeSetSetting(anyString(), any(), any());
+        verify(sharedParameters).reportCompatibilityIssue(contains("style saving"), isNull());
+    }
+
+    @Test
+    void tabsWithoutCustomHeadersAlsoPreventDestructiveStyleSaves() {
+        toolTabbedPane.addTab("future default header", new JPanel());
+        repeaterHandlers().add(createHandler(0));
+        repeaterHandlers().add(createHandler(1));
+        clearInvocations(sharedParameters.preferences);
+        subTabsSettings.saveSettings(BurpUITools.MainTabs.Repeater);
+        verify(sharedParameters.preferences, never()).safeSetSetting(anyString(), any(), any());
+    }
+    @Test
+    void transientEmptyPaneDoesNotEraseSavedStyles() {
+        toolTabbedPane.removeAll();
+        clearInvocations(sharedParameters.preferences);
+        subTabsSettings.saveSettings(BurpUITools.MainTabs.Repeater);
+        verify(sharedParameters.preferences, never()).safeSetSetting(anyString(), any(), any());
+    }
 }

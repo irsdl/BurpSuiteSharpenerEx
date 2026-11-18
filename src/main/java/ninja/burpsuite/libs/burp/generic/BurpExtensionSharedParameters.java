@@ -13,9 +13,8 @@ import ninja.burpsuite.libs.thirdparty.burpextenderutilities.Preferences;
 import ninja.burpsuite.extension.sharpener.ExtensionMainClass;
 import ninja.burpsuite.extension.sharpener.uiSelf.topMenu.TopMenu;
 import ninja.burpsuite.libs.generic.DelayedTaskRunner;
+import ninja.burpsuite.libs.generic.BackgroundTaskRunner;
 import ninja.burpsuite.libs.generic.PropertiesHelper;
-import ninja.burpsuite.libs.generic.uiObjFinder.UIWalker;
-import ninja.burpsuite.libs.generic.uiObjFinder.UiSpecObject;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import javax.swing.*;
@@ -40,7 +39,9 @@ public class BurpExtensionSharedParameters {
     public ExtendedPreferences preferences; // to use the ability of this project: https://github.com/CoreyD97/BurpExtenderUtilities
     public boolean unloadWithoutSave = false; // this is useful if we need to exit without save in some situation
     // one shared daemon timer for all delayed tasks; it is stopped once during unload
-    public final DelayedTaskRunner delayedTasks = new DelayedTaskRunner();
+    public final DelayedTaskRunner delayedTasks = new DelayedTaskRunner(
+            failure -> reportBackgroundFailure("delayed task", failure));
+    public final BackgroundTaskRunner backgroundTasks = new BackgroundTaskRunner(this::reportBackgroundFailure);
     public boolean isBurpPro = false;
     public long burpBuildNumber = 0; // Montoya buildNumber(), 0 when unknown
     public double burpMajorVersion = 0.0; // Burp year, for example 2026, derived from burpBuildNumber
@@ -50,6 +51,9 @@ public class BurpExtensionSharedParameters {
     // the focus listener that reapplies the custom icon; kept so unload can remove exactly
     // this listener instead of guessing which listener on the main frame is ours
     public java.awt.event.WindowFocusListener iconRefreshWindowFocusListener = null;
+    public Window iconRefreshWindow = null;
+    public final java.util.concurrent.atomic.AtomicLong iconUpdateSequence = new java.util.concurrent.atomic.AtomicLong();
+    public final java.util.Map<Window, java.util.List<Image>> originalWindowIconImages = new java.util.WeakHashMap<>();
     public boolean isDarkMode = false; // Sometimes extensions need to see whether Burp uses dark or light mode
     public JComponent extensionSuiteTab = null; // panel that extension adds to burp
     public TopMenu topMenuBar;
@@ -97,10 +101,37 @@ public class BurpExtensionSharedParameters {
     private String _originalBurpTitle = ""; // Burp Suite's original frame title
     private java.util.List<Image> _originalBurpIcons = null; // Burp Suite's original frame icons
     private boolean _isUILoaded = false; // Burp Suite's original frame icon
+    private final java.util.Set<String> compatibilityWarnings = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    public void reportBackgroundFailure(String feature, Throwable failure) {
+        if (montoyaApi != null) {
+            montoyaApi.logging().logToError("Sharpener background operation failed: " + feature);
+            montoyaApi.logging().logToError(failure);
+        }
+    }
+
+    // Optional UI/API integrations must not take unrelated features down with them.
+    public void runOptionalFeature(String feature, Runnable action) {
+        try {
+            action.run();
+        } catch (RuntimeException | LinkageError failure) {
+            reportCompatibilityIssue(feature, failure);
+        }
+    }
+
+    public void reportCompatibilityIssue(String feature, Throwable failure) {
+        if (compatibilityWarnings.add(feature)) {
+            printlnError("Sharpener compatibility: " + feature + " is unavailable in Burp build "
+                    + burpBuildNumber + ". Other features will continue; saved preferences are retained."
+                    + (failure == null ? "" : " (" + failure.getClass().getSimpleName() + ": " + failure.getMessage() + ")"));
+            if (failure != null && montoyaApi != null) montoyaApi.logging().logToError(failure);
+        }
+    }
 
     // Original state of OS level taskbar icons, used to restore them on unload.
-    // originalWindowAppIds keeps the Windows AppUserModelID of each changed window ("" means it had none).
-    public final java.util.Map<Window, String> originalWindowAppIds = java.util.Collections.synchronizedMap(new java.util.WeakHashMap<>());
+    // Preserve both properties: the native launcher can supply its own icon resource.
+    public final java.util.Map<Window, ninja.burpsuite.libs.generic.WindowsAppUserModelId.TaskbarProperties> originalWindowTaskbarProperties = java.util.Collections.synchronizedMap(new java.util.WeakHashMap<>());
+    public String windowsTaskbarIconResource = null;
     public Image originalTaskbarIconImage = null; // original java.awt.Taskbar icon (macOS Dock)
     public boolean originalTaskbarIconSaved = false;
     // last icon applied to the OS taskbar/dock; the focus refresh skips the native call when it is unchanged
@@ -283,8 +314,8 @@ public class BurpExtensionSharedParameters {
         while (!foundUI && attemptsRemaining > 0) {
             try {
 
-                if (get_rootTabbedPaneUsingMontoya() != null && get_mainFrameUsingMontoya() != null && get_mainFrameUsingMontoya().getRootPane() != null) {
-                    isDarkMode = BurpUITools.isDarkMode(get_rootTabbedPaneUsingMontoya());
+                if (get_mainFrameUsingMontoya() != null && get_mainFrameUsingMontoya().getRootPane() != null) {
+                    isDarkMode = BurpUIDiscovery.onEdt(() -> BurpUITools.isDarkMode(get_mainFrameUsingMontoya().getRootPane()));
                     foundUI = true;
                 } else
                     throw new Exception("no ui");
@@ -293,21 +324,25 @@ public class BurpExtensionSharedParameters {
 
             } catch (Exception e) {
                 attemptsRemaining--;
-                // a fixed short delay; the old growing delay could add up to 45 seconds
-                // and made Burp look frozen while the extension was loading
+                // Never sleep on Swing's event thread, or after the final attempt.
+                if (SwingUtilities.isEventDispatchThread() || attemptsRemaining <= 0) break;
                 try {
                     Thread.sleep(UI_LOAD_RETRY_DELAY_MS);
-                } catch (InterruptedException ignored) {
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    break;
                 }
             }
         }
 
         if (!foundUI) {
-            printlnError(extensionName + " extension UI elements could not be added. Please try again.");
-            printDebugMessage("Perhaps unload the extension at this point");
+            reportCompatibilityIssue("frame customisation", null);
         } else {
-            _originalBurpTitle = get_mainFrameUsingMontoya().getTitle();
-            _originalBurpIcons = get_mainFrameUsingMontoya().getIconImages();
+            BurpUIDiscovery.onEdt(() -> {
+                _originalBurpTitle = get_mainFrameUsingMontoya().getTitle();
+                _originalBurpIcons = get_mainFrameUsingMontoya().getIconImages();
+                return null;
+            });
 
             printDebugMessage("Original title and icon has been set");
         }
@@ -417,53 +452,30 @@ public class BurpExtensionSharedParameters {
     }
 
     public JFrame get_mainFrameUsingMontoya() {
-        return (JFrame) montoyaApi.userInterface().swingUtils().suiteFrame();
+        Frame frame = montoyaApi.userInterface().swingUtils().suiteFrame();
+        return frame instanceof JFrame swingFrame ? swingFrame : null;
     }
 
     public JMenuBar get_mainMenuBarUsingMontoya() {
-        JMenuBar mainMenuBar = get_mainFrameUsingMontoya().getJMenuBar();
-        if (!mainMenuBar.equals(_mainMenuBar)) {
-            set_mainMenuBar(mainMenuBar);
-        }
-
-        return _mainMenuBar;
+        return BurpUIDiscovery.onEdt(() -> {
+            JFrame frame = get_mainFrameUsingMontoya();
+            set_mainMenuBar(frame == null ? null : frame.getJMenuBar());
+            return _mainMenuBar;
+        });
     }
 
     public JTabbedPane get_rootTabbedPaneUsingMontoya() {
-        if (this._rootTabbedPane == null) {
-            try {
-                JRootPane rootPane = ((JFrame) montoyaApi.userInterface().swingUtils().suiteFrame()).getRootPane();
-                Component firstComponent = rootPane.getContentPane().getComponent(0);
-
-                if (firstComponent instanceof JTabbedPane) {
-                    set_rootTabbedPane((JTabbedPane) firstComponent);
-                } else {
-                    // fix for version 2023.12.1-25776
-                    set_rootTabbedPane((JTabbedPane)  ((JLayeredPane) firstComponent).getComponent(1));
-                }
-            } catch (Exception e) {
-                // This is to find the root of the Burp Suite frame when the above fails
-                // We should not really be here
-                printlnError("A failure in get_rootTabbedPaneUsingMontoya() has occurred. Hopefully this will be recovered now.");
-                // Defining how our Burp Suite frame is
-                UiSpecObject uiSpecObject_for_rootPane = new UiSpecObject();
-                uiSpecObject_for_rootPane.set_objectType(JFrame.class);
-                uiSpecObject_for_rootPane.set_isShowing(true);
-
-                JRootPane rootPane = ((JFrame) UIWalker.findUIObjectInComponents(JFrame.getWindows(), uiSpecObject_for_rootPane)).getRootPane();
-
-                UiSpecObject uiSpecObject_for_JTabbedPane = new UiSpecObject();
-                uiSpecObject_for_JTabbedPane.set_objectType(JTabbedPane.class);
-                uiSpecObject_for_JTabbedPane.set_isShowing(true);
-                uiSpecObject_for_JTabbedPane.set_isJComponent(true);
-                uiSpecObject_for_JTabbedPane.set_minJComponentCount(2);
-
-                JTabbedPane jTabbedPane = ((JTabbedPane) UIWalker.findUIObjectInSubComponents(rootPane, 4, uiSpecObject_for_JTabbedPane));
-
-                set_rootTabbedPane(jTabbedPane);
-            }
-        }
-        return this._rootTabbedPane;
+        return BurpUIDiscovery.onEdt(() -> {
+            JFrame frame = get_mainFrameUsingMontoya();
+            Container content = frame == null ? null : frame.getContentPane();
+            if (_rootTabbedPane != null && (content == null
+                    || !SwingUtilities.isDescendingFrom(_rootTabbedPane, content)
+                    || !BurpUIDiscovery.isMainTabs(_rootTabbedPane)))
+                set_rootTabbedPane(null);
+            if (_rootTabbedPane == null)
+                set_rootTabbedPane(BurpUIDiscovery.findMainTabs(content));
+            return _rootTabbedPane;
+        });
     }
 
 

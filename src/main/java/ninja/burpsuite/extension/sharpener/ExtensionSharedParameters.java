@@ -13,8 +13,7 @@ import ninja.burpsuite.extension.sharpener.uiControllers.subTabs.SubTabsContaine
 import ninja.burpsuite.extension.sharpener.uiSelf.topMenu.TopMenu;
 import ninja.burpsuite.libs.burp.generic.BurpExtensionSharedParameters;
 import ninja.burpsuite.libs.burp.generic.BurpUITools;
-import ninja.burpsuite.libs.generic.uiObjFinder.UIWalker;
-import ninja.burpsuite.libs.generic.uiObjFinder.UiSpecObject;
+import ninja.burpsuite.libs.burp.generic.BurpUIDiscovery;
 
 import javax.swing.*;
 import javax.swing.plaf.TabbedPaneUI;
@@ -46,7 +45,6 @@ public class ExtensionSharedParameters extends BurpExtensionSharedParameters {
     public HashMap<BurpUITools.MainTabs, LinkedList<Integer>> subTabPreviouslySelectedIndexHistory = new HashMap<>();
     public HashMap<BurpUITools.MainTabs, LinkedList<Integer>> subTabNextlySelectedIndexHistory = new HashMap<>();
     public HashMap<BurpUITools.MainTabs, TabbedPaneUI> originalSubTabbedPaneUI = new HashMap<>();
-    private final HashMap<BurpUITools.MainTabs, JTabbedPane> cachedJTabbedPaneTools = new HashMap<>(); // This will keep pointer to the current repeater or intruder even when they are detached
 
     public ExtensionSharedParameters(ExtensionMainClass extensionMainClass, MontoyaApi api, String propertiesFilePath) {
         super(extensionMainClass, api, propertiesFilePath);
@@ -112,91 +110,27 @@ public class ExtensionSharedParameters extends BurpExtensionSharedParameters {
     }
 
     public JTabbedPane get_toolTabbedPane(BurpUITools.MainTabs toolTabName, boolean useCache) {
-        JTabbedPane toolTabbedPane = null;
-        JTabbedPane _rootTabbedPane = get_rootTabbedPaneUsingMontoya();
+        // Re-discover within the current tool subtree: a detached/replaced pane can remain
+        // perfectly callable, so getSelectedComponent() is not evidence a cached pane is live.
+        return BurpUIDiscovery.onEdt(() -> {
+            if (toolTabName == null || toolTabName == BurpUITools.MainTabs.None) return null;
+            Component content = BurpUIDiscovery.toolContent(get_rootTabbedPaneUsingMontoya(), toolTabName);
+            if (content != null) return BurpUIDiscovery.findToolTabs(content);
 
-
-        if (useCache && cachedJTabbedPaneTools.get(toolTabName) != null) {
-            toolTabbedPane = cachedJTabbedPaneTools.get(toolTabName);
-            try {
-                toolTabbedPane.getSelectedComponent();
-            } catch (Exception e) {
-                // could not access the object
-                toolTabbedPane = null;
-            }
-        }
-
-        if (_rootTabbedPane != null && toolTabbedPane == null) {
-            boolean hasSubTabs = true;
-            for (Component tabComponent : _rootTabbedPane.getComponents()) {
-
-                //Check tab titles and continue for accepted tab paths.
-                int componentIndex = _rootTabbedPane.indexOfComponent(tabComponent);
-                if (componentIndex == -1) {
-                    continue;
-                }
-                String componentTitle = _rootTabbedPane.getTitleAt(componentIndex);
-
-                if (toolTabName.toString().equalsIgnoreCase(componentTitle)) {
-                    // we have our tool tab, now we need to find its right component
-                    try {
-                        toolTabbedPane = (JTabbedPane) tabComponent;
-                    } catch (Exception e1) {
-                        try {
-                            toolTabbedPane = (JTabbedPane) ((JComponent) tabComponent).getComponents()[0];
-                            //toolTabbedPane = (JTabbedPane) tabComponent.getComponentAt(0, 0); // this is not working when repeater or intruder do not have any tabs
-                        } catch (Exception e2) {
-                            hasSubTabs = false;
-                            printDebugMessage("The " + componentTitle + " tool seems to be empty or different. Cannot find the tabs.");
-                        }
-                    }
-                    break;
-                }
-            }
-
-            if (toolTabbedPane == null && hasSubTabs) {
-                // it could not find the tool, this can happen when a tool has been detached, so we need to look for it!
-                for (Window window : Window.getWindows()) {
-                    if (window.isShowing()) {
-                        if (window instanceof JFrame) {
-                            String title = ((JFrame) window).getTitle();
-
-                            // "Repeater" used to become "Burp Repeater" when it was detached
-                            //if (title.equalsIgnoreCase("Burp " + toolTabName.toString())) {
-
-                            // "Repeater" is now "Repeater" (v2023.10)
-                            if (title.equalsIgnoreCase(toolTabName.toString())) {
-                                UiSpecObject uiSpecObject = new UiSpecObject(JTabbedPane.class);
-                                uiSpecObject.set_isJComponent(true);
-                                uiSpecObject.set_isShowing(true);
-
-                                Component tempComponent = UIWalker.findUIObjectInSubComponents(window.getComponents()[0], 6, uiSpecObject);
-                                // after finding the first JTabbedPane, we need to look again in its children and exclude itself to find the one that includes Repeater or Intruder tabs
-                                Component tempComponent2 = UIWalker.findUIObjectInSubComponentsWithExclusions(tempComponent, 1, uiSpecObject, new Component[]{tempComponent});
-                                if (tempComponent2 != null) {
-                                    toolTabbedPane = (JTabbedPane) tempComponent2;
-                                    break;
-                                }
-                            }
-                        }
+            JTabbedPane detached = null;
+            for (Window window : Window.getWindows()) {
+                if (window.isShowing() && window instanceof JFrame frame
+                        && (toolTabName.toString().equalsIgnoreCase(frame.getTitle())
+                        || ("Burp " + toolTabName).equalsIgnoreCase(frame.getTitle()))) {
+                    JTabbedPane candidate = BurpUIDiscovery.findToolTabs(frame.getContentPane());
+                    if (candidate != null) {
+                        if (detached != null) return null;
+                        detached = candidate;
                     }
                 }
             }
-        }
-
-        if (toolTabbedPane != null) {
-            if (cachedJTabbedPaneTools.get(toolTabName) != null) {
-                cachedJTabbedPaneTools.replace(toolTabName, toolTabbedPane);
-            } else {
-                cachedJTabbedPaneTools.put(toolTabName, toolTabbedPane);
-            }
-        }
-
-        if (toolTabbedPane == null) {
-            printDebugMessage("subTabbedPane is null for " + toolTabName + ". This can cause an error if not handled gracefully.");
-        }
-
-        return toolTabbedPane;
+            return detached;
+        });
     }
 
 }

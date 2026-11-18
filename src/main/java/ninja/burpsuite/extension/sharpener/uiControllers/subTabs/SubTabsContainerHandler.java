@@ -10,6 +10,7 @@ import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
 import ninja.burpsuite.extension.sharpener.objects.TabFeaturesObject;
 import ninja.burpsuite.extension.sharpener.objects.TabFeaturesObjectStyle;
 import ninja.burpsuite.libs.burp.generic.BurpUITools;
+import ninja.burpsuite.libs.burp.generic.BurpUIDiscovery;
 import ninja.burpsuite.libs.generic.ImageHelper;
 import ninja.burpsuite.libs.generic.MouseEventForwarder;
 import ninja.burpsuite.libs.generic.uiObjFinder.UIWalker;
@@ -26,6 +27,8 @@ import java.util.Arrays;
 import java.util.Collections;
 
 public final class SubTabsContainerHandler {
+    private static final String ICON_KEY = "Sharpener.subTab.icon";
+    private static final String WATCHER_KEY = "Sharpener.subTab.watcher";
     public JTabbedPane parentTabbedPane;
     public Container currentTabContainer;
     public JComponent currentTabTextField;
@@ -55,34 +58,12 @@ public final class SubTabsContainerHandler {
         this.sharedParameters = sharedParameters;
         this.parentTabbedPane = tabbedPane;
 
-        if (tabbedPane.getTabCount() <= tabIndex)
+        if (tabbedPane == null || tabIndex < 0 || tabbedPane.getTabCount() <= tabIndex)
             return;
-
         Component currentTabTemp = tabbedPane.getTabComponentAt(tabIndex);
-        if (!(currentTabTemp instanceof Container)) return; // this is not a container, so it is not useful for us
-
-        // to find whether this subtab is in repeater or intruder:
-        String toolTabName = "";
-        Component _parentTabbedPane = tabbedPane.getParent();
-        if (_parentTabbedPane instanceof JTabbedPane currentParentTabbedPane) {
-            toolTabName = currentParentTabbedPane.getTitleAt(currentParentTabbedPane.indexOfComponent(tabbedPane));
-
-        } else if (_parentTabbedPane instanceof JPanel && _parentTabbedPane.getParent() instanceof JTabbedPane currentParentTabbedPane) {
-            toolTabName = currentParentTabbedPane.getTitleAt(currentParentTabbedPane.indexOfComponent(tabbedPane.getParent()));
-        } else if (_parentTabbedPane instanceof JPanel currentParentTabbedPane) {
-            // it's being detached! who does that?! :p
-            toolTabName = ((JFrame) currentParentTabbedPane.getRootPane().getParent()).getTitle().replace("Burp ", "");
-        }
-
-        currentToolTab = BurpUITools.getMainTabsObjFromString(toolTabName);
-
-        if (currentToolTab == BurpUITools.MainTabs.None) {
-            // this is the new changes introduce by burp 2022.1, so we need this code now
-            int currentTabToolIndex = sharedParameters.get_rootTabbedPaneUsingMontoya().indexOfComponent(tabbedPane.getParent());
-            toolTabName = sharedParameters.get_rootTabbedPaneUsingMontoya().getTitleAt(currentTabToolIndex);
-        }
-
-        currentToolTab = BurpUITools.getMainTabsObjFromString(toolTabName);
+        if (!(currentTabTemp instanceof Container)) return;
+        currentToolTab = BurpUIDiscovery.toolFor(tabbedPane);
+        if (currentToolTab == BurpUITools.MainTabs.None) return;
         this.currentTabContainer = (Container) currentTabTemp;
 
         // remember Burp's own tab layout so it can be restored after an icon is removed. The icon
@@ -137,10 +118,12 @@ public final class SubTabsContainerHandler {
     public boolean addSubTabWatcher() {
         if (!isValid())
             return false;
-        // this.currentTabLabel.getPropertyChangeListeners().length is 2 by default in this case ... Burp Suite may change this and break my extension :s
-        if (subTabPropertyChangeListener == null && this.currentTabTextField.getPropertyChangeListeners().length < 3) {
+        Object owner = currentTabTextField.getClientProperty(WATCHER_KEY);
+        if (owner != null && owner != this) return false;
+        currentTabTextField.putClientProperty(WATCHER_KEY, this);
+        if (subTabPropertyChangeListener == null) {
             subTabPropertyChangeListener = evt -> {
-                if (evt.getPropertyName().equalsIgnoreCase("editable")) {
+                if ("editable".equalsIgnoreCase(evt.getPropertyName())) {
                     if (evt.getSource().getClass().equals(currentTabTextField.getClass())) {
                         if (!titleEditInProgress) {
                             if ((boolean) evt.getNewValue()) {
@@ -172,7 +155,7 @@ public final class SubTabsContainerHandler {
                         }
                     }
 
-                } else if (evt.getPropertyName().equalsIgnoreCase("disabledTextColor")) {
+                } else if ("disabledTextColor".equalsIgnoreCase(evt.getPropertyName())) {
                     if (!sharedParameters.isTabTextColorSetByBackground) {
                         // Burp 2026+ sets the tab colour through the tabbed pane foreground,
                         // so the title field disabledTextColor is no longer used for colouring
@@ -225,8 +208,6 @@ public final class SubTabsContainerHandler {
                 }
             };
             this.currentTabTextField.addComponentListener(subTabComponentWatcher);
-        } else if (this.currentTabTextField.getPropertyChangeListeners().length == 3) {
-            subTabPropertyChangeListener = this.currentTabTextField.getPropertyChangeListeners()[2];
         }
         // on new Burp the tab container swallows clicks on its free space, so a click on the
         // padding between the title and the close button never reaches the tabbed pane. This
@@ -239,12 +220,16 @@ public final class SubTabsContainerHandler {
     }
 
     public void removeSubTabWatcher() {
+        if (currentTabTextField != null && currentTabTextField.getClientProperty(WATCHER_KEY) == this)
+            currentTabTextField.putClientProperty(WATCHER_KEY, null);
         if (subTabPropertyChangeListener != null) {
             this.currentTabTextField.removePropertyChangeListener(subTabPropertyChangeListener);
+            subTabPropertyChangeListener = null;
         }
         // the component listener added by addSubTabWatcher must be removed too, otherwise it stays on the tab after unload
         if (subTabComponentWatcher != null) {
             this.currentTabTextField.removeComponentListener(subTabComponentWatcher);
+            subTabComponentWatcher = null;
         }
         if (currentTabContainer instanceof JComponent) {
             removeContainerClickForwarder((JComponent) currentTabContainer);
@@ -334,11 +319,13 @@ public final class SubTabsContainerHandler {
     }
 
     public boolean isDotDotDotTab() {
+        if (parentTabbedPane == null || parentTabbedPane.getTabCount() == 0 || currentTabContainer == null)
+            return false;
         if (sharedParameters.isTabGroupSupportedByDefault) {
             // in this version dotdotdot tab has been removed!
             return false;
         } else {
-            return parentTabbedPane.getTabComponentAt(parentTabbedPane.getTabCount() - 1).equals(currentTabContainer);
+            return currentTabContainer.equals(parentTabbedPane.getTabComponentAt(parentTabbedPane.getTabCount() - 1));
         }
     }
 
@@ -725,18 +712,20 @@ public final class SubTabsContainerHandler {
             Image myImg = ImageHelper.scaleImageToWidth(ImageHelper.loadImageResource(sharedParameters.extensionClass, "subtabicons/" + iconString + ".png"), iconSize);
 
             if (myImg != null) {
-                JComponent tabComponent = (JComponent) parentTabbedPane.getTabComponentAt(getTabIndex());
-
-                if (tabComponent.getComponent(0) instanceof JLabel) {
-                    // we already have an icon so we remove it!
-                    tabComponent.remove(0);
+                Component header = parentTabbedPane.getTabComponentAt(getTabIndex());
+                if (!(header instanceof JComponent tabComponent) || !canArrangeHeader(tabComponent)) {
+                    sharedParameters.reportCompatibilityIssue("sub-tab icon layout", null);
+                    return;
                 }
+                JLabel oldIcon = ownedIcon();
+                if (oldIcon != null) tabComponent.remove(oldIcon);
 
-                if (tabComponent.getComponent(0) instanceof JTextField) {
+                if (currentTabTextField.getParent() == tabComponent) {
                     // No icon has been added
                     try {
                         JLabel jLabel = new JLabel(new ImageIcon(myImg));
                         jLabel.setName(iconString + ":" + iconSize);
+                        tabComponent.putClientProperty(ICON_KEY, jLabel);
                         jLabel.setOpaque(false);
                         jLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder());
                         // clicks on the icon must still reach the tabbed pane so the tab can be selected
@@ -744,7 +733,7 @@ public final class SubTabsContainerHandler {
                         if (sharedParameters.isTabTextColorSetByBackground) {
                             // old Burp: the original layout only manages the title, so a generic layout is needed
                             tabComponent.setLayout(new FlowLayout(FlowLayout.CENTER));
-                            tabComponent.setSize(tabComponent.getComponent(1).getWidth() + jLabel.getWidth(), tabComponent.getHeight());
+                            tabComponent.setSize(tabComponent.getPreferredSize());
                             tabComponent.add(jLabel, 0);
                         } else {
                             // new Burp: a BorderLayout would stretch the title across the tab and leave a
@@ -769,36 +758,38 @@ public final class SubTabsContainerHandler {
         }
     }
 
-    public void setVisibleIcon(boolean state, boolean ignoreHasChanges) {
-        if (isValid()) {
-            JComponent tabComponent = (JComponent) parentTabbedPane.getTabComponentAt(getTabIndex());
+    private JLabel ownedIcon() {
+        if (!isValid() || !(parentTabbedPane.getTabComponentAt(getTabIndex()) instanceof JComponent header)) return null;
+        Object icon = header.getClientProperty(ICON_KEY);
+        return icon instanceof JLabel label && label.getParent() == header ? label : null;
+    }
 
-            if (tabComponent.getComponent(0) instanceof JLabel) {
-                tabComponent.getComponent(0).setVisible(state);
-                if (!ignoreHasChanges) {
-                    parentTabbedPane.revalidate();
-                    parentTabbedPane.repaint();
-                }
-            }
+    private boolean canArrangeHeader(JComponent header) {
+        if (currentTabTextField.getParent() != header) return false;
+        for (Component child : header.getComponents())
+            if (child != currentTabTextField && child != ownedIcon() &&
+                    child != currentTabCloseButton && child != currentTabGroupButton &&
+                    !(child instanceof AbstractButton)) return false;
+        return true;
+    }
+
+    public void setVisibleIcon(boolean state, boolean ignoreHasChanges) {
+        JLabel icon = ownedIcon();
+        if (icon != null) {
+            icon.setVisible(state);
+            if (!ignoreHasChanges) { parentTabbedPane.revalidate(); parentTabbedPane.repaint(); }
         }
     }
 
     public void removeIcon(boolean ignoreHasChanges) {
-        if (isValid()) {
-            JComponent tabComponent = (JComponent) parentTabbedPane.getTabComponentAt(getTabIndex());
-            if (tabComponent.getComponent(0) instanceof JLabel) {
-                // we have an icon set
-                tabComponent.remove(0);
-                if (!ignoreHasChanges) {
-                    parentTabbedPane.revalidate();
-                    parentTabbedPane.repaint();
-                }
-            }
-            // the whole-tab click forwarder stays on the tab (it is removed on unload by removeSubTabWatcher)
-            // heals tabs which lost their original layout to an older version of this extension,
-            // and restores the normal Burp BorderLayout after the tight icon FlowLayout is removed
-            repairTabComponentLayout(tabComponent);
+        if (!isValid() || !(parentTabbedPane.getTabComponentAt(getTabIndex()) instanceof JComponent header)) return;
+        JLabel icon = ownedIcon();
+        if (icon != null) {
+            header.remove(icon);
+            header.putClientProperty(ICON_KEY, null);
+            if (!ignoreHasChanges) { parentTabbedPane.revalidate(); parentTabbedPane.repaint(); }
         }
+        if (canArrangeHeader(header)) repairTabComponentLayout(header);
     }
 
     private void addContainerClickForwarder(JComponent tabComponent) {
@@ -856,44 +847,22 @@ public final class SubTabsContainerHandler {
     }
 
     public String getIconString() {
-        String _iconString = "";
-        if (hasIcon() && isValid()) {
-            JComponent tabComponent = (JComponent) parentTabbedPane.getTabComponentAt(getTabIndex());
-            if (tabComponent.getComponent(0) instanceof JLabel) {
-                // we have an icon set
-                String tempName = tabComponent.getComponent(0).getName();
-                if (!tempName.isBlank() && tempName.contains(":"))
-                    _iconString = tempName.split(":")[0];
-            }
-        }
-
-        return _iconString;
+        JLabel icon = ownedIcon();
+        if (icon == null || icon.getName() == null) return "";
+        String[] parts = icon.getName().split(":", 2);
+        return parts.length == 2 ? parts[0] : "";
     }
 
     public int getIconSize() {
-        int _iconSize = 0;
-        if (hasIcon() && isValid()) {
-            JComponent tabComponent = (JComponent) parentTabbedPane.getTabComponentAt(getTabIndex());
-            if (tabComponent.getComponent(0) instanceof JLabel) {
-                // we have an icon set
-                String tempName = tabComponent.getComponent(0).getName();
-                if (!tempName.isBlank() && tempName.contains(":"))
-                    _iconSize = Integer.parseInt(tempName.split(":")[1]);
-            }
-        }
-        return _iconSize;
+        JLabel icon = ownedIcon();
+        if (icon == null || icon.getName() == null) return 0;
+        String[] parts = icon.getName().split(":", 2);
+        try { return parts.length == 2 ? Integer.parseInt(parts[1]) : 0; }
+        catch (NumberFormatException ignored) { return 0; }
     }
 
     public boolean hasIcon() {
-        boolean result = false;
-        if (isValid()) {
-            JComponent tabComponent = (JComponent) parentTabbedPane.getTabComponentAt(getTabIndex());
-            if (tabComponent.getComponent(0) instanceof JLabel) {
-                // we have an icon set
-                result = true;
-            }
-        }
-        return result;
+        return ownedIcon() != null;
     }
 
     public void setVisibleCloseButton(boolean isVisible, boolean ignoreHasChanges) {

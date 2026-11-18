@@ -10,6 +10,7 @@ import burp.api.montoya.core.Annotations;
 import burp.api.montoya.core.HighlightColor;
 import burp.api.montoya.http.HttpService;
 import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.handler.*;
 import burp.api.montoya.proxy.http.*;
 import burp.api.montoya.proxy.websocket.*;
 import burp.api.montoya.websocket.Direction;
@@ -18,10 +19,27 @@ import ninja.burpsuite.extension.sharpener.capabilities.objects.CapabilitySettin
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Locale;
+import java.util.LinkedHashMap;
+import burp.api.montoya.core.ToolType;
 
-public class ManualHighlighterRequestResponseHandler implements ProxyRequestHandler, ProxyResponseHandler, ProxyWebSocketCreationHandler, ProxyMessageHandler {
+public class ManualHighlighterRequestResponseHandler implements ProxyRequestHandler, ProxyResponseHandler, ProxyWebSocketCreationHandler, ProxyMessageHandler, HttpHandler {
     ExtensionSharedParameters sharedParameters;
     CapabilitySettings capabilitySettings;
+    private final PendingProxyColors pendingProxyColors = new PendingProxyColors(1024);
+
+    // Burp uses separate Proxy/Logger annotations for the same message ID.
+    // Retain only bounded ID/colour pairs, never HTTP messages or request contents.
+    static final class PendingProxyColors {
+        private final int capacity;
+        private final LinkedHashMap<Integer, HighlightColor> colors = new LinkedHashMap<>();
+        PendingProxyColors(int capacity) { this.capacity = capacity; }
+        synchronized void remember(int id, HighlightColor color) {
+            colors.put(id, color);
+            if (colors.size() > capacity) colors.remove(colors.keySet().iterator().next());
+        }
+        synchronized HighlightColor take(int id) { return colors.remove(id); }
+    }
 
     // the shortest color is red and the longest is magenta in Burp Suite HighlightColor
     String highlightPatternToBeRemovedStr = "";
@@ -39,6 +57,36 @@ public class ManualHighlighterRequestResponseHandler implements ProxyRequestHand
         highlightPatternStayPattern = Pattern.compile(highlightPatternStayStr, Pattern.CASE_INSENSITIVE);
     }
 
+    private static HighlightColor markerColor(String name) {
+        return HighlightColor.valueOf(name.toUpperCase(Locale.ROOT));
+    }
+
+    private void annotate(String message, Annotations annotations, boolean request) {
+        if (!capabilitySettings.isEnabled()) return;
+        Matcher temporary = highlightPatternToBeRemoved.matcher(message);
+        Matcher permanent = highlightPatternStayPattern.matcher(message);
+        if (request && temporary.find()) annotations.setHighlightColor(markerColor(temporary.group(1)));
+        else if (permanent.find()) annotations.setHighlightColor(markerColor(permanent.group(1)));
+    }
+
+    @Override
+    public RequestToBeSentAction handleHttpRequestToBeSent(HttpRequestToBeSent request) {
+        // Logger annotations apply to every HTTP tool. Only Proxy rewrites temp markers.
+        HighlightColor fromProxy = request.toolSource() != null && request.toolSource().isFromTool(ToolType.PROXY)
+                ? pendingProxyColors.take(request.messageId()) : null;
+        if (capabilitySettings.isEnabled()) {
+            if (fromProxy != null) request.annotations().setHighlightColor(fromProxy);
+            else annotate(request.toString(), request.annotations(), true);
+        }
+        return RequestToBeSentAction.continueWith(request, request.annotations());
+    }
+
+    @Override
+    public ResponseReceivedAction handleHttpResponseReceived(HttpResponseReceived response) {
+        if (capabilitySettings.isEnabled()) annotate(response.toString(), response.annotations(), false);
+        return ResponseReceivedAction.continueWith(response, response.annotations());
+    }
+
     // REQUEST
     @Override
     public ProxyRequestReceivedAction handleRequestReceived(InterceptedRequest interceptedRequest) {
@@ -52,13 +100,13 @@ public class ManualHighlighterRequestResponseHandler implements ProxyRequestHand
             if (highlightMatcherToBeRemoved.find()) {
                 String color = highlightMatcherToBeRemoved.group(1);
 
-                if (!color.isEmpty() && HighlightColor.highlightColor(color.toLowerCase()) != HighlightColor.NONE) {
+                if (!color.isEmpty() && markerColor(color) != HighlightColor.NONE) {
                     // Remove the header from the request
                     // no need to escape it as group(0) should be just letters
-                    requestString = requestString.replaceAll(highlightMatcherToBeRemoved.group(0), "");
+                    requestString = highlightPatternToBeRemoved.matcher(requestString).replaceAll("");
 
                     // Highlighting color
-                    interceptedRequest.annotations().setHighlightColor(HighlightColor.highlightColor(color));
+                    interceptedRequest.annotations().setHighlightColor(markerColor(color));
 
                     HttpRequest httpRequest;
                     HttpService httpService = interceptedRequest.httpService();
@@ -89,18 +137,19 @@ public class ManualHighlighterRequestResponseHandler implements ProxyRequestHand
                         // However, it is rare to see chunked request messages from the browsers.
                     }
 
-                    return ProxyRequestReceivedAction.continueWith(httpRequest);
+                    pendingProxyColors.remember(interceptedRequest.messageId(), markerColor(color));
+                    return ProxyRequestReceivedAction.continueWith(httpRequest, interceptedRequest.annotations());
                 }
             } else if (highlightMatcherStay.find()) {
                 String color = highlightMatcherStay.group(1);
 
-                if (!color.isEmpty() && HighlightColor.highlightColor(color.toLowerCase()) != HighlightColor.NONE) {
+                if (!color.isEmpty() && markerColor(color) != HighlightColor.NONE) {
                     // Highlighting color
-                    interceptedRequest.annotations().setHighlightColor(HighlightColor.highlightColor(color));
+                    interceptedRequest.annotations().setHighlightColor(markerColor(color));
                 }
             }
         }
-        return ProxyRequestReceivedAction.continueWith(interceptedRequest);
+        return ProxyRequestReceivedAction.continueWith(interceptedRequest, interceptedRequest.annotations());
     }
 
     @Override
@@ -127,13 +176,13 @@ public class ManualHighlighterRequestResponseHandler implements ProxyRequestHand
             Matcher highlightMatcherStay = highlightPatternStayPattern.matcher(responseString);
             if (highlightMatcherStay.find()) {
                 String color = highlightMatcherStay.group(1);
-                if (!color.isEmpty() && HighlightColor.highlightColor(color.toLowerCase()) != HighlightColor.NONE) {
+                if (!color.isEmpty() && markerColor(color) != HighlightColor.NONE) {
                     // Highlighting color
-                    interceptedResponse.annotations().setHighlightColor(HighlightColor.highlightColor(color));
+                    interceptedResponse.annotations().setHighlightColor(markerColor(color));
                 }
             }
         }
-        return ProxyResponseReceivedAction.continueWith(interceptedResponse);
+        return ProxyResponseReceivedAction.continueWith(interceptedResponse, interceptedResponse.annotations());
     }
 
     /**
@@ -180,18 +229,18 @@ public class ManualHighlighterRequestResponseHandler implements ProxyRequestHand
             if (highlightMatcherToBeRemoved.find() && interceptedTextMessage.direction() == Direction.CLIENT_TO_SERVER) {
                 String color = highlightMatcherToBeRemoved.group(1);
 
-                if (!color.isEmpty() && HighlightColor.highlightColor(color.toLowerCase()) != HighlightColor.NONE) {
+                if (!color.isEmpty() && markerColor(color) != HighlightColor.NONE) {
                     // Remove the header from the request
                     // no need to escape it as group(0) should be just letters
-                    finalPayload = finalPayload.replaceAll(highlightMatcherToBeRemoved.group(0), "");
+                    finalPayload = highlightPatternToBeRemoved.matcher(finalPayload).replaceAll("");
                     // Highlighting color
-                    interceptedTextMessage.annotations().setHighlightColor(HighlightColor.highlightColor(color));
+                    interceptedTextMessage.annotations().setHighlightColor(markerColor(color));
                 }
             } else if (highlightMatcherStay.find()) {
                 String color = highlightMatcherStay.group(1);
-                if (!color.isEmpty() && HighlightColor.highlightColor(color.toLowerCase()) != HighlightColor.NONE) {
+                if (!color.isEmpty() && markerColor(color) != HighlightColor.NONE) {
                     // Highlighting color
-                    interceptedTextMessage.annotations().setHighlightColor(HighlightColor.highlightColor(color));
+                    interceptedTextMessage.annotations().setHighlightColor(markerColor(color));
                 }
             }
             String finalPayloadFinal = finalPayload;
