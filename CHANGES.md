@@ -20,6 +20,8 @@ Unreleased. Full UI validation and release approval remain pending.
 - Enabled TLS certificate verification for the optional update check.
 - Moved clipboard reads off the UI thread and avoided redundant native icon updates.
 - Stopped the disabled placeholder request editor from adding demo headers.
+- Detected and safely unloaded duplicate live copies.
+- Added source copyright notices and AGPL section 7 terms in NOTICE.
 
 ## Version 4.9 (2026-07-15)
 

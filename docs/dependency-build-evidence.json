@@ -1,20 +1,20 @@
 {
-  "evaluation_utc": "2026-11-18T09:23:11.949997Z",
-  "source_revision": "3812640c38315ec0233d2cd1d8fcb8b90fe68236",
-  "source_changes": "4.93 review-branch snapshot relative to source_revision; source-tree digest identifies the validated source independently of the commit containing this evidence.",
+  "evaluation_utc": "2026-11-18T09:26:52.694635Z",
+  "source_revision": "17b730fb0d7ed10e2acab8b23b73c1592caaace2",
+  "source_changes": "PR #50 merge resolution: two 4.91 changelog bullets plus source-bound review/build evidence; production sources and dependency versions are unchanged from source_revision.",
   "source_tree_digest_method": "SHA256 of sorted relative src paths, NUL, and binary SHA256 of each file",
   "source_tree_file_count": 377,
-  "source_tree_sha256": "f20b2d7476aeef8f5a1030e672d1e52d96e26d2b004d06642bd20fe4a8ee2997",
+  "source_tree_sha256": "761ae6c29800cf8179c3215c50eee5c432b328c9fc3342c6dc9d0d0054d31763",
   "inputs": {
-    "gradle/full-ui-tests.gradle": "d9543b2bf2de44c2141ef22b1daa307bdea9c4efd2c65b666591f024bedc8fc4",
-    "docs/full-ui-tests.md": "92f3240d433897e33c9820c68f80b515361e0ff28e17499927eccedcdc5e37dd",
-    "docs/full-ui-manual-cases.md": "5e0ceb27907c002dcacc742712f6b4c2f65031378ff80363b5b92a7b6dd79179",
-    "AGENTS.md": "da7c7232e4f3df702dff16dbd5cf31c6cd042cb53612065eb1edf59b5df69eb9",
-    ".github/workflows/gradle.yml": "c116761cd0fe64650d815d98c43d0691024b318f815e0c067e5fdd0f3d5082ec",
+    "gradle/full-ui-tests.gradle": "841263b3ba8f5deb22af9a9bc81b3adaa869a2cd431e47034e456be137fce7cb",
+    "docs/full-ui-tests.md": "20a8a3facb4782fcdd4eb261dd7140807a67d06e6df9b6262c1881f9cba37ab2",
+    "docs/full-ui-manual-cases.md": "e8617984ef7de3819e10153e14e11928d8d8d7d5cf4da8477579cd75c2541abf",
+    "AGENTS.md": "e4b3dbb706d385490a7d88b57a8c0fa7ae82f62bbff8069c4bd0580738ceb51d",
+    ".github/workflows/gradle.yml": "86bb215b3a272f8d22f183c93fed890d3d80bfd386addf47f7df9fc1d1e1aeac",
     ".githooks/pre-push": "90c6120d0f27d89aa7b3825c98954e78d3cd9e302095e5e87f7163028ccce7dd",
     "gradle/portswigger-policy.gradle": "44feab92018d1e04860f2981b269f08c11695548f851ba314edf8f7c84f3a05e",
-    "docs/portswigger-review.json": "05739b24557371a19b3094fcb906bbad64bd4f42e3a8390dca9758337ae35d01",
-    "docs/portswigger-compliance.md": "2d2d6599e373f1482bbf16dca4aba0fe9524f36e1e29339a5479300a0d76c4ff",
+    "docs/portswigger-review.json": "9be5aa21d95bfdf73b52bb6267dbee9b3dbfc1e5fcee12371dfca3b22f623dd6",
+    "docs/portswigger-compliance.md": "810c206681e58ccfce25c0b87a584c1fce4a3921ce11cdf41879821dc1277ccf",
     "gradle/validation-jdk.json": "3d1bb466edbba875504ff914be187c1025b8da5cd502aafdb62f23935832651e",
     "build.gradle": "3775cce7458628e1eedd6399e8b5e3008c30533dc95139bfa436d87418588b4b",
     "gradle.properties": "ba4c19af9c2ff6873c0db4f1f161ded7d3123106065539535d74b71ed5118a7d",
@@ -37,8 +37,9 @@
     "licenses/third-party/jsr305-3.0.2/SOURCE-NOTICE.txt": "b277e165e3630cca3167d9a6ec7c3f0929bc8e6c842e7f096e4ac5737c02b4dd",
     "licenses/third-party/reflections-0.10.2/COPYING.txt": "7637386b5f81e8a719ca336233149005e5fa28b5e6054ea7b67de49355b0ad40",
     "licenses/third-party/slf4j-api-1.7.32/LICENSE.txt": "899cb2e2f92e74ec969e477503c6442fb50bec5d523bc87dc40bad3419113c3b",
-    ".gitattributes": "e4182c5e10d119c2ccb3c17a532c2b6525ea91888340005f9bd14052afd9e09f",
-    ".gitignore": "a5e8b8bee8be046ae785341cfedb345290b77691678a45ffda86df7129661f8a"
+    ".gitattributes": "73e113c907de0cb8d63fc6105b03346a32b8ee0e4fd9aca2bc85e26c12ef09a4",
+    ".gitignore": "a5e8b8bee8be046ae785341cfedb345290b77691678a45ffda86df7129661f8a",
+    "CHANGES.md": "4654f7075d1fcad2ea96a99f2a77dde49b538f434c03277f3a3a95f72ef59828"
   },
   "output": {
     "path": "releases/BurpSuiteSharpenerEx.jar",
@@ -57,7 +58,7 @@
     "java_major": 21,
     "platform": "Windows x64",
     "purpose": "patched JDK validation; Gradle and CI remain blocked for release admission",
-    "github_runner_image": "ubuntu-24.04 / ubuntu24 20261111.370.1 (first diagnostic PR attempt)",
+    "github_runner_image": "ubuntu-24.04 / ubuntu24 20261111.370.1; observed successful diagnostic PR run",
     "github_workflow_run": true
   },
   "build": "gradlew.bat build fullUiTestPlan --offline --dependency-verification strict --console=plain",
@@ -90,7 +91,9 @@
     "fresh_cache_offline_build": "Passed build --rerun-tasks --offline --dependency-verification strict using that freshly acquired cache; 329 normal tests and packaging, exact jar unchanged.",
     "review_input_selection": "Eight synthetic Git fixture checks passed; normal build still needs no Git, while push/release review gates require a checkout.",
     "canonical_review_tree": "Working tree and canonical Git archives with core.autocrlf=false and true have the same digest across 431 review inputs. Third-party licence/notice bytes preserved by .gitattributes.",
-    "negative_policy_gates": "Rerun after Git selection change: unreviewed digest, stale upstream review, missing criterion and unresolved release all rejected as expected."
+    "negative_policy_gates": "Rerun after Git selection change: unreviewed digest, stale upstream review, missing criterion and unresolved release all rejected as expected.",
+    "pr50_documentation": "Two short historical release-note bullets validated against original PRs #47 and #48; no source or dependency change.",
+    "artifact_identity": "Branch checkout changed only newline forms in the bundled notice summary. Restored its previously hashed diagnostic-build bytes (identical normalized tracked text) and rebuilt the exact 93033ee637a319c973b33d5b7c988a857bb4dfe48bfd4025fd80d3457dae0a67 jar. Historical live results remain bound to that jar; byte identity across arbitrary checkouts/toolchains is not claimed."
   },
   "release_disposition": "diagnostic only; unresolved build/CI security, provenance and live host validation gates; do not publish",
   "previous_checks_utc": "2026-11-16T22:31:42.695657+00:00",
@@ -112,6 +115,18 @@
       "stage": "verifyPushReadiness input digest",
       "passed": "Canonical strict acquisition, normal tests and verifyPackagedJar",
       "finding": "Ignored local .github IDE-generated files were incorrectly included by the old filesystem digest; Git input selection and eight fixture checks correct this without omitting tracked ignored paths."
+    },
+    {
+      "url": "https://github.com/irsdl/BurpSuiteSharpenerEx/actions/runs/44275441903",
+      "head_sha": "e69923f8f8d73ba88718454a99b907ad218a414e",
+      "conclusion": "success",
+      "passed": "Strict acquisition, offline normal tests/package, eight input-selection checks and PortSwigger push gate"
+    },
+    {
+      "url": "https://github.com/irsdl/BurpSuiteSharpenerEx/actions/runs/44275666307",
+      "head_sha": "17b730fb0d7ed10e2acab8b23b73c1592caaace2",
+      "conclusion": "success",
+      "passed": "Strict acquisition, offline normal tests/package, eight input-selection checks and PortSwigger push gate"
     }
   ]
 }
