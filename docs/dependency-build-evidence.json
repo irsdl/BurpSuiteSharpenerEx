@@ -1,5 +1,5 @@
 {
-  "evaluation_utc": "2026-11-18T09:04:07.174506Z",
+  "evaluation_utc": "2026-11-18T09:12:23.074273Z",
   "source_revision": "3812640c38315ec0233d2cd1d8fcb8b90fe68236",
   "source_changes": "4.93 review-branch snapshot relative to source_revision; source-tree digest identifies the validated source independently of the commit containing this evidence.",
   "source_tree_digest_method": "SHA256 of sorted relative src paths, NUL, and binary SHA256 of each file",
@@ -13,13 +13,13 @@
     ".github/workflows/gradle.yml": "c116761cd0fe64650d815d98c43d0691024b318f815e0c067e5fdd0f3d5082ec",
     ".githooks/pre-push": "90c6120d0f27d89aa7b3825c98954e78d3cd9e302095e5e87f7163028ccce7dd",
     "gradle/portswigger-policy.gradle": "838ab2ea959a1e00270ff8384d9f934cfa21cf2693ed5a22535e37e3de1787c7",
-    "docs/portswigger-review.json": "ce48a7db3c6a26e15109230a990cfc0fcde20048bceb2ea4a37ea5ea6e77b67a",
+    "docs/portswigger-review.json": "2e04429fcaf04b1c15f1c1baacf0fc539b9ddc8e02c894777c48d9238fc4e684",
     "docs/portswigger-compliance.md": "9cfb231af768d76a2f6dbd482dc44a1a6d615ce61690ed7a32f707d23ed9e3be",
     "gradle/validation-jdk.json": "3d1bb466edbba875504ff914be187c1025b8da5cd502aafdb62f23935832651e",
     "build.gradle": "3775cce7458628e1eedd6399e8b5e3008c30533dc95139bfa436d87418588b4b",
     "gradle.properties": "ba4c19af9c2ff6873c0db4f1f161ded7d3123106065539535d74b71ed5118a7d",
     "gradle.lockfile": "b222ba95578c4c7e34f13edc09ea99bd0e2dddd6dda95ae0ed9f9576be5a2709",
-    "gradle/verification-metadata.xml": "bcf0a8e9cf0cda26935523ca2257676c3316a6360343b21f45dbbe9ccedb7835",
+    "gradle/verification-metadata.xml": "6ae17d4aa183c21da32d0a95e6bd720b693b163f22a16e74fcc2edd9eca7d860",
     "gradle/wrapper/gradle-wrapper.jar": "498495120a03b9a6ab5d155f5de3c8f0d986a449153702fb80fc80e134484f17",
     "gradle/wrapper/gradle-wrapper.properties": "d4908e7102df071092e2cd7d7bd07037589840ea4d6e73c4bf5da03ade233868",
     "gradlew": "1ce03a421a975125820e1e4b7230f6a151617255b39cf84758505c7e67b316fa",
@@ -55,8 +55,8 @@
     "java_major": 21,
     "platform": "Windows x64",
     "purpose": "patched JDK validation; Gradle and CI remain blocked for release admission",
-    "github_runner_image": null,
-    "github_workflow_run": false
+    "github_runner_image": "ubuntu-24.04 / ubuntu24 20261111.370.1 (first diagnostic PR attempt)",
+    "github_workflow_run": true
   },
   "build": "gradlew.bat build fullUiTestPlan --offline --dependency-verification strict --console=plain",
   "test_results": {
@@ -69,7 +69,7 @@
     "strict_invalid_gson_checksum_rejected": true,
     "packaged_resources_notices_native_bytes": "passed verifyPackagedJar",
     "standalone_packaged_dependencies": "passed headless JVM: Windows x64 JNA memory, FlatLaf, XML editor/theme, multi-release loading, absent host/test/removed libraries",
-    "git_diff_check": "Passed staged source, configuration and documentation. Verbatim third-party licence texts retain upstream trailing whitespace; no licence content was edited to satisfy formatting.",
+    "git_diff_check": "Passed source/configuration/documentation; verbatim upstream licence whitespace preserved in the initial commit.",
     "ui_compatibility": "passed synthetic layouts, optional API failures, listener ownership, late/replaced pane recovery, incomplete/empty style snapshot protection; see docs/burp-ui-compatibility.md",
     "live_burp_load_unload_reload": "Current Professional EA startup/cleanup and highlighter cases pass; earlier Community startup/cleanup apply only to the earlier jar. Expanded Community rerun timed out before readiness. Real persistence/reload and other hosts pending.",
     "network_isolation": "Gradle offline resolution only; not an OS network sandbox",
@@ -83,9 +83,22 @@
       "review_negative_cases": "stale plan, wrong jar, missing reviewer, missing manual case and blocked automation waiver all rejected",
       "live_execution": "Current jar on Windows Professional EA 2026.11: 23 PASS, zero FAIL, clipboard BLOCKED, one disabled editor N/A and eight manual groups pending. Both new Proxy/Logger cases pass. Earlier Community 2026.3.3 jar has 21 PASS; the current expanded Community run timed out before startup completed and ran no assertions. No full pass or release approval."
     },
-    "portswigger_gates": "Current source-bound offline strict push gate passed with 329 rerun normal tests and packaging. Pre-push hook will revalidate the clean checked-out commit. Release remains blocked for documented security/platform/full-suite gaps; publication is disabled."
+    "portswigger_gates": "Current source-bound offline strict push gate passed with 329 rerun normal tests and packaging. Pre-push hook will revalidate the clean checked-out commit. Release remains blocked for documented security/platform/full-suite gaps; publication is disabled.",
+    "fresh_cache_acquisition": "Passed resolveDependencies with a new Gradle user home, canonical wrapper distribution checksum and strict dependency verification after reviewing two missing metadata files.",
+    "fresh_cache_offline_build": "Passed build --rerun-tasks --offline --dependency-verification strict using that freshly acquired cache; 329 normal tests and packaging, exact jar unchanged."
   },
   "release_disposition": "diagnostic only; unresolved build/CI security, provenance and live host validation gates; do not publish",
   "previous_checks_utc": "2026-11-16T22:31:42.695657+00:00",
-  "current_validation_scope": "329 normal tests rerun successfully with strict offline verification; packaging and 33-group harness plan pass. Current Pro EA jar has 23 passing live groups including Proxy/Logger colouring; expanded Community rerun blocked at startup. Clipboard/manual/OS/channel/security gates remain unresolved."
+  "current_validation_scope": "329 normal tests rerun successfully with strict offline verification; packaging and 33-group harness plan pass. Current Pro EA jar has 23 passing live groups including Proxy/Logger colouring; expanded Community rerun blocked at startup. Clipboard/manual/OS/channel/security gates remain unresolved.",
+  "ci_attempts": [
+    {
+      "url": "https://github.com/irsdl/BurpSuiteSharpenerEx/actions/runs/44272679474",
+      "head_sha": "a730b09e97bd4e262bfb967b5bd16aa7fc08700c",
+      "conclusion": "failure",
+      "stage": "Acquire locked verified dependencies",
+      "finding": "Missing reviewed junit-bom-5.14.4.module checksum. Clean-cache local acquisition also exposed junit-bom-6.1.3.pom. Both reviewed before adding hashes.",
+      "runner_image": "ubuntu24 20261111.370.1",
+      "jdk": "Oracle 21+35-LTS-2513; diagnostic baseline, not approved for release"
+    }
+  ]
 }

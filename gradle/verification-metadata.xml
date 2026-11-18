@@ -135,11 +135,17 @@
          </artifact>
       </component>
       <component group="org.junit" name="junit-bom" version="5.14.4">
+         <artifact name="junit-bom-5.14.4.module">
+            <sha256 value="8a5e98d131de7d7aadb1ee88bfd86d66e62a7c2e2a4074a3b2498b03d236eb64" origin="Compared with canonical Maven Central SHA-256 and valid existing-key signature 2026-11-18; see docs/dependency-artifacts.json"/>
+         </artifact>
          <artifact name="junit-bom-5.14.4.pom">
             <sha256 value="5706e8f29a0a07f56efbbea4a0670793414194bb8d24d8143ba1e787a2f32856" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
          </artifact>
       </component>
       <component group="org.junit" name="junit-bom" version="6.1.3">
+         <artifact name="junit-bom-6.1.3.pom">
+            <sha256 value="a9000043610a3e90c852e779a6b1a8eb724a9f312cf5f7ddd57862b010c65dc8" origin="Compared with canonical Maven Central SHA-256 and valid existing-key signature 2026-11-18; see docs/dependency-artifacts.json"/>
+         </artifact>
          <artifact name="junit-bom-6.1.3.module">
             <sha256 value="9f5d57dadcfa07f7b38efcfb22b052ece188922a1df76b5a98e44a1df7a7701b" origin="Compared with Maven Central 2026-11-16; see docs/dependency-artifacts.json"/>
          </artifact>

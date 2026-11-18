@@ -1,5 +1,30 @@
 # Dependency review: 2026-11-16
 
+## Fresh CI metadata follow-up: 2026-11-18
+
+The first PR build stopped at strict verification because a fresh cache fetched
+`org.junit:junit-bom:5.14.4`'s Gradle module metadata, while local validation had
+only needed its already reviewed POM. Reviewed the canonical Central `.module`,
+published SHA-256 and signature before adding its hash. The module has been public
+for 205 complete days (2026-04-26T11:20:53Z); its two sets of 18 constraints match
+the unchanged reviewed POM. It contains no code, artifact files or scripts.
+The signature validates with the existing JUnit fingerprint
+`FF6E2C001948C5F2F38B0CC385911F425EC61B51`; identity/trust limitations remain.
+OSV returned no advisories for this coordinate/version at the follow-up UTC in
+[the security record](dependency-security-review.json). A fresh-cache acquisition
+also required `junit-bom:6.1.3`'s POM: its canonical checksum and existing-key
+signature pass, its 16 constraints match the already reviewed module, and its
+exact publication date (2026-08-07T12:27:00Z) qualifies at 102 complete days.
+It has no build, repositories, profiles, parent or executable content; its EPL-2.0
+licence and canonical SCM match the existing component. OSV returned no advisories.
+The inventory now contains 63 artifact/metadata records. Versions, locks and runtime jar contents are unchanged;
+verification remains strict. Existing release blockers are retained.
+
+PR [#55](https://github.com/irsdl/BurpSuiteSharpenerEx/pull/55) contains the review
+branch. This follow-up does not approve the diagnostic CI JDK or other unresolved
+toolchain/provenance findings. The original dated review below records the state
+before the authorized branch push.
+
 This is a dated local dependency-update review, **not approval to publish a
 binary release**. Library changes pass the checks described below. Build/CI
 security and provenance gaps remain unresolved. The user approved current-task

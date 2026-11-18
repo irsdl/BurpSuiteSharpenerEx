@@ -10906,5 +10906,35 @@
       }
     ],
     "decision": "No official latest action candidate clears all runtime-lockfile security findings; age authorization does not fix or waive unresolved findings"
+  },
+  "metadata_follow_up": {
+    "evaluation_utc": "2026-11-18T09:07:58.163776+00:00",
+    "component": "org.junit:junit-bom:5.14.4",
+    "artifact": "junit-bom-5.14.4.module",
+    "osv_source": "https://api.osv.dev/v1/query",
+    "osv_query": {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.junit:junit-bom"
+      },
+      "version": "5.14.4"
+    },
+    "osv_response": {},
+    "upstream_advisories": "https://github.com/junit-team/junit-framework/security/advisories",
+    "technical_review": "No executable code/files. Constraint sets equal the previously reviewed POM. No runtime/test version or lock change. Existing unresolved security/provenance findings remain release blockers.",
+    "additional_metadata": {
+      "evaluation_utc": "2026-11-18T09:10:38.375854+00:00",
+      "coordinate": "org.junit:junit-bom:6.1.3",
+      "filename": "junit-bom-6.1.3.pom",
+      "osv_query": {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.junit:junit-bom"
+        },
+        "version": "6.1.3"
+      },
+      "osv_response": {},
+      "review": "Metadata only: 16 managed dependency constraints match both variants of the unchanged reviewed Gradle module. Packaging pom; no build, repositories, profiles, parent or executable content. EPL-2.0 licence and canonical junit-framework SCM unchanged."
+    }
   }
 }

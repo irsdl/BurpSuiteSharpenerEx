@@ -1340,6 +1340,56 @@
       "version_publication_source": "https://repo.maven.apache.org/maven2/org/sonatype/oss/oss-parent/7/oss-parent-7.pom",
       "publication_basis": "Maven Central immutable version metadata and exact artifact Last-Modified headers",
       "effective_publication_utc": "2011-03-07T12:42:48+00:00"
+    },
+    {
+      "coordinate": "org.junit:junit-bom:5.14.4",
+      "filename": "junit-bom-5.14.4.module",
+      "source": "https://repo.maven.apache.org/maven2/org/junit/junit-bom/5.14.4/junit-bom-5.14.4.module",
+      "publication_utc": "2026-04-26T11:20:53+00:00",
+      "age_days": 205,
+      "sha256": "8a5e98d131de7d7aadb1ee88bfd86d66e62a7c2e2a4074a3b2498b03d236eb64",
+      "canonical_checksum": {
+        "algorithm": "sha256",
+        "value": "8a5e98d131de7d7aadb1ee88bfd86d66e62a7c2e2a4074a3b2498b03d236eb64",
+        "url": "https://repo.maven.apache.org/maven2/org/junit/junit-bom/5.14.4/junit-bom-5.14.4.module.sha256"
+      },
+      "pgp_available": true,
+      "size": 6994,
+      "signing_key_hint": "FF6E2C001948C5F2F38B0CC385911F425EC61B51",
+      "pgp_result": "cryptographically valid with the same previously reviewed JUnit signing key; key identity/trust not automatically established",
+      "signing_fingerprint": "FF6E2C001948C5F2F38B0CC385911F425EC61B51",
+      "version_publication_utc": "2026-04-26T11:20:52+00:00",
+      "version_publication_source": "https://repo.maven.apache.org/maven2/org/junit/junit-bom/5.14.4/junit-bom-5.14.4.pom",
+      "publication_basis": "Maven Central immutable version metadata and exact artifact Last-Modified headers",
+      "effective_publication_utc": "2026-04-26T11:20:53+00:00",
+      "evaluation_utc": "2026-11-18T09:07:58.163776+00:00",
+      "review": "Metadata only: both variants contain the same 18 dependency constraints as the already reviewed unchanged POM; no files, code, repositories, scripts or new component versions.",
+      "timestamp_note": "Module Last-Modified is one second later than its checksum/signature and POM; used the later module timestamp."
+    },
+    {
+      "coordinate": "org.junit:junit-bom:6.1.3",
+      "filename": "junit-bom-6.1.3.pom",
+      "source": "https://repo.maven.apache.org/maven2/org/junit/junit-bom/6.1.3/junit-bom-6.1.3.pom",
+      "publication_utc": "2026-08-07T12:27:00+00:00",
+      "age_days": 102,
+      "sha256": "a9000043610a3e90c852e779a6b1a8eb724a9f312cf5f7ddd57862b010c65dc8",
+      "canonical_checksum": {
+        "algorithm": "sha256",
+        "value": "a9000043610a3e90c852e779a6b1a8eb724a9f312cf5f7ddd57862b010c65dc8",
+        "url": "https://repo.maven.apache.org/maven2/org/junit/junit-bom/6.1.3/junit-bom-6.1.3.pom.sha256"
+      },
+      "pgp_available": true,
+      "size": 5416,
+      "signing_key_hint": "FF6E2C001948C5F2F38B0CC385911F425EC61B51",
+      "pgp_result": "cryptographically valid; key identity/trust not automatically established",
+      "signing_fingerprint": "FF6E2C001948C5F2F38B0CC385911F425EC61B51",
+      "version_publication_utc": "2026-08-07T12:27:00+00:00",
+      "version_publication_source": "https://repo.maven.apache.org/maven2/org/junit/junit-bom/6.1.3/junit-bom-6.1.3.module",
+      "publication_basis": "Maven Central immutable version metadata and exact artifact Last-Modified headers",
+      "effective_publication_utc": "2026-08-07T12:27:00+00:00",
+      "evaluation_utc": "2026-11-18T09:10:38.375854+00:00",
+      "review": "Metadata only: 16 managed dependency constraints match both variants of the unchanged reviewed Gradle module. Packaging pom; no build, repositories, profiles, parent or executable content. EPL-2.0 licence and canonical junit-framework SCM unchanged."
     }
-  ]
+  ],
+  "metadata_follow_up_utc": "2026-11-18T09:10:38.375854+00:00"
 }
