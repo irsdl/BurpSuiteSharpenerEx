@@ -1,0 +1,1917 @@
+{
+  "schema_version": 1,
+  "evaluation_utc": "2026-11-18T13:48:46.900928+00:00",
+  "classification": "Maintainer-approved exact project-local composition; full release admission remains blocked",
+  "authorization": {
+    "human_approver": "Repository maintainer irsdl (current user; connected GitHub account irsdl)",
+    "approval_recorded_utc": "2026-11-18T13:48:46.900928+00:00",
+    "record_time_basis": "Recording UTC; exact user-message timestamp was not provided",
+    "instruction": "yes",
+    "question_approved": "May I adopt this specific patched toolchain? Gradle 9.9.1 with Guava 33.8.0-jre, requiring a separate exception to AGENTS.md prohibition on unofficial repackaging.",
+    "scope": "Only the reviewed Gradle 9.9.1 distribution plus one unmodified official Guava 33.8.0-jre replacement in a project-local verified cache. No global modifications, unrelated repackaging, non-applicability waivers or publication.",
+    "age_authorization": "docs/toolchain-security-approval.json; user repeatedly confirmed younger official security fixes for this task",
+    "owner": "Repository maintainer irsdl",
+    "first_review_utc": "2026-11-23T00:00:00Z",
+    "expiry_utc": "2026-12-17T00:00:00Z",
+    "retirement": "Replace with a fully reviewed official distribution when upstream resolves its bundled Guava findings; expiry does not auto-renew"
+  },
+  "necessity": "Gradle 8.9 has three recorded core advisories. Official 8.14.7 additionally retains vulnerable Commons Lang 2.6; official 9.9.1 avoids that library but needs exactly one Guava replacement. No clean stock candidate was found.",
+  "distribution": {
+    "version": "9.9.1",
+    "source": "https://services.gradle.org/distributions/gradle-9.9.1-bin.zip",
+    "sha256": "d8a18a7a841dd5df825d35a685fad6f2d7f12ac0c280e57b67c27b4a520ba228",
+    "bytes": 134921139,
+    "artifact_last_modified": "Tue, 10 Nov 2026 16:34:47 GMT",
+    "version_published_utc": "2026-11-10T17:13:13Z",
+    "release_source": "https://github.com/gradle/gradle/releases/tag/v9.9.1",
+    "signature_source": "https://services.gradle.org/distributions/gradle-9.9.1-bin.zip.asc",
+    "signature_result": "Valid with the previously reviewed Gradle primary key EA96F38569C044AAEF7FCF732887F479B0B9771A",
+    "provenance_gap": "Gradle key was obtained through a public key service; cryptographic verification is not independent publisher certification. Complete bundled native/shaded provenance is not established.",
+    "licence": "Apache-2.0; complete original archive and bundled licences/notices preserved",
+    "effective_publication_utc": "2026-11-10T17:13:13Z",
+    "age_basis": "Later of stable version publication and exact artifact Last-Modified; security-fix age exception applies",
+    "ordinary_age_qualification_utc": "2026-12-11T17:13:13Z"
+  },
+  "wrapper": {
+    "source": "Unmodified gradle-wrapper.jar embedded in the checksum/signature-verified canonical Gradle 9.9.1 distribution",
+    "checksum_source": "https://services.gradle.org/distributions/gradle-9.9.1-wrapper.jar.sha256",
+    "sha256": "621008afc4f5d59357fcf06ffa644dd5aade5e091bdc363742710445f73cdaf8",
+    "bytes": 49154,
+    "launchers": "Checked-in scripts adapted to invoke the JDK-only source guard and verified vendor public Gradle launcher; raw vendor wrapper installation is not used for the composition"
+  },
+  "replacement": {
+    "version": "33.8.0-jre",
+    "canonical_project": "https://github.com/google/guava",
+    "security_route": "https://github.com/google/guava/security",
+    "licence": "Apache-2.0; unmodified canonical jar and original notices preserved",
+    "effective_publication_utc": "2026-11-02T18:06:39Z",
+    "age_decision": "Younger official stable security fix covered by existing human age authorization; not an unrelated currency update",
+    "ordinary_age_qualification_utc": "2026-12-03T18:06:39Z",
+    "artifacts": [
+      {
+        "coordinate": "com.google.guava:guava:33.8.0-jre",
+        "filename": "guava-33.8.0-jre.pom",
+        "source": "https://repo.maven.apache.org/maven2/com/google/guava/guava/33.8.0-jre/guava-33.8.0-jre.pom",
+        "sha256": "92a296728dc8d3c32193fdeb7f0a1e744384f1234ab71d306523f97a9d0cd51b",
+        "bytes": 9761,
+        "publication_http": "Mon, 02 Nov 2026 18:06:39 GMT",
+        "checksum_source": "https://repo.maven.apache.org/maven2/com/google/guava/guava/33.8.0-jre/guava-33.8.0-jre.pom.sha256",
+        "signature_source": "https://repo.maven.apache.org/maven2/com/google/guava/guava/33.8.0-jre/guava-33.8.0-jre.pom.asc",
+        "signing_fingerprint": "BDB5FA4FE719D787FB3D3197F6D4A1D411E9D1AE",
+        "signature_result": "cryptographically valid; public-key service alone does not establish publisher identity"
+      },
+      {
+        "coordinate": "com.google.guava:guava:33.8.0-jre",
+        "filename": "guava-33.8.0-jre.jar",
+        "source": "https://repo.maven.apache.org/maven2/com/google/guava/guava/33.8.0-jre/guava-33.8.0-jre.jar",
+        "sha256": "97b79ec3f2c0a6313a0c2df51ce1abdf8907e6531803467b81efcaaf99b35161",
+        "bytes": 3070217,
+        "publication_http": "Mon, 02 Nov 2026 18:06:39 GMT",
+        "checksum_source": "https://repo.maven.apache.org/maven2/com/google/guava/guava/33.8.0-jre/guava-33.8.0-jre.jar.sha256",
+        "signature_source": "https://repo.maven.apache.org/maven2/com/google/guava/guava/33.8.0-jre/guava-33.8.0-jre.jar.asc",
+        "signing_fingerprint": "BDB5FA4FE719D787FB3D3197F6D4A1D411E9D1AE",
+        "signature_result": "cryptographically valid; public-key service alone does not establish publisher identity"
+      },
+      {
+        "evaluation_utc": "2026-11-18T13:45:00.792209+00:00",
+        "coordinate": "com.google.guava:guava-parent:33.8.0-jre",
+        "source": "https://repo.maven.apache.org/maven2/com/google/guava/guava-parent/33.8.0-jre/guava-parent-33.8.0-jre.pom",
+        "sha256": "31b614120ff2858dd84fded11a96b8c00cb75abc8bfcdd14b6551050e27bcdc1",
+        "bytes": 30139,
+        "publication_http": "Mon, 02 Nov 2026 18:06:39 GMT",
+        "signature_fingerprint": "BDB5FA4FE719D787FB3D3197F6D4A1D411E9D1AE",
+        "signature_result": "Cryptographically verified; public-key-service acquisition does not independently establish publisher identity",
+        "scope": "Metadata only; not executed or independently resolved by the bootstrap"
+      }
+    ],
+    "runtime_dependencies": "Reviewed parent declares failureaccess 1.0.3, already present unchanged in Gradle. No new transitive artifact was fetched for execution; Gradle provides its curated distribution classpath. Metadata/optional annotation dependencies are not added implicitly.",
+    "installation_alias": "gradle-9.9.1/lib/guava-33.4.6-jre.jar; actual Maven metadata is 33.8.0-jre. Alias preserves internal vendor classpath descriptors; all other files remain unchanged"
+  },
+  "fixed_advisories": [
+    {
+      "id": "GHSA-3cfg-jpcr-gfp3",
+      "source": "https://github.com/gradle/gradle/security/advisories/GHSA-3cfg-jpcr-gfp3",
+      "affected": "8.9",
+      "fix": "Official Gradle 9.9.1"
+    },
+    {
+      "id": "GHSA-gqrr-4j89-5267",
+      "source": "https://github.com/gradle/gradle/security/advisories/GHSA-gqrr-4j89-5267",
+      "affected": "8.9",
+      "fix": "Official Gradle 9.9.1"
+    },
+    {
+      "id": "GHSA-pcp8-98xm-c6pr",
+      "source": "https://github.com/gradle/gradle/security/advisories/GHSA-pcp8-98xm-c6pr",
+      "affected": "8.9",
+      "fix": "Official Gradle 9.9.1"
+    },
+    {
+      "id": "GHSA-xxph-c9ww-hj94",
+      "source": "https://github.com/google/guava/security/advisories/GHSA-xxph-c9ww-hj94",
+      "affected": "4.0 through 33.7.1-jre",
+      "fix": "33.8.0-jre also includes the prior deserialization allocation fix"
+    },
+    {
+      "id": "GHSA-v5x9-67m3-7m56",
+      "source": "https://github.com/google/guava/security/advisories/GHSA-v5x9-67m3-7m56",
+      "affected": "13.0 through 33.7.2-jre",
+      "fix": "33.8.0-jre is the narrowest JRE release fixing both recorded Guava advisories"
+    },
+    {
+      "id": "GHSA-j5m7-59rp-24f5",
+      "source": "https://github.com/gradle/gradle/security/advisories/GHSA-j5m7-59rp-24f5",
+      "affected": "Replaced Gradle 8.9 baseline is within the published affected range",
+      "fix": "Official Gradle 9.9.1 includes this earlier stable core security fix"
+    },
+    {
+      "id": "GHSA-xwqc-3h47-hg64",
+      "source": "https://github.com/gradle/gradle/security/advisories/GHSA-xwqc-3h47-hg64",
+      "affected": "Replaced Gradle 8.9 baseline is within the published affected range",
+      "fix": "Official Gradle 9.9.1 includes this earlier stable core security fix"
+    },
+    {
+      "id": "GHSA-mvvg-497x-hmj8",
+      "source": "https://github.com/gradle/gradle/security/advisories/GHSA-mvvg-497x-hmj8",
+      "affected": "Replaced Gradle 8.9 baseline is within the published affected range",
+      "fix": "Official Gradle 9.9.1 includes this earlier stable core security fix"
+    },
+    {
+      "id": "GHSA-mqwm-5m85-gmcv",
+      "source": "https://github.com/gradle/gradle/security/advisories/GHSA-mqwm-5m85-gmcv",
+      "affected": "Replaced Gradle 8.9 baseline is within the published affected range",
+      "fix": "Official Gradle 9.9.1 includes this earlier stable core security fix"
+    },
+    {
+      "id": "GHSA-w78c-w6vf-rw82",
+      "source": "https://github.com/gradle/gradle/security/advisories/GHSA-w78c-w6vf-rw82",
+      "affected": "Replaced Gradle 8.9 baseline is within the published affected range",
+      "fix": "Official Gradle 9.9.1 includes this earlier stable core security fix"
+    }
+  ],
+  "composition": {
+    "sha256": "e7c4060f30684138b2b0e60c1a980135e50d26457bd9dc9a3b3cdd9abe97d747",
+    "digest_method": "UTF-8 sorted original relative distribution file path, NUL, lowercase actual file SHA-256, newline; directories/modes excluded",
+    "changed_files": 1,
+    "inventory": [
+      {
+        "filename": "gradle-9.9.1/lib/guava-33.4.6-jre.jar",
+        "sha256": "97b79ec3f2c0a6313a0c2df51ce1abdf8907e6531803467b81efcaaf99b35161",
+        "maven": [
+          "com.google.guava:guava:33.8.0-jre"
+        ],
+        "original_sha256": "958a035b74ff6c7d0cdff9c384524b645eb618f7117b60e1ee915f9cffd0e716",
+        "filename_is_classpath_alias": true
+      },
+      {
+        "filename": "gradle-9.9.1/lib/javax.inject-1.jar",
+        "sha256": "91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/jspecify-1.0.0-no-module-annotation.jar",
+        "sha256": "c8b8e4d05538427bc82093466abb0929adc101d78ac57fea165791148f4670c9",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/commons-lang3-3.20.0.jar",
+        "sha256": "69e5c9fa35da7a51a5fd2099dfe56a2d8d32cf233e2f6d770e796146440263f4",
+        "maven": [
+          "org.apache.commons:commons-lang3:3.20.0"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/commons-io-2.20.0.jar",
+        "sha256": "df90bba0fe3cb586b7f164e78fe8f8f4da3f2dd5c27fa645f888100ccc25dd72",
+        "maven": [
+          "commons-io:commons-io:2.20.0"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/groovy-4.0.33.jar",
+        "sha256": "5240a9151289115e4d447d6b6d4cb9ac8a9fc6374e079714dfeeffda42323be8",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/slf4j-api-2.0.17.jar",
+        "sha256": "7b751d952061954d5abfed7181c1f645d336091b679891591d63329c622eb832",
+        "maven": [
+          "org.slf4j:slf4j-api:2.0.17"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/kotlin-compiler-embeddable-2.4.21-min.jar",
+        "sha256": "d0ab75dbeb2d40e6ebfde960987585866815dc7001e67c3c7a9c869c573aafc3",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/kotlin-stdlib-2.4.21.jar",
+        "sha256": "bd8250210584cb659847dce9cda660f8e9906e5def7fbebcea93dc6dcb6a88a3",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/kotlin-script-runtime-2.4.21.jar",
+        "sha256": "a658cf5902a1525a06c264a5e42b437e97a6679ddeef8ca641246f270cf6a013",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/kotlin-scripting-common-2.4.21.jar",
+        "sha256": "67817eeee13da1f827f7ab9b961e300c2a6c612c290dfebb12db2eafcf0813b3",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/asm-9.10.1.jar",
+        "sha256": "ed825d10ab1399c8c0cb669e688cf0c8c82629b4c8399b58352b68e92ca10fcb",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/annotations-24.0.1.jar",
+        "sha256": "61666dbce7e42e6c85b43c04fcfb8293a21dcb55b3c80e869270ce42c01a6b35",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/kotlin-build-tools-api-2.4.21.jar",
+        "sha256": "c5cd6a49bd072b529ae10809111c16a7aa0f92147e95d288354017fd65799461",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/kotlin-reflect-2.4.21.jar",
+        "sha256": "7c9e8bda3cafa85b65692065acd22578b2843292b4e4baa8361bdc9175746e88",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/kotlin-scripting-compiler-embeddable-2.4.21.jar",
+        "sha256": "a9a2f4aab2d01ebec3a8ba91c4cc07a4589205867378e98854f2a3d0ecf0f31a",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/kotlin-scripting-compiler-impl-embeddable-2.4.21.jar",
+        "sha256": "5794e84bb83b855540c1105997a5963745d7c15d12654bb07304bb115564a7cb",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/kotlin-sam-with-receiver-compiler-plugin-2.4.21.jar",
+        "sha256": "910f9315eebc4d5a94b289c7d9158dd0d0a137a39cbbffaff4a6cc9ef626a756",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/kotlin-assignment-compiler-plugin-embeddable-2.4.21.jar",
+        "sha256": "23de876404d05f08ec40bd1f628459a6f4214f23e82033fbef70b99b71d247bf",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/kotlin-build-tools-impl-2.4.21.jar",
+        "sha256": "3152b3e1fbaa4d48f3681734a2c0efc438359a48c8a3c5cac00d874670de1377",
+        "maven": [
+          "io.github.java-diff-utils:java-diff-utils:4.12"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/kotlin-tooling-core-2.4.21.jar",
+        "sha256": "5fc5db083803232857408ed5c25bcc307c703b04bdef6cb2c34ebf4db611a622",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/kotlin-scripting-jvm-2.4.21.jar",
+        "sha256": "f00bc053865d7c2864e26087ce50b60ee8bdd30f9a252890d21a34e35d398f17",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/kotlin-compiler-runner-2.4.21.jar",
+        "sha256": "75cd5956405697559e6925ebc5808449a2e12002d4f017275281ad3d4c0c7985",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/jctools-core-4.0.5.jar",
+        "sha256": "d65e5f38bcd0984e26f87187687f1f70dd52740c4d5e046f8d104e01ab5db95f",
+        "maven": [
+          "org.jctools:jctools-core:4.0.5"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/jsr305-3.0.2.jar",
+        "sha256": "766ad2a0783f2687962c8ad74ceecc38a28b9f72a2d085ee438b7813e928d0c7",
+        "maven": [
+          "com.google.code.findbugs:jsr305:3.0.2"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/asm-tree-9.10.1.jar",
+        "sha256": "3dfb0d5b6a106cd40b5b250e39935fbf2f927f4477546a5369a3ac609cf0506b",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/ant-1.10.17.jar",
+        "sha256": "8be692e02837f41a47a3d21cde6655792142fdf42fe23bcb16d7129cad9b2284",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/commons-compress-1.28.0.jar",
+        "sha256": "e1522945218456f3649a39bc4afd70ce4bd466221519dba7d378f2141a4642ca",
+        "maven": [
+          "org.apache.commons:commons-compress:1.28.0"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/error_prone_annotations-2.50.0.jar",
+        "sha256": "4667724877f1d37a689202da191e23efa7657c62eef93ccdac406eccfe5cdd0a",
+        "maven": [
+          "com.google.errorprone:error_prone_annotations:2.50.0"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/fastutil-8.5.2-min.jar",
+        "sha256": "9a2ab11cd98987c3b156e2764ac3693f57f20efdffdcfe4c7f000c8861b92887",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/groovy-json-4.0.33.jar",
+        "sha256": "8ce2d5074e930ca16ca2e0af96eff87e406cc9d1a0fe3107f0193ed4e7a69582",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/groovy-xml-4.0.33.jar",
+        "sha256": "d444d22878867ec68fb69b25a65709776cb7b96f843572446e73f8fd9d9ebfac",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/native-platform-0.22-milestone-30.jar",
+        "sha256": "d40bee7ec0d68f3740bed61ec11bafb586ddb99f09d2d1c765778f762864402f",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/tomlj-1.0.0.jar",
+        "sha256": "32697c7567b2921c473678a820b13fc64700aa87bb14576eeb48d0ed5847cfd4",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/groovy-astbuilder-4.0.33.jar",
+        "sha256": "77454b45faa9abf4fc81bc62194594e22f713232ed9c1e8b09bf4a9c8330fc2a",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/groovy-dateutil-4.0.33.jar",
+        "sha256": "7a5fad3cc09eca86f37e636b0ddceedea1096c5c28e6a472465828d2df9d6e98",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/groovy-datetime-4.0.33.jar",
+        "sha256": "edf80f4a849aea7d8a5b34d5e92fd228bed2fbd0a52e8a58862f995fd42eb025",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/groovy-groovydoc-4.0.33.jar",
+        "sha256": "e9da9e62c3e757e3594df1dcfbcfbf9dcc4c0542ebbfaf9b7f89f61f0e31fb2d",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/groovy-nio-4.0.33.jar",
+        "sha256": "8632a8dc8395247e99d47eaf33e622e0ee6c8432d54274f5b010889093698bee",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/jansi-2.4.2.jar",
+        "sha256": "0b7b8b003a90ea491579b62f5118828e45112914c65589b00faa49d6ec785839",
+        "maven": [
+          "org.fusesource.jansi:jansi:2.4.2"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/jul-to-slf4j-2.0.17.jar",
+        "sha256": "a7afcd23b9cfd1475e55c94f943b808c5922035e7e2c2a5c65a487a4106bc538",
+        "maven": [
+          "org.slf4j:jul-to-slf4j:2.0.17"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/gson-2.14.0.jar",
+        "sha256": "2cbd119bf1961c28788310963dc80ba65f58cdeec1dd139c8bdb1240faa2c36f",
+        "maven": [
+          "com.google.code.gson:gson:2.14.0"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/jcl-over-slf4j-2.0.17.jar",
+        "sha256": "affd06771589ebfe454bb11315a4f466ecaa135b95f3e7939534cf1d2fd7064c",
+        "maven": [
+          "org.slf4j:jcl-over-slf4j:2.0.17"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/log4j-over-slf4j-2.0.17.jar",
+        "sha256": "cbf30eaf95357ab7babf9be123da9cc702f0fe83b23392b7a62589d60b5862d1",
+        "maven": [
+          "org.slf4j:log4j-over-slf4j:2.0.17"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/failureaccess-1.0.3.jar",
+        "sha256": "cbfc3906b19b8f55dd7cfd6dfe0aa4532e834250d7f080bd8d211a3e246b59cb",
+        "maven": [
+          "com.google.guava:failureaccess:1.0.3"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/jnr-constants-0.10.4-min.jar",
+        "sha256": "2c8bbe09a29cacb89723c2c006533856d559eb5cd1716557ec1e96391b832091",
+        "maven": [
+          "com.github.jnr:jnr-constants:0.10.4"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/groovy-ant-4.0.33.jar",
+        "sha256": "445830739c965a5b9910938859cbd9e12d6c80d2e81662789326b0cf29f94b2f",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/groovy-templates-4.0.33.jar",
+        "sha256": "fe34f48e52686effcf30feba158e1bfabde484303a051fad259f6616bba8ff31",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/kotlin-daemon-embeddable-2.4.21.jar",
+        "sha256": "7b3ef24674e5bcffcadfc4e43202ea314194939ecbcdd90a4770b2f1b04e0d07",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/kotlinx-coroutines-core-jvm-1.10.2.jar",
+        "sha256": "5ca175b38df331fd64155b35cd8cae1251fa9ee369709b36d42e0a288ccce3fd",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/asm-commons-9.10.1.jar",
+        "sha256": "6d0abefb7cbf972ea16edb37ec14835372505063a45f976ab7ea889ed9497895",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/kryo-2.24.0.jar",
+        "sha256": "7e56b32c635058f9aa2820f88919ab702d029cbcd15285da9992e36cc0ae52f2",
+        "maven": [
+          "com.esotericsoftware.kryo:kryo:2.24.0",
+          "com.esotericsoftware.reflectasm:reflectasm:1.09"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/jackson-core-2.22.3.jar",
+        "sha256": "8a501126a385b25841915d839508f8a66e2a0dbc8a6709d055ef3b3e852b094c",
+        "maven": [
+          "com.fasterxml.jackson.core:jackson-core:2.22.3"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/jackson-databind-2.22.3.jar",
+        "sha256": "556db5439e206114346043f68d200497dc96a0bca62a360a81784092ebd0e0a9",
+        "maven": [
+          "com.fasterxml.jackson.core:jackson-databind:2.22.3"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/jackson-datatype-jdk8-2.22.3.jar",
+        "sha256": "f223061a5aaecdc9506458143807c73bcd1a744d6b3bbb8da4703a0abc408f7d",
+        "maven": [
+          "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.22.3"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/jackson-datatype-jsr310-2.22.3.jar",
+        "sha256": "ec7052ee48c9d873bb8148338a643f02cf89c01d035dd219411473030d6d2b22",
+        "maven": [
+          "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.3"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/ant-launcher-1.10.17.jar",
+        "sha256": "f6e3de06dc0ea396638004f1a003f55fdbd20c3e7ccfb9b7a524f49fd0ae8568",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/commons-codec-1.18.0.jar",
+        "sha256": "ba005f304cef92a3dede24a38ad5ac9b8afccf0d8f75839d6c1338634cf7f6e4",
+        "maven": [
+          "commons-codec:commons-codec:1.18.0"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/native-platform-freebsd-amd64-libcpp-0.22-milestone-30.jar",
+        "sha256": "b942fe4e323346fa0c2159007bb6710c2e28ae1506306bfb6aeb052ba6ce76f6",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/native-platform-linux-aarch64-0.22-milestone-30.jar",
+        "sha256": "40996870fcc3313fccb534e27a2bd191dfccb1a4a2be16db179c9083507ded94",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/native-platform-linux-amd64-0.22-milestone-30.jar",
+        "sha256": "fc1e341a6d7f3c50f0f7b359f308816ce370b63d6ffd049e515608211e96b8a4",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/native-platform-osx-aarch64-0.22-milestone-30.jar",
+        "sha256": "a471585b4e394b3e78f4623123c8164c29a76d3736254012d1344d3e14ad9cce",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/native-platform-osx-amd64-0.22-milestone-30.jar",
+        "sha256": "ae7da63cd78e2024b0736ccf40e136a9da191c928d9728e156ea6328368f7276",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/native-platform-windows-aarch64-0.22-milestone-30.jar",
+        "sha256": "8c134b6c56a14c0e3dcbc01ad9384d4803a5889fd6bb9b3cbc9a926aeaa876ca",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/native-platform-windows-aarch64-min-0.22-milestone-30.jar",
+        "sha256": "bf8ed902bf0baf7f62699515239d261f99d8637dd71951131ba6b2b5ca16d925",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/native-platform-windows-amd64-0.22-milestone-30.jar",
+        "sha256": "ab7c9740fb1e6ab0d3ef04da1de6ee2d734268410d1725184790b9c26cd3858d",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/native-platform-windows-amd64-min-0.22-milestone-30.jar",
+        "sha256": "181f2a9f3a72d99751752b575955cf83a9ead3956bb38b5cc3c46f6c9c8b5ef9",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/native-platform-windows-i386-0.22-milestone-30.jar",
+        "sha256": "6a78ce158908e17b55c3dfb313c4a261b12fc19e921115e79d54a7c9ab196d6a",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/native-platform-windows-i386-min-0.22-milestone-30.jar",
+        "sha256": "749912186c0ef8e9f3295bf2c71d9056f8403cf85e331d2ff1966fc19fd6f8bd",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/native-platform-linux-aarch64-ncurses5-0.22-milestone-30.jar",
+        "sha256": "b51360e958168cbfa08063fbe653fdcc27608062ee7513f54aa7a15108a4f5ce",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/native-platform-linux-aarch64-ncurses6-0.22-milestone-30.jar",
+        "sha256": "59f8ad77dfbd1e2c8f48a90b2b6a925bbf674100b4bb671f41e46657fd48aa74",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/native-platform-linux-amd64-ncurses5-0.22-milestone-30.jar",
+        "sha256": "017ccca540e146c23264fb5dd012792f6349f1b622e39ff459848cb022404469",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/native-platform-linux-amd64-ncurses6-0.22-milestone-30.jar",
+        "sha256": "dc5e148e55cac2af0f20ebbdccf57a4f3ceeea9ed48cd67a5d4615a5664e8b66",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/antlr4-runtime-4.7.2.jar",
+        "sha256": "4c518b87d4bdff8b44cd8cbc1af816e944b62a3fe5b80b781501cf1f4759bbc4",
+        "maven": [
+          "org.antlr:antlr4-runtime:4.7.2"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/groovy-docgenerator-4.0.33.jar",
+        "sha256": "8f6fd413107e0772e21ff938966f23865052e6cfd402640f3789cb7b0648a960",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/javaparser-core-3.27.1.jar",
+        "sha256": "7ae10d11c5388060a7bf93b721600b951f5585f3782778b6d0555160680d35f8",
+        "maven": [
+          "com.github.javaparser:javaparser-core:3.27.1"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/httpclient-4.5.14.jar",
+        "sha256": "c8bc7e1c51a6d4ce72f40d2ebbabf1c4b68bfe76e732104b04381b493478e9d6",
+        "maven": [
+          "org.apache.httpcomponents:httpclient:4.5.14"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/httpcore-4.4.16.jar",
+        "sha256": "6c9b3dd142a09dc468e23ad39aad6f75a0f2b85125104469f026e52a474e464f",
+        "maven": [
+          "org.apache.httpcomponents:httpcore:4.4.16"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/jcifs-1.3.17.jar",
+        "sha256": "12603c9dfe7a3d16b2d7f1df8bf5b0168728b15be441382cb1a2b209fde0c553",
+        "maven": [
+          "jcifs:jcifs:1.3.17"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/ant-antlr-1.10.15.jar",
+        "sha256": "619e361609d446fe6ab67d1d45b8656e68644cbd7c45bbed5c2c8816408d8dd5",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/minlog-1.2.jar",
+        "sha256": "a678cb1aa8f5d03d901c992c75741841d98a9bc3d55dad02e84d65315c4e60f2",
+        "maven": [
+          "com.esotericsoftware.minlog:minlog:1.2"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/objenesis-2.6.jar",
+        "sha256": "5e168368fbc250af3c79aa5fef0c3467a2d64e5a7bd74005f25d8399aeb0708d",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/kotlinx-serialization-core-jvm-1.11.0.jar",
+        "sha256": "f4a801c647d4351327cd9e1ac4113e2be9ea37a64ab0abae269c25a52e28f35d",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/kotlinx-serialization-json-jvm-1.11.0.jar",
+        "sha256": "563a25b4eb5c9128ae9c2479f3d1a5c44dcd176112b91cf03682e906eba5c935",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/configuration-cache-report-jvm-1.36.jar",
+        "sha256": "b9687878cbd72551736ba65dcf44f9fe00a1a4912d1c4965c317662d2b32c028",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/jackson-annotations-2.22.jar",
+        "sha256": "21ddb598807d3a51a876704eb979d9296e1c6a6f47ab1826ff88c6d6a127a2d0",
+        "maven": [
+          "com.fasterxml.jackson.core:jackson-annotations:2.22"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/qdox-1.12.1.jar",
+        "sha256": "21fba22f830e9268f07cf4ab2d99e8181abbdcb0cb91ee0228eb3cb918dcdd1d",
+        "maven": [
+          "com.thoughtworks.qdox:qdox:1.12.1"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/maven-settings-3.9.5.jar",
+        "sha256": "cdf3d94994a5c0f4f7adccabdc4bc47aebdc1e705d42279d60ddaec367d43528",
+        "maven": [
+          "org.apache.maven:maven-settings:3.9.5"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/maven-settings-builder-3.9.5.jar",
+        "sha256": "cb19f199d7f629b6c265b726221b7a5a47297d1bf47f5455870b46352d07dda3",
+        "maven": [
+          "org.apache.maven:maven-settings-builder:3.9.5"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/maven-model-3.9.5.jar",
+        "sha256": "27a79004cae6d0f894489a8e48559c76ed197cf543ce07b24f25d26f4b8bf2fb",
+        "maven": [
+          "org.apache.maven:maven-model:3.9.5"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/plexus-utils-3.6.1.jar",
+        "sha256": "05a63effd67e2d6b9d610cc82e2bd7473289d34802e57a529b28110f28af5679",
+        "maven": [
+          "org.codehaus.plexus:plexus-utils:3.6.1"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/bcpg-jdk18on-1.86.jar",
+        "sha256": "8a52ea45b2063f6d41b8ca94409f255a1f4604922f7451c18a7cfd3a3c5b85ab",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/dd-plist-1.27.jar",
+        "sha256": "c9e29ebaada73dcf744687c3e75157b1cdfea8c09622720373b719594aac65c1",
+        "maven": [
+          "com.googlecode.plist:dd-plist:1.27"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/ivy-2.5.3.jar",
+        "sha256": "9502aa5aabf0b1484924a13ef4b5d24f121f7f91aab6768f11cc9d0906c0803b",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/plexus-cipher-2.0.jar",
+        "sha256": "9a7f1b5c5a9effd61eadfd8731452a2f76a8e79111fac391ef75ea801bea203a",
+        "maven": [
+          "org.codehaus.plexus:plexus-cipher:2.0"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/plexus-sec-dispatcher-2.0.jar",
+        "sha256": "873139960c4c780176dda580b003a2c4bf82188bdce5bb99234e224ef7acfceb",
+        "maven": [
+          "org.codehaus.plexus:plexus-sec-dispatcher:2.0"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/maven-repository-metadata-3.9.5.jar",
+        "sha256": "bbddcd62140628a967f0cf795ff8516b430867c0e82bc789912c14166295707a",
+        "maven": [
+          "org.apache.maven:maven-repository-metadata:3.9.5"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/snakeyaml-2.6.jar",
+        "sha256": "c8f7a98e7394adda02f6317249710e4d1b4c7a25aa8c7eace0c2eea52eb8bf85",
+        "maven": [
+          "org.yaml:snakeyaml:2.6"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/maven-builder-support-3.9.5.jar",
+        "sha256": "88abb6ca39b12caefadcf0ce9f3f9bc8516cfe01fa46039228e1047ccfd018a9",
+        "maven": [
+          "org.apache.maven:maven-builder-support:3.9.5"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/plexus-interpolation-1.26.jar",
+        "sha256": "b3b5412ce17889103ea564bcdfcf9fb3dfa540344ffeac6b538a73c9d7182662",
+        "maven": [
+          "org.codehaus.plexus:plexus-interpolation:1.26"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/jsch-0.2.16.jar",
+        "sha256": "562165c28741df479de96fc492d66a7f33cd403d179df21d81734e93aa0942f1",
+        "maven": [
+          "com.github.mwiede:jsch:0.2.16"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/aws-java-sdk-core-1.12.780.jar",
+        "sha256": "a1a381d1ff1674119b8602bde2dc1bc05a7bc5cd130cc985a2639765ba0216ce",
+        "maven": [
+          "com.amazonaws:aws-java-sdk-core:1.12.780"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/aws-java-sdk-s3-1.12.780.jar",
+        "sha256": "aa3cacf1d904db8b08e3a20909e662e277e1846a05a31e98b79aeda4aa731cfe",
+        "maven": [
+          "com.amazonaws:aws-java-sdk-s3:1.12.780"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/aws-java-sdk-kms-1.12.780.jar",
+        "sha256": "34cdd2c3e40f833d844d191054a30e308f380d23fee7185d7efef6aa85b48742",
+        "maven": [
+          "com.amazonaws:aws-java-sdk-kms:1.12.780"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/aws-java-sdk-sts-1.12.780.jar",
+        "sha256": "5798fb45896db0eebbdd18d8376b2a362d7c0ba12324bf4a796849a6b91ae83a",
+        "maven": [
+          "com.amazonaws:aws-java-sdk-sts:1.12.780"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/google-api-services-storage-v1-rev20220705-1.32.1.jar",
+        "sha256": "51446cf0373f19afc1b07b9dd75f254dfca917a4833dfb3bac61b2cad54c3400",
+        "maven": [
+          "com.google.apis:google-api-services-storage:v1-rev20220705-1.32.1"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/google-api-client-1.34.0.jar",
+        "sha256": "40cfc42643746f8ca3c42911e17c4048dc080a2f12a79c927297b50665de7140",
+        "maven": [
+          "com.google.api-client:google-api-client:1.34.0"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/google-http-client-gson-1.42.2.jar",
+        "sha256": "4fbeaf39f4fc12c10f45f1d4b8e45db6a0de4452d75da81f94926985b98f9637",
+        "maven": [
+          "com.google.http-client:google-http-client-gson:1.42.2"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/google-http-client-1.42.2.jar",
+        "sha256": "97544ad0b0ae39b6ac14b1bcacc0f6c20c46c07ca05b9362ceb38f216c51e049",
+        "maven": [
+          "com.google.http-client:google-http-client:1.42.2"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/google-oauth-client-1.34.1.jar",
+        "sha256": "193edf97aefa28b93c5892bdc598bac34fa4c396588030084f290b1440e8b98a",
+        "maven": [
+          "com.google.oauth-client:google-oauth-client:1.34.1"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/bcprov-jdk18on-1.86-min.jar",
+        "sha256": "4d4cadb701713d571fd35b82864a870251c6762f81b17af82b78889ebb8c716d",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/bcutil-jdk18on-1.86.jar",
+        "sha256": "1c268e15f785aafb1e4670d8d6e5f856f69475e96c162dadcd1ff9b350e9139f",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/jatl-0.2.3.jar",
+        "sha256": "93ee3810f7275244f5f6311d50c587d8fe43ab5047dfa3291aa96fe50587501c",
+        "maven": [
+          "com.googlecode.jatl:jatl:0.2.3"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/org.eclipse.jgit-7.2.1.202505142326-r.jar",
+        "sha256": "9f3b69423f695abd21ad2cca0e8caf108444750c32486bfafc1c101671ecd944",
+        "maven": [
+          "org.eclipse.jgit:org.eclipse.jgit:7.2.1.202505142326-r"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/org.eclipse.jgit.ssh.apache-7.2.1.202505142326-r.jar",
+        "sha256": "23fa7cd41bde9adbc926350671105972094f5977e0ec9b90896149ec3cc69ce5",
+        "maven": [
+          "org.eclipse.jgit:org.eclipse.jgit.ssh.apache:7.2.1.202505142326-r"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/org.eclipse.jgit.ssh.apache.agent-7.2.1.202505142326-r.jar",
+        "sha256": "3bc32b8b337b09289ea8b5e3d4403313658ab0df5ff1f4551892566d5f31a941",
+        "maven": [
+          "org.eclipse.jgit:org.eclipse.jgit.ssh.apache.agent:7.2.1.202505142326-r"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/joda-time-2.14.0.jar",
+        "sha256": "1e2da6f9eb65f20a25d9a3186831ed2b3fb14f7a48e1ef8206135ee58cb143d3",
+        "maven": [
+          "joda-time:joda-time:2.14.0"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/jmespath-java-1.12.780.jar",
+        "sha256": "d5f0f1a8873eb81c3be49603dab3f0aeaf08dc47319b513f64e63ce635e8efc1",
+        "maven": [
+          "com.amazonaws:jmespath-java:1.12.780"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/google-http-client-apache-v2-1.42.2.jar",
+        "sha256": "949ae5257aa1774b00f4bff1e81fe7c6b8985aba390cccd0abeb79a8d290ab75",
+        "maven": [
+          "com.google.http-client:google-http-client-apache-v2:1.42.2"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/opencensus-api-0.31.1.jar",
+        "sha256": "f1474d47f4b6b001558ad27b952e35eda5cc7146788877fc52938c6eba24b382",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/opencensus-contrib-http-util-0.31.1.jar",
+        "sha256": "3ea995b55a4068be22989b70cc29a4d788c2d328d1d50613a7a9afd13fdd2d0a",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/sshd-osgi-2.15.0.jar",
+        "sha256": "3c8a183f81e176d9c452c9bb94007574bc8188446b4fc98b527aa79074cd0dda",
+        "maven": [
+          "org.apache.sshd:sshd-osgi:2.15.0"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/sshd-sftp-2.15.0.jar",
+        "sha256": "4dcf4f8cc123dca9802fa993b754308be388f13daa6d59148e38cf8d0673962b",
+        "maven": [
+          "org.apache.sshd:sshd-sftp:2.15.0"
+        ]
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/jna-5.17.0.jar",
+        "sha256": "b3a9408e7c51e08ef0e3bfcc08f443f6ec0f6191ba8cd7c18d53d2b22e5bdbc0",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/jna-platform-5.17.0.jar",
+        "sha256": "b7e3d46c87bad2eb409b0e704916bcd81206168e357312dfddd0e253679cd9e0",
+        "maven": []
+      },
+      {
+        "filename": "gradle-9.9.1/lib/plugins/grpc-context-1.27.2.jar",
+        "sha256": "bcbf9055dff453fd6508bd7cca2a0aa2d5f059a9c94beed1f5fda1dc015607b8",
+        "maven": []
+      }
+    ],
+    "inventory_limits": "Non-Gradle jar files inventoried with embedded Maven coordinates where available. Native/shaded/unidentified components remain a review gap; not a complete SBOM or full toolchain approval."
+  },
+  "osv": {
+    "evaluation_utc": "2026-11-18T13:21:16.967712+00:00",
+    "quarantined": false,
+    "approved_toolchain": false,
+    "coverage": "Identifiable Maven metadata of Gradle 9.9.1 with the one Guava jar replaced; not proof that every bundled native/shaded component is covered.",
+    "queries": [
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.google.guava:guava"
+        },
+        "version": "33.8.0-jre"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.apache.commons:commons-lang3"
+        },
+        "version": "3.20.0"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "commons-io:commons-io"
+        },
+        "version": "2.20.0"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.slf4j:slf4j-api"
+        },
+        "version": "2.0.17"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "io.github.java-diff-utils:java-diff-utils"
+        },
+        "version": "4.12"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.jctools:jctools-core"
+        },
+        "version": "4.0.5"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.google.code.findbugs:jsr305"
+        },
+        "version": "3.0.2"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.apache.commons:commons-compress"
+        },
+        "version": "1.28.0"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.google.errorprone:error_prone_annotations"
+        },
+        "version": "2.50.0"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.fusesource.jansi:jansi"
+        },
+        "version": "2.4.2"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.slf4j:jul-to-slf4j"
+        },
+        "version": "2.0.17"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.google.code.gson:gson"
+        },
+        "version": "2.14.0"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.slf4j:jcl-over-slf4j"
+        },
+        "version": "2.0.17"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.slf4j:log4j-over-slf4j"
+        },
+        "version": "2.0.17"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.google.guava:failureaccess"
+        },
+        "version": "1.0.3"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.github.jnr:jnr-constants"
+        },
+        "version": "0.10.4"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.esotericsoftware.kryo:kryo"
+        },
+        "version": "2.24.0"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.esotericsoftware.reflectasm:reflectasm"
+        },
+        "version": "1.09"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.fasterxml.jackson.core:jackson-core"
+        },
+        "version": "2.22.3"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.fasterxml.jackson.core:jackson-databind"
+        },
+        "version": "2.22.3"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.fasterxml.jackson.datatype:jackson-datatype-jdk8"
+        },
+        "version": "2.22.3"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+        },
+        "version": "2.22.3"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "commons-codec:commons-codec"
+        },
+        "version": "1.18.0"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.antlr:antlr4-runtime"
+        },
+        "version": "4.7.2"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.github.javaparser:javaparser-core"
+        },
+        "version": "3.27.1"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.apache.httpcomponents:httpclient"
+        },
+        "version": "4.5.14"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.apache.httpcomponents:httpcore"
+        },
+        "version": "4.4.16"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "jcifs:jcifs"
+        },
+        "version": "1.3.17"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.esotericsoftware.minlog:minlog"
+        },
+        "version": "1.2"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.fasterxml.jackson.core:jackson-annotations"
+        },
+        "version": "2.22"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.thoughtworks.qdox:qdox"
+        },
+        "version": "1.12.1"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.apache.maven:maven-settings"
+        },
+        "version": "3.9.5"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.apache.maven:maven-settings-builder"
+        },
+        "version": "3.9.5"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.apache.maven:maven-model"
+        },
+        "version": "3.9.5"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.codehaus.plexus:plexus-utils"
+        },
+        "version": "3.6.1"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.googlecode.plist:dd-plist"
+        },
+        "version": "1.27"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.codehaus.plexus:plexus-cipher"
+        },
+        "version": "2.0"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.codehaus.plexus:plexus-sec-dispatcher"
+        },
+        "version": "2.0"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.apache.maven:maven-repository-metadata"
+        },
+        "version": "3.9.5"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.yaml:snakeyaml"
+        },
+        "version": "2.6"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.apache.maven:maven-builder-support"
+        },
+        "version": "3.9.5"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.codehaus.plexus:plexus-interpolation"
+        },
+        "version": "1.26"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.github.mwiede:jsch"
+        },
+        "version": "0.2.16"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.amazonaws:aws-java-sdk-core"
+        },
+        "version": "1.12.780"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.amazonaws:aws-java-sdk-s3"
+        },
+        "version": "1.12.780"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.amazonaws:aws-java-sdk-kms"
+        },
+        "version": "1.12.780"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.amazonaws:aws-java-sdk-sts"
+        },
+        "version": "1.12.780"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.google.apis:google-api-services-storage"
+        },
+        "version": "v1-rev20220705-1.32.1"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.google.api-client:google-api-client"
+        },
+        "version": "1.34.0"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.google.http-client:google-http-client-gson"
+        },
+        "version": "1.42.2"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.google.http-client:google-http-client"
+        },
+        "version": "1.42.2"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.google.oauth-client:google-oauth-client"
+        },
+        "version": "1.34.1"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.googlecode.jatl:jatl"
+        },
+        "version": "0.2.3"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.eclipse.jgit:org.eclipse.jgit"
+        },
+        "version": "7.2.1.202505142326-r"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.eclipse.jgit:org.eclipse.jgit.ssh.apache"
+        },
+        "version": "7.2.1.202505142326-r"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.eclipse.jgit:org.eclipse.jgit.ssh.apache.agent"
+        },
+        "version": "7.2.1.202505142326-r"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "joda-time:joda-time"
+        },
+        "version": "2.14.0"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.amazonaws:jmespath-java"
+        },
+        "version": "1.12.780"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.google.http-client:google-http-client-apache-v2"
+        },
+        "version": "1.42.2"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.apache.sshd:sshd-osgi"
+        },
+        "version": "2.15.0"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.apache.sshd:sshd-sftp"
+        },
+        "version": "2.15.0"
+      }
+    ],
+    "response": {
+      "results": [
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {}
+      ]
+    },
+    "findings": [],
+    "disposition": "Known matched findings fixed in approved local composition; incomplete full inventory/provenance prevents complete release admission"
+  },
+  "validation": {
+    "jdk": "Pinned Corretto 21.0.13.1.2 / 21.0.13.1+2-LTS, Windows x64",
+    "build": "gradlew.bat build fullUiTestPlan --offline --dependency-verification strict",
+    "unit_tests": {
+      "tests": 346,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "bootstrap_tests": 17,
+    "packaging": "Passed verifyPackagedJar; build-only helper excluded",
+    "daemon": "Actual Gradle daemon loaded Guava with SHA-256 97b79ec3f2c0a6313a0c2df51ce1abdf8907e6531803467b81efcaaf99b35161",
+    "unix_launcher": "Git Bash on Windows --version and syntax check passed; not Linux/macOS execution",
+    "harness_plan": "33 groups compiled/validated without launching Burp",
+    "linux_ci": {
+      "status": "pending"
+    },
+    "macos_build": "not executed",
+    "host": "No new Burp host run; historical raw evidence is unavailable and must be regenerated",
+    "launcher_integration": "Passed missing-input offline failure without download, Windows path with spaces, exact composition digest/version, mixed acquisition rejection, stock-daemon rejection; original cache untouched",
+    "standalone_packaged_smoke": "Passed actual Windows JNA native memory, FlatLaf, XML editor/theme, multi-release class selection and absence of build/test/host libraries",
+    "output_sha256": "155490feb3ac34662dcc66b72d7bbd6d495a657a221da4978dc7f231d98976e1"
+  },
+  "remaining_release_blockers": [
+    "Complete native/shaded inventory and provenance/publisher gaps",
+    "Current Windows/macOS/Linux Stable/Early Adopter real-host evidence and manual cases",
+    "Missing raw historical host reports",
+    "Other pending criteria and human release sign-off in docs/portswigger-review.json"
+  ],
+  "rollback": "Base commit bc76fee41ba826449836752cfd030b9f0826ed65 and original canonical archive retained. Old vulnerable toolchains are diagnostic rollback inputs, not approved releases.",
+  "upstream_core_advisory_review": {
+    "evaluation_utc": "2026-11-18T13:53:11.624902+00:00",
+    "source": "https://api.github.com/repos/gradle/gradle/security-advisories",
+    "record_sha256": "e6de25f6539d8e4534187e3473b9b95537e59c1aa49b4c3c4af1d04270fcc332",
+    "published_records": 24,
+    "review_result": "Compared every published affected/patched range with 9.9.1. No listed core advisory affects 9.9.1. Eight affect the replaced 8.9 baseline, including five older fixes inherited by 9.9.1.",
+    "records": [
+      {
+        "id": "GHSA-3cfg-jpcr-gfp3",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-3cfg-jpcr-gfp3",
+        "published_utc": "2026-11-10T17:47:43Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "maven",
+              "name": "org.gradle:gradle-core"
+            },
+            "vulnerable_version_range": ">= 7.0, <= 8.14.6",
+            "patched_versions": "8.14.7",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "maven",
+              "name": "org.gradle:gradle-core"
+            },
+            "vulnerable_version_range": ">= 9.0.0, <= 9.9.0",
+            "patched_versions": "9.9.1",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-gqrr-4j89-5267",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-gqrr-4j89-5267",
+        "published_utc": "2026-11-10T17:47:29Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "maven",
+              "name": "org.gradle:gradle-core"
+            },
+            "vulnerable_version_range": "<= 8.14.6",
+            "patched_versions": "8.14.7",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "maven",
+              "name": "org.gradle:gradle-core"
+            },
+            "vulnerable_version_range": ">= 9.0.0, <= 9.9.0",
+            "patched_versions": "9.9.1",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-pcp8-98xm-c6pr",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-pcp8-98xm-c6pr",
+        "published_utc": "2026-11-10T17:47:12Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "maven",
+              "name": "org.gradle:gradle-core"
+            },
+            "vulnerable_version_range": "<= 8.14.6",
+            "patched_versions": "8.14.7",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "maven",
+              "name": "org.gradle:gradle-core"
+            },
+            "vulnerable_version_range": ">= 9.0.0, <= 9.9.0",
+            "patched_versions": "9.9.1",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-j5m7-59rp-24f5",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-j5m7-59rp-24f5",
+        "published_utc": "2026-10-07T21:52:05Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "maven",
+              "name": "org.gradle:gradle-core"
+            },
+            "vulnerable_version_range": "<= 8.14.5",
+            "patched_versions": "8.14.6",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "maven",
+              "name": "org.gradle:gradle-core"
+            },
+            "vulnerable_version_range": ">= 9.0.0, <= 9.8.0",
+            "patched_versions": "9.8.1",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-xwqc-3h47-hg64",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-xwqc-3h47-hg64",
+        "published_utc": "2026-10-07T21:51:59Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "maven",
+              "name": "org.gradle:gradle-core"
+            },
+            "vulnerable_version_range": "<= 8.14.5",
+            "patched_versions": "8.14.6",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "maven",
+              "name": "org.gradle:gradle-core"
+            },
+            "vulnerable_version_range": ">= 9.0.0, <= 9.8.0",
+            "patched_versions": "9.8.1",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-mvvg-497x-hmj8",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-mvvg-497x-hmj8",
+        "published_utc": "2026-10-07T21:51:52Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "maven",
+              "name": "org.gradle:gradle-core"
+            },
+            "vulnerable_version_range": "<= 8.14.5",
+            "patched_versions": "8.14.6",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "maven",
+              "name": "org.gradle:gradle-core"
+            },
+            "vulnerable_version_range": ">= 9.0.0, <= 9.8.0",
+            "patched_versions": "9.8.1",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-mqwm-5m85-gmcv",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-mqwm-5m85-gmcv",
+        "published_utc": "2026-01-16T12:27:52Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "maven",
+              "name": "org.gradle:gradle-core"
+            },
+            "vulnerable_version_range": "< 8.14.4, 9.0.0 to 9.2.1",
+            "patched_versions": "8.14.4, >= 9.3.0",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-w78c-w6vf-rw82",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-w78c-w6vf-rw82",
+        "published_utc": "2026-01-16T12:27:44Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "maven",
+              "name": "org.gradle:gradle-core"
+            },
+            "vulnerable_version_range": "< 8.14.4, 9.0.0 to 9.2.1",
+            "patched_versions": "8.14.4, >= 9.3.0",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-465q-w4mf-4f4r",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-465q-w4mf-4f4r",
+        "published_utc": "2025-02-25T15:33:54Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "java",
+              "name": "Gradle"
+            },
+            "vulnerable_version_range": "8.12",
+            "patched_versions": "8.12.1",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-43r3-pqhv-f7h9",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-43r3-pqhv-f7h9",
+        "published_utc": "2023-10-04T21:58:52Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "java",
+              "name": "Gradle"
+            },
+            "vulnerable_version_range": "<7.6.3, <8.4",
+            "patched_versions": "7.6.3, 8.4",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-mrff-q8qj-xvg8",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-mrff-q8qj-xvg8",
+        "published_utc": "2023-10-04T21:59:00Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "java",
+              "name": "Gradle"
+            },
+            "vulnerable_version_range": "<7.6.3, <8.4",
+            "patched_versions": "7.6.3, 8.4",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-2h6c-rv6q-494v",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-2h6c-rv6q-494v",
+        "published_utc": "2023-06-30T18:02:49Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "java",
+              "name": "Gradle"
+            },
+            "vulnerable_version_range": "<7.6.1, [8.0,8.1.1]",
+            "patched_versions": "7.6.2, 8.2",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-84mw-qh6q-v842",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-84mw-qh6q-v842",
+        "published_utc": "2023-06-30T18:02:58Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "java",
+              "name": "Gradle"
+            },
+            "vulnerable_version_range": "<7.6.1, [8.0,8.1.1]",
+            "patched_versions": "7.6.2, 8.2",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-c724-3xg7-g3hf",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-c724-3xg7-g3hf",
+        "published_utc": "2023-02-28T16:33:12Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "java",
+              "name": "Gradle"
+            },
+            "vulnerable_version_range": "6.2 to 7.6",
+            "patched_versions": "6.9.4, 7.6.1, 8.0",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-j6wc-xfg8-jx2j",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-j6wc-xfg8-jx2j",
+        "published_utc": "2022-07-14T19:54:12Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "java",
+              "name": "Gradle"
+            },
+            "vulnerable_version_range": "6.2 to 7.4.2",
+            "patched_versions": "7.5",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-9pf5-88jw-3qgr",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-9pf5-88jw-3qgr",
+        "published_utc": "2022-02-10T08:44:55Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "java",
+              "name": "Gradle"
+            },
+            "vulnerable_version_range": "6.2 to 7.3.3",
+            "patched_versions": "7.4",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-6j2p-252f-7mw8",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-6j2p-252f-7mw8",
+        "published_utc": "2021-07-20T21:37:23Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "java",
+              "name": "Gradle"
+            },
+            "vulnerable_version_range": "<7.2",
+            "patched_versions": "7.2",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-fp8h-qmr5-j4c8",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-fp8h-qmr5-j4c8",
+        "published_utc": "2021-04-10T00:30:49Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "java",
+              "name": "Gradle"
+            },
+            "vulnerable_version_range": "<7.0",
+            "patched_versions": "7.0",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-jvmj-rh6q-x395",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-jvmj-rh6q-x395",
+        "published_utc": "2021-04-10T00:30:37Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "java",
+              "name": "Gradle"
+            },
+            "vulnerable_version_range": "5.1 to 6.8.3",
+            "patched_versions": "7.0",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-j45w-qrgf-25vm",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-j45w-qrgf-25vm",
+        "published_utc": "2021-01-08T18:59:48Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "java",
+              "name": "Gradle"
+            },
+            "vulnerable_version_range": "<6.8",
+            "patched_versions": "6.8",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-89qm-pxvm-p336",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-89qm-pxvm-p336",
+        "published_utc": "2021-04-10T00:31:38Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "java",
+              "name": "Gradle"
+            },
+            "vulnerable_version_range": "<7.0",
+            "patched_versions": "7.0",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-ww7h-4fx5-8c2j",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-ww7h-4fx5-8c2j",
+        "published_utc": "2020-06-02T17:49:07Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "java, android, c/c++, build tooling",
+              "name": "Gradle"
+            },
+            "vulnerable_version_range": "4.5 through 6.4.x",
+            "patched_versions": "6.5",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-mrm8-42q4-6rm7",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-mrm8-42q4-6rm7",
+        "published_utc": "2019-10-01T14:11:48Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "java, android, c/c++, build tooling",
+              "name": "Gradle"
+            },
+            "vulnerable_version_range": "< 6.0",
+            "patched_versions": "6.0",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      {
+        "id": "GHSA-4cwg-f7qc-6r95",
+        "source": "https://github.com/gradle/gradle/security/advisories/GHSA-4cwg-f7qc-6r95",
+        "published_utc": "2019-08-14T18:53:48Z",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "java, android, c/c++, build tooling",
+              "name": "Gradle"
+            },
+            "vulnerable_version_range": "< 5.6",
+            "patched_versions": "5.6",
+            "vulnerable_functions": []
+          }
+        ]
+      }
+    ]
+  },
+  "additional_osv_queries": {
+    "evaluation_utc": "2026-11-18T13:53:11.624902+00:00",
+    "queries": [
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "org.gradle:gradle-core"
+        },
+        "version": "9.9.1"
+      },
+      {
+        "package": {
+          "ecosystem": "Maven",
+          "name": "com.google.guava:guava-parent"
+        },
+        "version": "33.8.0-jre"
+      }
+    ],
+    "response": {
+      "results": [
+        {},
+        {}
+      ]
+    }
+  }
+}

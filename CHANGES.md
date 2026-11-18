@@ -8,7 +8,7 @@ Unreleased. Full UI validation and release approval remain pending.
 - Added Logger marker highlighting and safer UI recovery that preserves saved styles and Burp's listeners.
 - Added an ICO resource for Windows launcher icons, with restoration on reset/unload.
 - Improved background work, update checks and screenshot handling.
-- Updated dependencies and the build JDK, removed unused libraries, and added dependency verification and third-party notices.
+- Patched dependencies and build tools, removed unused libraries, and added dependency verification and third-party notices.
 - Added opt-in full UI tests and PortSwigger push/release checks; automatic publishing is disabled.
 
 ## Version 4.92 (2026-07-21)

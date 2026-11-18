@@ -14,8 +14,10 @@ The changelog and README distinguish implemented changes from measured support.
 The current workflow uses native Git and a checked-in standard-library bootstrap
 for the exact vendor JDK pinned in `gradle/ci-jdk.json`; it executes no marketplace
 Actions. Hash/identity/extraction checks run before JDK use. This closes the
-previous unpinned CI Java/action-input paths, not the remaining Gradle, native
-provenance or host-evidence findings. See the dated dependency/toolchain reviews.
+previous unpinned CI Java/action-input paths. The separately approved
+[Gradle/Guava composition](gradle-security-patch.md) fixes the ten identified
+Gradle/Guava advisories. Its build-only bootstrap is excluded from the extension;
+native/build provenance, inventory gaps and host evidence remain pending.
 
 ## BApp criteria mapped to this repository
 

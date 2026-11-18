@@ -1,5 +1,33 @@
 # Dependency review: 2026-11-16
 
+## Approved Gradle security composition: 2026-11-18
+
+The maintainer separately approved replacing Gradle's bundled Guava after
+reviewing the tested proposal. The checked-in wrapper now uses official Gradle
+**9.9.1** plus the unmodified official **Guava 33.8.0-jre** jar, composed only in
+the project's private cache. This resolves eight identified Gradle core
+advisories and both Guava advisories; no non-applicability waiver was used.
+Exact inputs, checksums, signatures, age evidence, licence, scope, expiry and
+remaining inventory/provenance limits are in [the approval record](gradle-security-patch.json).
+
+The JDK-only guard performs explicit online acquisition separately, preserves
+the canonical archive/notices, and compares every installed file before each
+launch. Its stable composition digest is pinned. A fresh single-use daemon and
+a daemon-side Guava hash assertion prevent reuse of an old stock installation.
+The 17 new regression cases cover corrupted/missing input, bounded downloads,
+redirects, archive traversal/collisions/limits, changed/extra installed files,
+wrong Guava metadata, incorrect pins and preservation of existing data/notices.
+No helper or build dependency is included in the extension jar.
+
+Offline strict build: **346 tests passed**, packaging and the 33-group harness
+plan passed; no new Burp host run was performed. Sixty-one identifiable composed
+Gradle Maven coordinates returned no matching OSV advisories. This is dated
+coverage, not proof of a complete shaded/native inventory or release admission.
+The earlier 36-coordinate runtime/test review remains unchanged. Linux CI and
+remaining provenance/host evidence are recorded separately, without inference.
+
+The dated reviews below retain the pre-patch findings and decisions.
+
 ## Security patch follow-up: 2026-11-18
 
 - Upgraded the local Windows validation JDK and pinned Linux CI to **Amazon

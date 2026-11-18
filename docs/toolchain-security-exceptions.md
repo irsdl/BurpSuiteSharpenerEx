@@ -1,5 +1,11 @@
 # Build-tool security exceptions
 
+**Superseded Gradle disposition, 2026-11-18:** the maintainer separately approved
+the exact project-local Gradle 9.9.1/Guava 33.8.0-jre composition in
+[the new record](gradle-security-patch.json). That narrow exception replaces the
+old Gradle block below; it does not waive other provenance/host release gates.
+The dated findings below remain historical, including their original decisions.
+
 The current 2026-11-18 JDK security patch and exact Windows/Linux pins are recorded
 in [the follow-up](toolchain-security-update-2026-11-18.json). That update supersedes
 the local JDK selection below. This dated review retains its original findings;
