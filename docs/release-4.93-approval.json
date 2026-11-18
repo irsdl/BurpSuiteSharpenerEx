@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "approved": true,
+  "version": "4.93",
+  "tag": "main_4.93",
+  "repository": "irsdl/BurpSuiteSharpenerEx",
+  "human_approver": "irsdl (repository maintainer and current user)",
+  "approval_recorded_utc": "2026-11-18T15:30:34.806683+00:00",
+  "record_time_basis": "Recording UTC; exact user-message timestamp not supplied",
+  "expires_utc": "2026-11-25T15:30:34.806683+00:00",
+  "instruction": "User explicitly accepted/skipped items 1-9, requested Windows-compatible automated tests and future automation of manual cases, said \"fix the changelog as we are going to release 4.93 now\", required passing GitHub builds, and said \"we are trying to push 4.93 out, do it\".",
+  "scope": "Publish GitHub 4.93 as Latest from the reviewed main commit using the tested GitHub Windows build. Accept the listed evidence/provenance gaps and known installed Windows icon issue; no claim of unperformed checks, full security audit, cross-platform certification or BApp approval. No approval of an applicable unpatched vulnerability, failed automated build, unverified artifact identity, unrelated input or future version.",
+  "deferred_criteria": [
+    3,
+    5,
+    6,
+    8,
+    9,
+    10
+  ],
+  "deferred_finding_ids": [
+    "deferred-1",
+    "deferred-2",
+    "deferred-3",
+    "deferred-4",
+    "deferred-5",
+    "deferred-6",
+    "deferred-7",
+    "deferred-8",
+    "installed-windows-icon"
+  ],
+  "deferred_findings": [
+    {
+      "id": "deferred-1",
+      "finding": "The ten identified Gradle/Guava advisories are fixed by the exact human-approved local composition. Complete native/shaded/build inventory, publisher provenance and managed-runner evidence remain incomplete.",
+      "status": "deferred-by-maintainer-for-4.93",
+      "verified": false
+    },
+    {
+      "id": "deferred-2",
+      "finding": "Complete Stable and Windows/macOS/Linux channel matrix, including real host persistence/reload, remains unverified.",
+      "status": "deferred-by-maintainer-for-4.93",
+      "verified": false
+    },
+    {
+      "id": "deferred-3",
+      "finding": "Live offline, multi-monitor/dialog, large-project responsiveness and memory evidence absent.",
+      "status": "deferred-by-maintainer-for-4.93",
+      "verified": false
+    },
+    {
+      "id": "deferred-4",
+      "finding": "Advertised historical minimum Burp/API compatibility and final BApp/release metadata need reconciliation.",
+      "status": "deferred-by-maintainer-for-4.93",
+      "verified": false
+    },
+    {
+      "id": "deferred-5",
+      "finding": "Real macOS/Linux host and visual taskbar/pinned-launcher evidence absent; Windows/macOS/Linux x Stable/Early Adopter matrix required.",
+      "status": "deferred-by-maintainer-for-4.93",
+      "verified": false
+    },
+    {
+      "id": "deferred-6",
+      "finding": "Windows Professional EA and Community 2026.3.3 runs have no failed assertions, but clipboard and eight manual groups remain pending for each host.",
+      "status": "deferred-by-maintainer-for-4.93",
+      "verified": false
+    },
+    {
+      "id": "deferred-7",
+      "finding": "Current 33-group Community rerun timed out at temporary-project startup while desktop control was unavailable. No assertions ran and no activation was requested. A new run is required; the earlier 21 passing groups apply only to their original jar/catalog.",
+      "status": "deferred-by-maintainer-for-4.93",
+      "verified": false
+    },
+    {
+      "id": "deferred-8",
+      "finding": "Historical raw full UI reports were removed by a clean build; summaries and hashes are retained, but raw release evidence must be regenerated. New report output survives clean.",
+      "status": "deferred-by-maintainer-for-4.93",
+      "verified": false
+    },
+    {
+      "id": "installed-windows-icon",
+      "finding": "Maintainer reports installed Windows main/taskbar icon does not change even unpinned; deferred for 4.93. Detached-window behaviour is separate.",
+      "status": "known-issue-deferred-by-maintainer-for-4.93",
+      "verified": false
+    }
+  ],
+  "community_basis": "Maintainer accepts expected Community compatibility from shared objects/APIs; this is not a completed current Community regression.",
+  "target_policy": "Current Stable/Early Adopter and approximately the preceding year; Windows is the current automation priority. Keep macOS/Linux implementation support. Older hosts may use historical releases.",
+  "automation_follow_up": "Automate the eight remaining manual groups where practical with Windows-compatible host tests; keep the heavy host suite opt-in. Add actual other-OS checks when available.",
+  "artifact_binding": "verifyReleaseReadiness records the exact built jar/source/review/approval hashes and test results. Read-only GitHub build and isolated publisher must produce identical jar SHA-256 values. Publish the receipt and checksum with that jar.",
+  "owner": "irsdl",
+  "bapp_submission_authorized": false,
+  "security_recheck": {
+    "evaluation_utc": "2026-11-18T15:34:21.112767+00:00",
+    "source": "https://api.osv.dev/v1/querybatch",
+    "queries": 99,
+    "query_sha256": "8add6e5026eee6dc5f34d2c9a4c740834caaa543efcbb4d387854157a656768a",
+    "response_sha256": "6869f5747a66a6ae280f6c176f78db753898fb2709e1d206e61461b6469e3668",
+    "matched_advisories": 0,
+    "coverage": "Same resolved runtime/test/metadata and identifiable Gradle Maven inputs, plus core and Guava parent. Complete shaded/native provenance remains explicitly deferred; no universal security guarantee."
+  }
+}

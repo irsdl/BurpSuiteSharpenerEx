@@ -7,9 +7,10 @@ Both pages reported an update on 2026-11-17. Re-read them before each push and
 release; this mapping must follow later upstream changes. Repository gates are
 additional project requirements, not a claim of PortSwigger certification.
 
-Version 4.93 is unreleased. This review retains the security/toolchain and live
-host findings below; it does not establish full compliance or release readiness.
-The changelog and README distinguish implemented changes from measured support.
+The maintainer explicitly authorized GitHub 4.93 with the listed validation and
+provenance gaps deferred in [the approval](release-4.93-approval.json). Their
+pending/blocked evidence results remain truthful; this is not full compliance,
+a completed host matrix or BApp Store certification. The changelog is finalized.
 
 The current workflow uses native Git and a checked-in standard-library bootstrap
 for the exact vendor JDK pinned in `gradle/ci-jdk.json`; it executes no marketplace
@@ -89,8 +90,18 @@ settings were changed by this work.
 
 ## Before a release or BApp update
 
-Run `verifyReleaseReadiness` with the same offline/strict flags. It intentionally
-fails for the current review. Complete these steps before changing its disposition:
+For GitHub 4.93 the named maintainer approval explicitly supersedes the otherwise
+mandatory host/provenance completion below. `verifyReleaseReadiness` still runs
+build/tests/package checks, validates the version-specific approval and every
+deferred finding, and emits exact source/jar/review/approval hashes and test
+counts. Failed tests, new unwaived blockers, wrong artifacts and stale reviews
+remain failures. The separate manual workflow tests Linux and Windows read-only,
+then an isolated publisher rebuilds with identical pins and requires the exact
+tested Windows SHA-256. Credentials are supplied only to publication. Existing
+releases/tags/assets are never replaced. BApp submission is not authorized.
+
+Run `verifyReleaseReadiness` with the same offline/strict flags. For full approval
+without a maintainer exception, complete the following evidence:
 
 - Resolve [dependency/toolchain findings](dependency-review.md), refresh security
   evidence under AGENTS.md, use an admitted exact toolchain, and retain build inputs,
@@ -115,6 +126,6 @@ fails for the current review. Complete these steps before changing its dispositi
   any manual GitHub/web/API publication or BApp submission. The same rule applies
   to uploading assets to an existing release. Preserve prior releases and tags.
 
-There is deliberately no automatic publisher. A future isolated release workflow
-must enforce the same gate and dependency policy before receiving write credentials.
+Ordinary pushes never publish. The isolated manual release workflow enforces the
+gate and exact tested artifact identity before using its publication token.
 Tests and local checklists cannot decide BApp Store admission; PortSwigger does.

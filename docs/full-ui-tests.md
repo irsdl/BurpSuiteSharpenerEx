@@ -5,6 +5,14 @@ changes. It is **not** part of `build`, `test`, `check`, normal CI, push readine
 or the distributable jar. Existing quick headless tests remain the normal build.
 The developer harness is built separately under `build/full-ui-harness/`.
 
+For 4.93 the maintainer explicitly deferred the full/manual/clipboard and other-OS
+runs. These are not normal build/release blockers under the recorded approval.
+Windows is the current automation priority. The eight manual groups in
+`full-ui-manual-cases.md` are the automation backlog, not completed test results;
+convert their practical checks into Windows-compatible automation in future work.
+Retain cross-platform implementation paths and add real other-OS coverage when
+available. Professional results do not become Community passes by inference.
+
 ## Commands
 
 Normal validation (no live Burp/UI tests):

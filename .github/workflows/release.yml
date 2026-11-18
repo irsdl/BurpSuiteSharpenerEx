@@ -1,0 +1,57 @@
+name: Publish approved Sharpener release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sharpener-manual-release
+  cancel-in-progress: false
+
+jobs:
+  release-build:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/gradle.yml
+    permissions:
+      contents: read
+
+  publish:
+    needs: release-build
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: windows-2025
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out approved main commit without stored credentials
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          if ($env:GITHUB_REPOSITORY -ne 'irsdl/BurpSuiteSharpenerEx' -or $env:GITHUB_SHA -notmatch '^[0-9a-f]{40}$') { throw 'Invalid release checkout' }
+          git init --quiet .
+          git config core.autocrlf false
+          git remote add origin "https://github.com/$env:GITHUB_REPOSITORY.git"
+          git -c credential.helper= fetch --no-tags --depth=1 origin $env:GITHUB_SHA
+          git checkout --detach FETCH_HEAD
+          if ((git rev-parse HEAD) -ne $env:GITHUB_SHA) { throw 'Wrong checked-out commit' }
+      - name: Test release guards before using publication credentials
+        run: python -I -m unittest discover -s .github/scripts -p 'test_*.py'
+      - name: Acquire exact reviewed Windows JDK
+        run: python -I .github/scripts/acquire_ci_jdk.py --destination "$env:RUNNER_TEMP/sharpener-release-jdk"
+      - name: Acquire approved toolchain and locked dependencies
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          .\gradlew.bat --sharpener-acquire-toolchain
+          .\gradlew.bat resolveDependencies --dependency-verification strict --console=plain
+      - name: Rebuild and verify release readiness offline
+        run: .\gradlew.bat verifyReleaseReadiness --offline --dependency-verification strict --console=plain
+      - name: Publish only the identical tested jar
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_JAR_SHA256: ${{ needs.release-build.outputs.jar_sha256 }}
+        run: python -I .github/scripts/publish_release.py

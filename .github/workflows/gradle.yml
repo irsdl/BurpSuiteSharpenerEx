@@ -5,10 +5,14 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_call:
+    outputs:
+      jar_sha256:
+        description: SHA-256 of the tested Windows jar
+        value: ${{ jobs.windows-build.outputs.jar_sha256 }}
 
-# Publication remains blocked pending inventory/provenance and host
-# findings in docs/portswigger-review.json. No marketplace Actions are executed.
-# Never delete previous releases/tags or publish automatically on push.
+# Normal CI is read-only. The separate manual release workflow accepts only
+# the recorded maintainer approval and never publishes untrusted PR code.
 permissions:
   contents: read
 
@@ -52,3 +56,51 @@ jobs:
         run: ./gradlew resolveDependencies --dependency-verification strict --console=plain
       - name: Build and check PortSwigger push review offline
         run: ./gradlew verifyPushReadiness --offline --dependency-verification strict --console=plain
+
+  windows-build:
+    runs-on: windows-2025
+    timeout-minutes: 20
+    outputs:
+      jar_sha256: ${{ steps.jar.outputs.sha256 }}
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out the exact tested public commit
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          if ($env:GITHUB_SERVER_URL -ne 'https://github.com' -or $env:GITHUB_REPOSITORY -notmatch '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$' -or $env:GITHUB_SHA -notmatch '^[0-9a-f]{40}$') { throw 'Invalid checkout identity' }
+          git init --quiet .
+          git config core.autocrlf false
+          git remote add origin "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY.git"
+          git -c credential.helper= fetch --no-tags --depth=1 origin $env:GITHUB_SHA
+          git checkout --detach FETCH_HEAD
+          if ((git rev-parse HEAD) -ne $env:GITHUB_SHA) { throw 'Wrong checked-out commit' }
+          git config --local core.hooksPath .githooks
+      - name: Test JDK and publication guards
+        run: python -I -m unittest discover -s .github/scripts -p 'test_*.py'
+      - name: Acquire exact reviewed Windows JDK
+        run: python -I .github/scripts/acquire_ci_jdk.py --destination "$env:RUNNER_TEMP/sharpener-reviewed-jdk"
+      - name: Record runner identity
+        run: |
+          Write-Output "Runner image: $env:ImageOS $env:ImageVersion"
+          git --version
+          python --version
+          gh --version
+          java -version
+      - name: Acquire approved toolchain
+        run: .\gradlew.bat --sharpener-acquire-toolchain
+      - name: Acquire locked verified dependencies
+        run: .\gradlew.bat resolveDependencies --dependency-verification strict --console=plain
+      - name: Build and check review offline
+        run: .\gradlew.bat verifyPushReadiness --offline --dependency-verification strict --console=plain
+      - name: Check release readiness for explicit release dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: .\gradlew.bat verifyReleaseReadiness --offline --dependency-verification strict --console=plain
+      - name: Record tested jar hash
+        id: jar
+        run: |
+          $sha = (Get-FileHash releases/BurpSuiteSharpenerEx.jar -Algorithm SHA256).Hash.ToLowerInvariant()
+          "sha256=$sha" >> $env:GITHUB_OUTPUT
+          Write-Output "Tested Windows jar SHA-256: $sha"

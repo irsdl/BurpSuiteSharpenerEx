@@ -398,5 +398,10 @@
     ],
     "release_disposition": "New real-host runs required to supply raw release evidence.",
     "new_default_directory": "temp/full-ui-test-reports/; ignored and outside Gradle clean output"
+  },
+  "maintainer_493_disposition": {
+    "record": "docs/release-4.93-approval.json",
+    "status": "Deferred for 4.93 by explicit user instruction",
+    "scope": "Historical results/hashes remain unchanged. No copying Professional passes to Community; manual/clipboard/other-OS/raw-report gaps do not block this release."
   }
 }

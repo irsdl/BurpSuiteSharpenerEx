@@ -6,12 +6,14 @@ import argparse
 import hashlib
 import json
 import os
+import platform
 from pathlib import Path, PurePosixPath
 import re
 import sys
 import tarfile
 import tempfile
 import urllib.request
+import zipfile
 
 MAX_DOWNLOAD = 512 * 1024 * 1024
 MAX_EXPANDED = 1024 * 1024 * 1024
@@ -22,9 +24,10 @@ def validate_pin(pin):
     version = pin.get("version", "")
     if not re.fullmatch(r"21\.\d+\.\d+\.\d+\.\d+", version):
         raise ValueError("Expected an exact reviewed Corretto 21 build")
-    filename = f"amazon-corretto-{version}-linux-x64.tar.gz"
+    suffix = {"linux-x64": "linux-x64.tar.gz", "windows-x64": "windows-x64-jdk.zip"}.get(pin.get("platform"))
+    filename = f"amazon-corretto-{version}-{suffix}"
     expected_url = f"https://corretto.aws/downloads/resources/{version}/{filename}"
-    if (pin.get("vendor") != "Amazon Corretto" or pin.get("platform") != "linux-x64"
+    if (pin.get("vendor") != "Amazon Corretto" or suffix is None
             or pin.get("filename") != filename or pin.get("source") != expected_url
             or not re.fullmatch(r"[0-9a-f]{64}", pin.get("sha256", ""))
             or not re.fullmatch(r"21\.[0-9.+-]+LTS", pin.get("java_runtime", ""))):
@@ -48,6 +51,8 @@ def verify_checksum(path, expected):
 
 
 def extract_archive(archive_path, output):
+    if archive_path.suffix == ".zip":
+        return extract_zip(archive_path, output)
     output = output.resolve()
     with tarfile.open(archive_path, "r:gz") as archive:
         members = []
@@ -85,6 +90,37 @@ def extract_archive(archive_path, output):
         return output / next(iter(roots))
 
 
+def extract_zip(archive_path, output):
+    output = output.resolve()
+    with zipfile.ZipFile(archive_path) as archive:
+        members = archive.infolist()
+        roots, names, total = set(), set(), 0
+        for member in members:
+            path = PurePosixPath(member.filename)
+            mode = member.external_attr >> 16
+            if (not path.parts or path.is_absolute() or "\\" in member.orig_filename
+                    or any(p in (".", "..") or ":" in p for p in member.filename.split("/"))
+                    or "//" in member.filename or mode & 0o170000 == 0o120000
+                    or member.filename.lower() in names
+                    or not (output / member.filename).resolve().is_relative_to(output)):
+                raise ValueError("Unsafe or duplicate JDK zip entry")
+            names.add(member.filename.lower())
+            roots.add(path.parts[0])
+            total += member.file_size
+        if len(roots) != 1 or len(members) > MAX_ENTRIES or total > MAX_EXPANDED:
+            raise ValueError("JDK zip exceeds reviewed roots/limits")
+        for member in members:
+            target = output / member.filename
+            if member.is_dir():
+                target.mkdir(parents=True, exist_ok=True)
+            else:
+                target.parent.mkdir(parents=True, exist_ok=True)
+                with archive.open(member) as source, target.open("xb") as dest:
+                    while block := source.read(1024 * 1024):
+                        dest.write(block)
+        return output / next(iter(roots))
+
+
 def verify_identity(home, pin):
     release = home / "release"
     if not release.is_file() or release.stat().st_size > 65536:
@@ -97,10 +133,11 @@ def verify_identity(home, pin):
     expected = {"IMPLEMENTOR": "Amazon.com Inc.",
                 "IMPLEMENTOR_VERSION": "Corretto-" + pin["version"],
                 "JAVA_RUNTIME_VERSION": pin["java_runtime"],
-                "OS_NAME": "Linux", "OS_ARCH": "x86_64"}
+                "OS_NAME": "Windows" if pin["platform"] == "windows-x64" else "Linux", "OS_ARCH": "x86_64"}
     if any(values.get(key) != value for key, value in expected.items()):
         raise ValueError("Extracted JDK vendor/build/platform differs from pin")
-    if not (home / "bin/java").is_file() or not (home / "bin/javac").is_file():
+    suffix = ".exe" if pin["platform"] == "windows-x64" else ""
+    if not (home / ("bin/java" + suffix)).is_file() or not (home / ("bin/javac" + suffix)).is_file():
         raise ValueError("Archive is not a complete JDK")
 
 
@@ -135,9 +172,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--destination", type=Path, required=True)
     args = parser.parse_args()
-    if sys.platform != "linux" or os.uname().machine != "x86_64":
-        parser.error("This bootstrap is for the fixed Linux x64 CI runner only")
-    pin_path = Path(__file__).resolve().parents[2] / "gradle/ci-jdk.json"
+    if sys.platform not in ("linux", "win32") or platform.machine().lower() not in ("x86_64", "amd64"):
+        parser.error("This bootstrap requires a reviewed Linux/Windows x64 runner")
+    pin_path = Path(__file__).resolve().parents[2] / ("gradle/validation-jdk.json" if sys.platform == "win32" else "gradle/ci-jdk.json")
     home = acquire(json.loads(pin_path.read_text(encoding="utf-8")), args.destination)
     if any(char in str(home) for char in "\r\n"):
         raise ValueError("JDK destination cannot contain environment-file delimiters")
