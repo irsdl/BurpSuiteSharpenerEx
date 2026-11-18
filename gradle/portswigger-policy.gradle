@@ -23,7 +23,7 @@ def reviewDigestFor = { File directory ->
     reviewPaths(directory).each { path ->
         def input = new File(directory, path)
         byte[] bytes = input.bytes
-        if (path ==~ /.*\.(java|properties|md|json|ya?ml|gradle|lockfile|xml|txt|sh|ps1|bat|form|html)/ ||
+        if (path ==~ /.*\.(java|py|properties|md|json|ya?ml|gradle|lockfile|xml|txt|sh|ps1|bat|form|html)/ ||
                 input.name in ['gradlew', 'pre-push', '.gitattributes', '.gitignore', 'LICENSE', 'NOTICE']) {
             bytes = new String(bytes, 'UTF-8').replace('\r\n', '\n').getBytes('UTF-8')
         }
@@ -55,7 +55,7 @@ tasks.register('verifyPortswiggerReviewInputSelection') {
         }
         git(['init', '--quiet'])
         write('.gitignore', '.github/modernize/\n')
-        def source = write('src/fixture.java', 'class Fixture {}\n')
+        def source = write('.github/scripts/fixture.py', 'print("fixture")\n')
         git(['add', '.'])
         def baseline = reviewDigestFor(fixture)
         def ignored = write('.github/modernize/private-hook.sh', 'local tooling\n')
@@ -76,10 +76,11 @@ tasks.register('verifyPortswiggerReviewInputSelection') {
         def withChangedTracked = reviewDigestFor(fixture)
         if (withChangedTracked == withTracked)
             throw new GradleException('Tracked ignored-file modification was omitted')
-        source.setText('class Fixture {}\r\n', 'UTF-8')
+        source.setText('print("fixture")\r\n', 'UTF-8')
         if (reviewDigestFor(fixture) != withChangedTracked)
             throw new GradleException('Text newline normalization differs between platforms')
         def binary = new File(fixture, 'src/fixture.png')
+        binary.parentFile.mkdirs()
         binary.bytes = [0, 1, 2] as byte[]
         git(['add', '-f', 'src/fixture.png'])
         def withBinary = reviewDigestFor(fixture)

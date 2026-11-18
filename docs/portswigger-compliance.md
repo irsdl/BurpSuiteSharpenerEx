@@ -11,6 +11,12 @@ Version 4.93 is unreleased. This review retains the security/toolchain and live
 host findings below; it does not establish full compliance or release readiness.
 The changelog and README distinguish implemented changes from measured support.
 
+The current workflow uses native Git and a checked-in standard-library bootstrap
+for the exact vendor JDK pinned in `gradle/ci-jdk.json`; it executes no marketplace
+Actions. Hash/identity/extraction checks run before JDK use. This closes the
+previous unpinned CI Java/action-input paths, not the remaining Gradle, native
+provenance or host-evidence findings. See the dated dependency/toolchain reviews.
+
 ## BApp criteria mapped to this repository
 
 | # | Review area | Evidence and remaining work |

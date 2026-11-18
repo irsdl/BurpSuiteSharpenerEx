@@ -81,6 +81,9 @@ The heavy host suite lives in `src/fullUiTest/`, with Gradle tasks defined in
 tasks. Use `fullUiTestPlan` to compile/list/validate the harness without launching
 Burp, and `fullUiTest` explicitly after major UI, shortcut, native integration,
 settings/lifecycle changes, or when a maintainer requests a full regression.
+Keep raw host evidence outside `build/`: the default report directory is ignored
+`temp/full-ui-test-reports/`, which survives Gradle clean builds. Back up existing
+evidence before any operation that can remove its storage directory.
 For Professional, reuse the installation's existing activation cache without modifying it. Never
 request a new activation for a disposable test run: activations are limited.
 Missing required cached activation or an activation prompt must block/stop the run.
@@ -231,13 +234,17 @@ packaged-resource/native/notice checks. See `docs/dependency-review.md` for exac
 coverage, evidence, and unresolved security/provenance findings. CI now has a
 fixed runner family/version label, read-only permissions, disabled persisted
 checkout credentials and separate acquisition/offline validation. Publication
-and release/tag deletion have been removed. An exact CI JDK pin and a fully
-admitted build/CI toolchain are still not established. These changes do not
-approve the existing action SHAs or toolchain, and host validation is pending.
-Do not claim the baseline is fully audited or approved for publication.
+and release/tag deletion have been removed. The 2026-11-18 security follow-up pins
+the Linux CI JDK in `gradle/ci-jdk.json` and removes marketplace Actions from the
+workflow, using native Git and a reviewed standard-library JDK acquisition script.
+The runner image remains managed; record its actual identity and tool versions.
+Gradle/security/provenance and host findings still block full release admission.
+Do not claim the complete toolchain is audited or approved for publication.
 The current local validation JDK is pinned in `gradle/validation-jdk.json`;
 its approved security-fix age exception is recorded in
-`docs/toolchain-security-approval.json`. This is not an exact CI JDK pin.
+`docs/toolchain-security-update-2026-11-18.json`, referencing the existing age-only
+authorization in `docs/toolchain-security-approval.json`. Neither pin waives other
+findings or permits unofficial Gradle repackaging.
 Existing local diagnostic builds may be used to investigate and test fixes;
 complete and document the required gates before admitting updates or publishing
 binary releases. Do not silently expand a source-fix request into dependency or

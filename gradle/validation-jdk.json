@@ -1,14 +1,14 @@
 {
-  "purpose": "Reviewed local validation JDK; not a claim that existing CI consumes or enforces this pin",
+  "purpose": "Reviewed local Windows validation JDK; the matching Linux CI input is pinned separately in ci-jdk.json",
   "vendor": "Amazon Corretto",
-  "version": "21.0.13.0.11",
-  "java_runtime": "21.0.13+11-LTS",
+  "version": "21.0.13.1.2",
+  "java_runtime": "21.0.13.1+2-LTS",
   "platform": "windows-x64",
-  "source": "https://corretto.aws/downloads/resources/21.0.13.0.11/amazon-corretto-21.0.13.0.11-windows-x64-jdk.zip",
-  "sha256": "2245721d8cec120ebddf60a6981a13baa89d82997dab621a0ee6a5849beee233",
-  "signature_source": "https://corretto.aws/downloads/resources/21.0.13.0.11/amazon-corretto-21.0.13.0.11-windows-x64-jdk.zip.sig",
+  "source": "https://corretto.aws/downloads/resources/21.0.13.1.2/amazon-corretto-21.0.13.1.2-windows-x64-jdk.zip",
+  "sha256": "e91d8d38fe7af1e13ddde5c65d6c0cdd62d68fe091e9003464f5b45c422fb683",
+  "signature_source": "https://corretto.aws/downloads/resources/21.0.13.1.2/amazon-corretto-21.0.13.1.2-windows-x64-jdk.zip.sig",
   "signature_key_source": "https://yum.corretto.aws/corretto.key",
   "signature_fingerprint": "6DC3636DAE534049C8B94623A122542AB04F24E3",
-  "publication_utc": "2026-10-30T01:04:05Z",
-  "age_exception": "docs/toolchain-security-approval.json"
+  "publication_utc": "2026-11-18T00:46:29Z",
+  "age_exception": "docs/toolchain-security-update-2026-11-18.json"
 }

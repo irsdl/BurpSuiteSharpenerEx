@@ -1,5 +1,43 @@
 # Dependency review: 2026-11-16
 
+## Security patch follow-up: 2026-11-18
+
+- Upgraded the local Windows validation JDK and pinned Linux CI to **Amazon
+  Corretto 21.0.13.1.2 / OpenJDK 21.0.13.1+2-LTS**. The official stable release
+  fixes CVE-2026-114938 through CVE-2026-114946. Both exact artifacts match vendor
+  SHA-256 values and detached signatures. The new bytes were published on
+  2026-11-18; the existing current-task age-only authorization covers this
+  security fix. Exact review, timestamps, hashes, licence, expiry and nine
+  published CNA records are in [the update record](toolchain-security-update-2026-11-18.json).
+- Removed `actions/checkout` and `actions/setup-java` from the active workflow.
+  Reviewed newer releases still contain flagged npm dependencies; no vendor
+  action was repackaged or labelled clean. Native Git fetches/verifies the exact
+  tested public commit without stored credentials. The checked-in Python
+  standard-library bootstrap verifies the pinned vendor archive before extraction
+  and checks its vendor/build/platform. Twelve positive/negative tests cover
+  wrong sources/hashes/identities, redirects, path escapes, links, limits and
+  preservation of existing destinations. CI keeps read-only permissions and
+  publication disabled; the managed runner image is not an immutable tool pin.
+- Refreshed OSV checks for **36 inventoried Maven coordinates**, including parent
+  metadata: no matching advisories returned. Runtime/test versions and dependency
+  locks are unchanged. This is dated query coverage, not a guarantee of security.
+- **Gradle remains blocked.** The latest official releases are still 8.14.7
+  and 9.9.1. Rehashed their canonical archives and rescanned their embedded Maven
+  inventories: 8.14.7 still contains flagged Commons Lang 2.6 and Guava
+  33.4.6-jre; 9.9.1 still contains the flagged Guava. Upstream's additional
+  Guava advisory also applies. No clean official replacement was found, so the
+  wrapper remains diagnostic 8.9 rather than admitting another flagged toolchain
+  or unofficially modifying vendor libraries. Remaining security/provenance and
+  real-host findings continue to block publication.
+- A clean local offline strict build with the patched JDK passes **329 normal
+  tests**, packaging and the opt-in harness plan. The production jar remains
+  byte-identical to the prior diagnostic jar. Raw historical UI reports were
+  accidentally removed by that clean; their committed summaries/hashes remain,
+  but raw host evidence must be rerun. Future full-suite output is retained in
+  ignored `temp/full-ui-test-reports/`, outside the cleanable build directory.
+
+The historical reviews below retain their original dates, findings and decisions.
+
 ## Fresh CI metadata follow-up: 2026-11-18
 
 The first PR build stopped at strict verification because a fresh cache fetched

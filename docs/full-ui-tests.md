@@ -58,7 +58,8 @@ closes only the process it launched. The default timeout is 600 seconds; use
 ## Isolation and scope
 
 - Each run creates a fresh project, data directory, nonce guard and reports under
-  `build/reports/full-ui-tests/run-*/`. Never target an existing project or attach
+  `temp/full-ui-test-reports/run-*/`, outside Gradle's cleanable build directory.
+  Never target an existing project or attach
   this harness to a working Burp process.
 - The test JVM uses an in-memory Java preferences factory. Only existing local
   licence, activation-cache records and previously accepted startup/EULA flags are copied to that
@@ -167,8 +168,11 @@ returns nonzero while clipboard/manual coverage remains incomplete. Three fresh
 runs reused the existing registry activation without another activation prompt.
 The initial run exposed two extension defects (empty context selection and
 label-based close controls) and harness caption/dialog/screenshot timing issues;
-the latest run verifies their fixes. Original failed reports remain unchanged in
-[the live validation record](full-ui-validation.json). No full pass or other
+the latest recorded run verified their fixes. Historical summaries and hashes
+remain in [the live validation record](full-ui-validation.json), but a later clean
+build removed their ignored raw reports. Those files must be regenerated before
+they can support release approval. New reports are retained outside `build/`.
+No full pass or other
 OS/channel compatibility is established. The expanded run verifies actual
 Proxy/Logger temporary/permanent marker behaviour and matching renderer colours.
 

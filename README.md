@@ -47,7 +47,7 @@ Refer to the "Burp Suite Compatibility and Reporting Errors" section for detaile
 
 ## Burp Suite Compatibility and Reporting Errors
 
-Sharpener targets current Burp Stable and Early Adopter, including Community Edition. The latest Windows Professional Early Adopter 2026.11 run passed 23 automated UI case groups, including real Proxy/Logger marker colouring, with no failed assertions. An earlier 4.93 jar passed 21 groups in Community 2026.3.3; the expanded highlighter rerun timed out at startup before any assertions ran. Clipboard testing and eight manual groups remain pending. Current Stable, other 2026 releases, macOS and Linux remain unverified. See the exact jars and results in the [live evidence](docs/full-ui-validation.json).
+Sharpener targets current Burp Stable and Early Adopter, including Community Edition. The latest recorded Windows Professional Early Adopter 2026.11 run passed 23 automated UI case groups, including real Proxy/Logger marker colouring, with no failed assertions. An earlier 4.93 jar passed 21 groups in Community 2026.3.3; the expanded highlighter rerun timed out at startup before any assertions ran. Clipboard testing and eight manual groups remain pending. Current Stable, other 2026 releases, macOS and Linux remain unverified. Historical raw reports were removed by a clean build and must be regenerated for release evidence; see the [retained summaries and limitations](docs/full-ui-validation.json).
 
 Java 21 is required (Burp 2024.2 or later). This bytecode baseline does not establish API compatibility with every older Burp release. See the [host validation checklist](docs/burp-ui-compatibility.md) and [current compliance findings](docs/portswigger-compliance.md).
 

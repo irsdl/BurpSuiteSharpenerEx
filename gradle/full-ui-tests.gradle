@@ -41,7 +41,7 @@ tasks.register('fullUiTest', JavaExec) {
         args '--burp-jar', file(hostJar).absolutePath, '--java', file(hostJava).absolutePath,
                 '--extension-jar', tasks.named('jar').get().archiveFile.get().asFile.absolutePath,
                 '--harness-jar', fullUiHarness.get().archiveFile.get().asFile.absolutePath,
-                '--output', layout.buildDirectory.dir('reports/full-ui-tests').get().asFile.absolutePath,
+                '--output', file('temp/full-ui-test-reports').absolutePath,
                 '--timeout', providers.gradleProperty('fullUiTimeoutSeconds').getOrElse('600')
         args '--edition', providers.gradleProperty('fullUiEdition').getOrElse('auto')
         if (providers.gradleProperty('fullUiAutomatedOnly').getOrElse('false') == 'true') args '--automated-only'
