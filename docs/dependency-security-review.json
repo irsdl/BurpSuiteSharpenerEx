@@ -13419,5 +13419,14 @@
         }
       ]
     }
+  },
+  "gradle_patch_follow_up_2026_11_18": {
+    "evaluation_utc": "2026-11-18T13:48:46.900928+00:00",
+    "record": "docs/gradle-security-patch.json",
+    "decision": "Applied exact user-approved local Gradle 9.9.1/Guava 33.8.0-jre composition; supersedes old Gradle advisory blocks without waiving inventory/provenance/host gaps",
+    "known_advisory_matches": 0,
+    "identifiable_gradle_maven_queries": 61,
+    "upstream_core_advisories_reviewed": 24,
+    "additional_core_and_parent_osv_queries": 2
   }
 }

@@ -17,6 +17,11 @@ throughout this repository.
   `./gradlew build` (`.\gradlew.bat build` on Windows) runs the headless tests and
   produces `releases/BurpSuiteSharpenerEx.jar`. `./gradlew jar` packages without
   running the tests and is not sufficient release validation.
+- Prepare the pinned build toolchain separately with
+  `./gradlew --sharpener-acquire-toolchain` online before the first build.
+  The JDK-only wrapper guard verifies the canonical inputs and every composed
+  installation file; normal build/offline commands never acquire toolchain inputs.
+  Builds use a single-use daemon to prevent reuse of stock Gradle's old Guava.
 - Keep `version` in `src/main/resources/extension.properties` parseable as a
   number and strictly greater numerically for a new release: the update checker
   compares doubles. Add a matching section at the top of CHANGES.md using
@@ -140,6 +145,17 @@ their versions or transitive/embedded code. Burp's own API and libraries supplie
 by Burp must be distinguished from libraries bundled in the extension jar.
 Preserve settings compatibility, including the vendored preferences' JSON format.
 
+The maintainer explicitly approved one distribution-policy exception on
+2026-11-18: compose official Gradle 9.9.1 with the unmodified Maven Central
+Guava 33.8.0-jre jar replacing its vulnerable bundled Guava. Exact input and
+composition hashes, approval, expiry and evidence are in
+`docs/gradle-security-patch.json` and `gradle/security-toolchain.properties`.
+This is a project-local composition, not an official Gradle release. Preserve
+the vendor archive and notices, verify the entire installation before use, and
+never patch global/shared installations. No other repackaging, advisory waiver
+or publication is authorized by this exception. Review weekly and retire the
+composition when an admitted official distribution resolves the findings.
+
 ## Age evidence and security exceptions
 
 `effective_publication_utc = max(version_publication_utc, artifact_publication_utc)`.
@@ -238,13 +254,15 @@ and release/tag deletion have been removed. The 2026-11-18 security follow-up pi
 the Linux CI JDK in `gradle/ci-jdk.json` and removes marketplace Actions from the
 workflow, using native Git and a reviewed standard-library JDK acquisition script.
 The runner image remains managed; record its actual identity and tool versions.
-Gradle/security/provenance and host findings still block full release admission.
+The approved Gradle/Guava composition fixes the ten identified Gradle/Guava
+advisories; native/build provenance, inventory gaps and host findings still block
+full release admission.
 Do not claim the complete toolchain is audited or approved for publication.
 The current local validation JDK is pinned in `gradle/validation-jdk.json`;
 its approved security-fix age exception is recorded in
 `docs/toolchain-security-update-2026-11-18.json`, referencing the existing age-only
-authorization in `docs/toolchain-security-approval.json`. Neither pin waives other
-findings or permits unofficial Gradle repackaging.
+authorization in `docs/toolchain-security-approval.json`. Neither JDK pin waives
+other findings; only the exact separately approved composition above is allowed.
 Existing local diagnostic builds may be used to investigate and test fixes;
 complete and document the required gates before admitting updates or publishing
 binary releases. Do not silently expand a source-fix request into dependency or

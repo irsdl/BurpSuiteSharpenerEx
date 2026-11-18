@@ -4,8 +4,8 @@ plugins {
 
 apply from: 'gradle/portswigger-policy.gradle'
 
-group 'ninja.burpsuite.extension.sharpener'
-version ''
+group = 'ninja.burpsuite.extension.sharpener'
+version = ''
 
 repositories {
     mavenCentral()
@@ -45,7 +45,7 @@ dependencyLocking {
 // Verification stays strict; update locks and verification metadata only after review.
 tasks.register('resolveDependencies') {
     doLast {
-        configurations.findAll { it.canBeResolved }.each { it.resolve() }
+        configurations.matching { it.canBeResolved }.each { it.resolve() }
     }
 }
 
@@ -53,6 +53,9 @@ test {
     useJUnitPlatform()
     systemProperty "java.awt.headless", "true"
 }
+
+// Exercise the JDK-only wrapper guard with normal unit tests; never package it.
+sourceSets.test.java.srcDir('gradle/bootstrap')
 
 base {
     archivesName = project.name
@@ -110,7 +113,7 @@ tasks.register('verifyPackagedJar') {
             }
             if (names.any { it.startsWith('burp/api/') || it.startsWith('org/junit/') ||
                     it.startsWith('.github/') || it == 'gradle/ci-jdk.json' ||
-                    it == 'gradle/validation-jdk.json' ||
+                    it == 'gradle/validation-jdk.json' || it == 'ReviewedGradle.class' ||
                     it.startsWith('ninja/burpsuite/fulluitest/') || it == 'ui-cases.json' ||
                     it.startsWith('org/mockito/') || it.startsWith('net/bytebuddy/') ||
                     it.startsWith('com/google/common/') || it.startsWith('org/fife/ui/autocomplete/') }) {
@@ -135,8 +138,22 @@ tasks.register('verifyPackagedJar') {
     }
 }
 
+def verifyToolchainComposition = tasks.register('verifyToolchainComposition') {
+        doLast {
+            if (gradle.gradleVersion != '9.9.1') throw new GradleException('Use the reviewed wrapper toolchain')
+            def pin = new Properties()
+            file('gradle/security-toolchain.properties').withInputStream { pin.load(it) }
+            def type = Class.forName('com.google.common.collect.HashBiMap', true, gradle.getClass().classLoader)
+            def loaded = new File(type.protectionDomain.codeSource.location.toURI())
+            def sha = java.security.MessageDigest.getInstance('SHA-256').digest(loaded.bytes).encodeHex().toString()
+            if (sha != pin.getProperty('guava.jar.sha256'))
+                throw new GradleException('Gradle daemon is using unreviewed or vulnerable Guava; use the checked-in launcher')
+            println "Verified Gradle daemon Guava ${pin.getProperty('guava.version')}: $sha"
+        }
+}
+
 tasks.named('check') {
-    dependsOn tasks.named('verifyPackagedJar')
+    dependsOn tasks.named('verifyPackagedJar'), verifyToolchainComposition
 }
 
 tasks.withType(JavaCompile) {

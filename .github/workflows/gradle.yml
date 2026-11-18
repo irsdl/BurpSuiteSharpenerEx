@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [main]
 
-# Publication remains blocked pending the remaining Gradle/provenance and host
+# Publication remains blocked pending inventory/provenance and host
 # findings in docs/portswigger-review.json. No marketplace Actions are executed.
 # Never delete previous releases/tags or publish automatically on push.
 permissions:
@@ -46,6 +46,8 @@ jobs:
           cat "$JAVA_HOME/release"
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+      - name: Acquire and verify approved Gradle security composition
+        run: ./gradlew --sharpener-acquire-toolchain
       - name: Acquire locked verified dependencies
         run: ./gradlew resolveDependencies --dependency-verification strict --console=plain
       - name: Build and check PortSwigger push review offline
