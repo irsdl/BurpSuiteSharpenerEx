@@ -100,6 +100,33 @@ def readReview = {
     new groovy.json.JsonSlurper().parse(reviewFile)
 }
 
+// The maintainer explicitly accepted the listed evidence gaps for GitHub 4.93.
+// This path never turns an untested criterion into a pass or approves a BApp.
+def releaseException = { review ->
+    def approvalFile = file('docs/release-4.93-approval.json')
+    if (!approvalFile.isFile()) throw new GradleException('Missing maintainer release exception')
+    def approval = new groovy.json.JsonSlurper().parse(approvalFile)
+    def properties = new Properties()
+    file('src/main/resources/extension.properties').withInputStream { properties.load(it) }
+    def now = java.time.Instant.now()
+    if (approval.schema_version != 1 || approval.approved != true ||
+            approval.version != '4.93' || properties.getProperty('version') != approval.version ||
+            approval.tag != 'main_4.93' || approval.repository != 'irsdl/BurpSuiteSharpenerEx' ||
+            !approval.human_approver || !approval.instruction ||
+            java.time.Instant.parse(approval.approval_recorded_utc).isAfter(now) ||
+            !java.time.Instant.parse(approval.expires_utc).isAfter(now) ||
+            review.release_disposition != 'approved-with-maintainer-exception' ||
+            review.ai_review.result != 'not-applicable' || review.release_blockers ||
+            review.release_evidence?.reviewer != approval.human_approver)
+        throw new GradleException('Invalid, expired or wrong-version maintainer release exception')
+    def unresolved = review.criteria.findAll { it.result in ['pending', 'blocked'] }*.id
+    if (!approval.deferred_criteria.containsAll(unresolved) ||
+            !approval.deferred_finding_ids.containsAll((review.deferred_findings ?: [])*.id) ||
+            review.deferred_findings != approval.deferred_findings)
+        throw new GradleException('Release exception does not cover every deferred finding')
+    approval
+}
+
 tasks.register('portswiggerReviewDigest') {
     group = 'verification'
     description = 'Print the current input digest for a completed PortSwigger review; does not approve it.'
@@ -130,14 +157,17 @@ tasks.register('verifyPushReadiness') {
                 'https://portswigger.net/burp/documentation/desktop/extend-burp/extensions/creating/bapp-store-acceptance-criteria'] as Set)
             throw new GradleException('Review must identify both canonical PortSwigger sources.')
         if ((review.criteria.any { it.result in ['pending', 'blocked'] } ||
-                review.ai_review.result in ['pending', 'blocked']) && !review.release_blockers)
+                review.ai_review.result in ['pending', 'blocked']) && !(review.release_blockers || review.deferred_findings))
             throw new GradleException('Unresolved criteria must be recorded as release blockers.')
         if (!(review.push_disposition in ['reviewed-with-release-blockers', 'reviewed']))
             throw new GradleException('Push disposition has not been reviewed.')
+        def workflow = file('.github/workflows/gradle.yml').text
+        if (workflow =~ /(?m)\bgh\s+(release|api)\b|contents:\s*write|action-gh-release|release-action/)
+            throw new GradleException('Normal CI must remain read-only and must not publish.')
+        if (review.deferred_findings) {
+            logger.warn('Deferred evidence remains unverified; publication requires a current version-specific maintainer approval.')
+        }
         if (review.release_blockers) {
-            def workflow = file('.github/workflows/gradle.yml').text
-            if (workflow =~ /(?m)\bgh\s+(release|api)\b|contents:\s*write|action-gh-release|release-action/)
-                throw new GradleException('Release blockers require publication to remain disabled in CI.')
             logger.warn('RELEASE BLOCKED: ' + review.release_blockers.join('; '))
         }
         println 'Push review checks passed. This is not release approval or BApp Store acceptance.'
@@ -150,6 +180,39 @@ tasks.register('verifyReleaseReadiness') {
     dependsOn tasks.named('verifyPushReadiness')
     doLast {
         def review = readReview()
+        if (review.release_disposition == 'approved-with-maintainer-exception') {
+            def approval = releaseException(review)
+            def jar = tasks.named('jar').get().archiveFile.get().asFile
+            def hash = java.security.MessageDigest.getInstance('SHA-256').digest(jar.bytes).encodeHex().toString()
+            new java.util.zip.ZipFile(jar).withCloseable { packaged ->
+                def properties = new Properties()
+                packaged.getInputStream(packaged.getEntry('extension.properties')).withCloseable { properties.load(it) }
+                if (properties.getProperty('version') != approval.version)
+                    throw new GradleException('Packaged extension version does not match release approval')
+            }
+            def revision = providers.exec { commandLine 'git', 'rev-parse', 'HEAD' }.standardOutput.asText.get().trim()
+            def tests = [tests: 0, failures: 0, errors: 0, skipped: 0]
+            fileTree('build/test-results/test').matching { include 'TEST-*.xml' }.each { report ->
+                def suite = new groovy.xml.XmlSlurper().parse(report)
+                tests.keySet().each { key -> tests[key] += (suite.attributes()[key] ?: '0').toInteger() }
+            }
+            if (!tests.tests || tests.failures || tests.errors) throw new GradleException('Release requires passing automated tests')
+            def receipt = [schema_version: 1, version: approval.version, tag: approval.tag,
+                repository: approval.repository, source_revision: revision, jar_sha256: hash,
+                jar_bytes: jar.length(), reviewed_input_sha256: review.reviewed_input_sha256,
+                approval_record_sha256: java.security.MessageDigest.getInstance('SHA-256').digest(file('docs/release-4.93-approval.json').bytes).encodeHex().toString(),
+                maintainer: approval.human_approver, approval_scope: 'Explicit GitHub 4.93 release with deferred validation; not a full host/security or BApp pass',
+                generated_utc: java.time.Instant.now().toString(), tests: tests,
+                deferred_findings: review.deferred_findings,
+                toolchain: [gradle: gradle.gradleVersion, java_runtime: System.getProperty('java.runtime.version'),
+                    os: System.getProperty('os.name'), runner_image: System.getenv('ImageVersion')],
+                workflow_run: System.getenv('GITHUB_RUN_ID')]
+            def output = file('build/reports/release-evidence.json')
+            output.parentFile.mkdirs()
+            output.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(receipt)) + '\n', 'UTF-8')
+            println "4.93 release readiness passed under the recorded maintainer exception. Jar SHA-256: $hash"
+            return
+        }
         if (review.release_disposition != 'approved' || review.release_blockers ||
                 review.criteria.any { !(it.result in ['satisfied', 'not-applicable']) } ||
                 !(review.ai_review.result in ['satisfied', 'not-applicable']))

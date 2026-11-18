@@ -66,17 +66,25 @@ forget `chmod +x .githooks/pre-push` on Unix; preserve that executable bit when
 committing the hook. Do not
 skip hooks/checks with `--no-verify` or bypass required CI checks.
 
-Before any tag push, `gh release create`, asset upload, manual/web release or
-BApp submission, run `./gradlew verifyReleaseReadiness --offline
---dependency-verification strict`. All criteria, security/provenance and live
-Stable/Early Adopter host checks must be resolved for that exact jar; record its
-SHA-256, actual reviewer and evidence. Never fabricate human sign-off. Follow the
-existing authorization scope; passing gates alone does not authorize publication.
-The hook checks tag pushes; GitHub/web/API publication requires the same manual
-gate. CI currently validates only and must not publish or delete releases/tags.
-Re-enabling publication requires a separately reviewed, isolated release job
-that enforces this gate with complete evidence. Repository instructions and
-hooks are bypassable; maintainers must also configure required server checks.
+Before any tag push, release/asset publication or BApp submission, run
+`./gradlew verifyReleaseReadiness --offline --dependency-verification strict`.
+Ordinarily all criteria and host/security evidence must be resolved. The
+maintainer's explicit 2026-11-18 approval in `docs/release-4.93-approval.json`
+permits GitHub 4.93 with the listed UI, OS/channel, clipboard, raw-evidence,
+minimum-version and provenance findings deferred. Preserve their true results;
+never turn a deferral into a pass or claim BApp certification. This is approval
+to publish 4.93 now, not a new activation request or a future-version waiver.
+The release gate emits the exact jar SHA-256, source revision, test results and
+approval scope in a build receipt. Known applicable vulnerabilities, failed
+automated tests, wrong sources/versions/hashes and missing notices remain errors.
+
+Normal PR/main CI is read-only and must never publish. The separate manually
+dispatched release workflow runs only on main: read-only Windows/Linux builds
+precede an isolated publisher which rebuilds the same pinned inputs, runs the
+release gate and requires the identical Windows jar hash. The write token is
+exposed only to the publication step. Preserve existing releases/tags/assets;
+never overwrite them. Require passing Linux `build` and `windows-build` server
+checks. Passing checks alone does not approve future releases.
 
 ## Opt-in full UI regression suite
 
@@ -103,6 +111,13 @@ settings, and do not download unreviewed UI automation libraries or test hosts.
 Changes to user-facing menus/actions must update the test plan and menu coverage;
 ordinary quick unit tests remain the default build validation.
 
+For the maintainer-approved 4.93 release, full-host/clipboard/manual regressions
+are deferred and must not block normal CI or publication. Future automation work
+should replace the eight manual groups with Windows-compatible automated cases
+where practical, keeping the heavy suite opt-in. Do not fabricate Community
+results from Professional: their shared API objects support a compatibility
+expectation, not a completed Community run. Add real other-OS tests when available.
+
 ## Windows, macOS and Linux compatibility
 
 Keep all three platforms supported for both current Stable and Early Adopter.
@@ -113,10 +128,11 @@ capabilities must leave independent features usable. Derive paths at runtime,
 never modify installed executables or existing user shortcuts, and restore exact
 owned window properties/listeners on reset/unload. Keep file/codec work off the EDT.
 Do not add a platform-specific dependency without the existing admission review.
-Before releasing platform-sensitive changes, record real host evidence for all
-three OS families and both release channels; `verifyReleaseReadiness` checks that
-matrix. Keep untested platforms explicitly pending. Local Windows testing does
-not establish macOS/Linux support by itself.
+Record real platform evidence when available and keep untested platforms pending.
+The 4.93 maintainer exception defers the six-host matrix; it does not remove
+Windows/macOS/Linux code support. Prioritize current Stable/Early Adopter and
+roughly the preceding year. Older hosts can use historical GitHub jars; the
+technical Java 21 version floor is not a promise of full older-host compatibility.
 
 ## Dependency and CI admission
 
@@ -257,7 +273,9 @@ The runner image remains managed; record its actual identity and tool versions.
 The approved Gradle/Guava composition fixes the ten identified Gradle/Guava
 advisories; native/build provenance, inventory gaps and host findings still block
 full release admission.
-Do not claim the complete toolchain is audited or approved for publication.
+Do not claim the complete toolchain is audited. The 4.93 maintainer release
+approval accepts the recorded provenance/inventory gaps as non-blocking; do not
+silently use it to admit unrelated inputs or waive an applicable vulnerability.
 The current local validation JDK is pinned in `gradle/validation-jdk.json`;
 its approved security-fix age exception is recorded in
 `docs/toolchain-security-update-2026-11-18.json`, referencing the existing age-only

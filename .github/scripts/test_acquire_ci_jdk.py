@@ -8,6 +8,7 @@ from pathlib import Path
 import tarfile
 import tempfile
 import unittest
+import zipfile
 from unittest import mock
 
 import acquire_ci_jdk as bootstrap
@@ -136,6 +137,48 @@ class ReviewedJdkTests(unittest.TestCase):
         with self.assertRaises(FileExistsError):
             bootstrap.acquire(self.pin, destination)
         self.assertEqual(marker.read_bytes(), b"owned elsewhere")
+
+    def test_reviewed_windows_pin_and_identity(self):
+        pin = json.loads((Path(__file__).resolve().parents[2] / "gradle/validation-jdk.json").read_text())
+        bootstrap.validate_pin(pin)
+        home = self.root / "jdk"
+        (home / "bin").mkdir(parents=True)
+        for executable in ("java.exe", "javac.exe"):
+            (home / "bin" / executable).touch()
+        values = {"IMPLEMENTOR": "Amazon.com Inc.", "IMPLEMENTOR_VERSION": "Corretto-" + pin["version"],
+                  "JAVA_RUNTIME_VERSION": pin["java_runtime"], "OS_NAME": "Windows", "OS_ARCH": "x86_64"}
+        (home / "release").write_text("\n".join(f'{k}="{v}"' for k, v in values.items()))
+        bootstrap.verify_identity(home, pin)
+        (home / "bin/javac.exe").unlink()
+        with self.assertRaisesRegex(ValueError, "complete JDK"):
+            bootstrap.verify_identity(home, pin)
+
+    def test_windows_zip_paths_collisions_links_and_limits(self):
+        path = self.root / "fixture.zip"
+        for names in (("../escape",), ("C:/escape",), ("jdk/../escape",), ("jdk/a:stream",),
+                      ("jdk\\escape",), ("jdk/A", "jdk/a"), ("one/a", "two/b")):
+            with self.subTest(names=names):
+                with zipfile.ZipFile(path, "w") as archive:
+                    for name in names:
+                        info = zipfile.ZipInfo(name)
+                        info.filename = name  # Preserve malicious raw separators on Windows.
+                        archive.writestr(info, b"fixture")
+                with self.assertRaises(ValueError):
+                    bootstrap.extract_archive(path, self.root / "output")
+                self.assertFalse((self.root / "output").exists())
+        with zipfile.ZipFile(path, "w") as archive:
+            link = zipfile.ZipInfo("jdk/link")
+            link.external_attr = 0o120777 << 16
+            archive.writestr(link, "../../escape")
+        with self.assertRaises(ValueError):
+            bootstrap.extract_archive(path, self.root / "output")
+        with zipfile.ZipFile(path, "w") as archive:
+            archive.writestr("jdk/bin/java.exe", b"fixture")
+        with mock.patch.object(bootstrap, "MAX_EXPANDED", 0):
+            with self.assertRaises(ValueError):
+                bootstrap.extract_archive(path, self.root / "output")
+        home = bootstrap.extract_archive(path, self.root / "output")
+        self.assertEqual((home / "bin/java.exe").read_bytes(), b"fixture")
 
 
 if __name__ == "__main__":

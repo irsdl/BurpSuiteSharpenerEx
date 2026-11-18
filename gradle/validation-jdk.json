@@ -4,6 +4,7 @@
   "version": "21.0.13.1.2",
   "java_runtime": "21.0.13.1+2-LTS",
   "platform": "windows-x64",
+  "filename": "amazon-corretto-21.0.13.1.2-windows-x64-jdk.zip",
   "source": "https://corretto.aws/downloads/resources/21.0.13.1.2/amazon-corretto-21.0.13.1.2-windows-x64-jdk.zip",
   "sha256": "e91d8d38fe7af1e13ddde5c65d6c0cdd62d68fe091e9003464f5b45c422fb683",
   "signature_source": "https://corretto.aws/downloads/resources/21.0.13.1.2/amazon-corretto-21.0.13.1.2-windows-x64-jdk.zip.sig",

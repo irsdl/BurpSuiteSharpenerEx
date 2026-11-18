@@ -1,15 +1,15 @@
 # Change History
 
-## Version 4.93 (2026-11-16)
-
-Unreleased. Full UI validation and release approval remain pending.
+## Version 4.93 (2026-11-18)
 
 - Fixed loading, main-tab discovery, tab-icon and empty context-menu failures with Burp's changed UI.
 - Added Logger marker highlighting and safer UI recovery that preserves saved styles and Burp's listeners.
-- Added an ICO resource for Windows launcher icons, with restoration on reset/unload.
+- Improved window icon handling and restoration on reset/unload.
 - Improved background work, update checks and screenshot handling.
 - Patched dependencies and build tools, removed unused libraries, and added dependency verification and third-party notices.
-- Added opt-in full UI tests and PortSwigger push/release checks; automatic publishing is disabled.
+- Added opt-in UI tests and reviewed GitHub build/release checks.
+
+Known limitation: the installed Windows main/taskbar icon may remain unchanged. Full UI, cross-platform and provenance validation are deferred for this release.
 
 ## Version 4.92 (2026-07-21)
 

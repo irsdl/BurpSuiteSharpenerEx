@@ -1,5 +1,19 @@
 # Dependency review: 2026-11-16
 
+## GitHub 4.93 publication approval: 2026-11-18
+
+The maintainer explicitly accepted the remaining provenance/inventory and host
+evidence gaps for GitHub 4.93 in [the release approval](release-4.93-approval.json).
+They remain incomplete, not passed; they do not block this authorized release.
+Known applicable vulnerabilities, failed automated tests, wrong sources/hashes
+and missing notices remain errors. No Maven dependency or marketplace Action is
+added by this release change. The existing signed/hash-pinned Windows JDK input
+now serves Windows CI as well as local validation; standard-library zip guards
+and the manual publisher have 23 passing positive/negative tests. Hosted runner Git/Python/
+GitHub CLI binaries remain managed inputs within the accepted provenance gap.
+The original dated findings below are historical; use the release approval for
+the current 4.93 publication disposition, not their former blocking language.
+
 ## Approved Gradle security composition: 2026-11-18
 
 The maintainer separately approved replacing Gradle's bundled Guava after
