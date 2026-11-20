@@ -11,6 +11,8 @@ import ninja.burpsuite.extension.sharpener.objects.TabFeaturesObject;
 import ninja.burpsuite.extension.sharpener.objects.TabFeaturesObjectStyle;
 import ninja.burpsuite.extension.sharpener.uiControllers.subTabs.SubTabsContainerHandler;
 import ninja.burpsuite.extension.sharpener.uiSelf.topMenu.TopMenu;
+import ninja.burpsuite.extension.sharpener.uiSelf.settings.SettingsSurface;
+import ninja.burpsuite.extension.sharpener.uiSelf.settings.SharpenerSettingsActions;
 import ninja.burpsuite.libs.burp.generic.BurpExtensionSharedParameters;
 import ninja.burpsuite.libs.burp.generic.BurpUITools;
 import ninja.burpsuite.libs.burp.generic.BurpUIDiscovery;
@@ -22,6 +24,16 @@ import java.util.*;
 
 public class ExtensionSharedParameters extends BurpExtensionSharedParameters {
     public TopMenu topMenuBar;
+    public SettingsSurface settingsSurface;
+    private SharpenerSettingsActions settingsActions;
+    public SharpenerSettingsActions settingsActions() {
+        if (settingsActions == null) settingsActions = new SharpenerSettingsActions(this);
+        return settingsActions;
+    }
+    public void closeSettingsUi() {
+        if (settingsSurface != null) settingsSurface.close();
+        if (settingsActions != null) settingsActions.close();
+    }
     public HashMap<BurpUITools.MainTabs, ArrayList<SubTabsContainerHandler>> allSubTabContainerHandlers = new HashMap<>();
     private Set<BurpUITools.MainTabs> subTabSupportedTabs = new HashSet<>();
     public HashMap<BurpUITools.MainTabs, HashMap<String, TabFeaturesObject>> supportedTools_SubTabs = new HashMap<>();

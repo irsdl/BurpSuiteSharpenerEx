@@ -108,7 +108,7 @@ The [case catalog](../src/fullUiTest/resources/ui-cases.json) is the executable
 inventory. The automated portion covers:
 
 - Actual extension startup, main/tool discovery, registration and unload cleanup.
-- Every main-menu theme, icon size and tool checkbox; enable/disable all;
+- Every displayed native-panel control and actual top-menu control, including themes, icon sizes and tool checkboxes; enable/disable all;
   scrolling, geometry, capability and debug controls.
 - Title and icon input/chooser dialogs, bundled/custom icons, reset confirmation,
   About, shortcut table Save/Close/Reset and parent ownership.
@@ -127,7 +127,7 @@ inventory. The automated portion covers:
   markers, disabled handling, rewritten Content-Length and visible row colours.
   `logger-highlighting` compares the live Proxy/Logger colour palette and checks
   that other-tool HTTP markers colour Logger without changing their wire content.
-  These bring the opt-in catalog to 33 case groups (25 automated, eight manual).
+  The settings migration adds discovery/refresh and navigation cases to the catalog; the eight manual groups remain required.
 
 The [manual cases](full-ui-manual-cases.md) complete desktop interaction coverage:
 browser/update handoff, native taskbar/Dock appearance, physical key capture and
@@ -192,3 +192,35 @@ does not replace current Stable or macOS/Linux checks. That result is bound to
 the earlier jar/catalog. The expanded 33-group highlighter rerun timed out at
 Community startup while desktop control was unavailable; no assertions ran.
 Its blocked report is retained, and a new run is required.
+
+## Unreleased menu and Settings usability correction
+
+The full Sharpener top menu is required on every host, including hosts with the
+optional native Settings API. Help and maintenance actions remain in that menu.
+The optional form has Global and Project tabs and compact selectors. The two
+presentations share one preferences/action backend.
+
+The harness exercises the actual complete menu in the regular action cases.
+`settings-discovery` checks the additional native form and verifies that the menu
+remains present. `native-form` repeats appearance/capability/title/icon/shortcut
+cases through the actual dropdowns, checkboxes and buttons in both scope tabs.
+Coverage inventories both surfaces separately, together with context menus;
+menu testing cannot stand in for form testing. `settings-navigation` exercises
+supported context navigation. Cleanup unloads with Settings and an owned input
+dialog open, preserving Burp's window.
+
+Headless layout checks render light/dark Global/Project forms at 460px and 740px,
+assert readable selector widths and visible project fields, and save previews
+under `build/reports/settings-preview/`. These previews are layout evidence,
+not host or physical desktop compatibility. The live harness also paints the
+actually displayed native form to `native-settings.png` in its ignored report.
+Search, physical keyboard/focus/conflicts, high-DPI/theme transitions, real
+project save/reopen and other OS/channel runs remain explicit manual work.
+
+Run `build`, `fullUiTestPlan` and explicitly `fullUiTest` after this change. The
+heavy suite remains absent from normal build/check/test/CI/packaging. Preserve
+raw reports before removing their storage. The original migration's results in
+[native-settings-validation.json](native-settings-validation.json) apply only to
+those recorded jars; the revised implementation is recorded separately in
+[settings-usability-validation.json](settings-usability-validation.json).
+The 4.93 release exception does not approve these unreleased UI changes.

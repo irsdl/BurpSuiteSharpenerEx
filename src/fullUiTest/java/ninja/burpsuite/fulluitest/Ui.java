@@ -45,9 +45,52 @@ final class Ui {
         require(matches.size()==1,"Expected unique menu control: "+path+", found "+matches.size());
         return matches.getFirst().getValue();
     }
-    static void click(JMenuItem item){require(item.isEnabled(),"Disabled menu item: "+item.getText());item.doClick(0);}
+    static void click(AbstractButton item){require(item.isEnabled(),"Disabled menu item: "+item.getText());item.doClick(0);}
+    record Setting(Component component, int option) {
+        boolean isEnabled(){return component.isEnabled();}
+        boolean isSelected(){return component instanceof AbstractButton button?button.isSelected():((JComboBox<?>)component).getSelectedIndex()==option;}
+        void click(){
+            require(isEnabled(),"Disabled setting: "+component.getName());
+            reveal();
+            if(component instanceof AbstractButton button)button.doClick(0);else ((JComboBox<?>)component).setSelectedIndex(option);
+        }
+        void reveal(){
+            for(Component child=component,parent=child.getParent();parent!=null;child=parent,parent=parent.getParent())
+                if(parent instanceof JTabbedPane tabs)for(int i=0;i<tabs.getTabCount();i++)if(tabs.getComponentAt(i)==child)tabs.setSelectedIndex(i);
+            if(component instanceof JComponent c)c.scrollRectToVisible(new Rectangle(0,0,c.getWidth(),c.getHeight()));
+        }
+    }
+    static void click(Setting setting){setting.click();}
+    static LinkedHashMap<String,Setting> settings(Component root) {
+        LinkedHashMap<String,Setting> found=new LinkedHashMap<>();
+        if(root instanceof JMenu)menu(root).forEach((path,button)->found.put(path,new Setting(button,-1)));
+        else {
+            for(AbstractButton button:find(root,AbstractButton.class))
+                if(button.getName()!=null && button.getActionListeners().length>0)found.put(button.getName(),new Setting(button,-1));
+            for(JComboBox<?> combo:find(root,JComboBox.class))for(int i=0;i<combo.getItemCount();i++)
+                if(combo.getItemAt(i) instanceof ninja.burpsuite.extension.sharpener.uiSelf.settings.SettingsPanelView.Option option && !option.path().isEmpty())found.put(option.path(),new Setting(combo,i));
+        }
+        return found;
+    }
+    static Setting setting(Component root,String path) {
+        Setting setting=settings(root).get(path);require(setting!=null,"Missing setting: "+path);return setting;
+    }
+    static void revealSettings(Component component) {
+        for(Window window:Window.getWindows())if(window.isShowing()) {
+            for(JTree tree:find(window,JTree.class))selectNode(tree,new javax.swing.tree.TreePath(tree.getModel().getRoot()));
+            for(JList<?> list:find(window,JList.class))for(int i=0;i<list.getModel().getSize();i++)
+                if("Sharpener".equals(String.valueOf(list.getModel().getElementAt(i))))list.setSelectedIndex(i);
+            for(AbstractButton button:find(window,AbstractButton.class))
+                if("Sharpener".equals(button.getText()) && button.isShowing())button.doClick(0);
+        }
+    }
+    private static void selectNode(JTree tree,javax.swing.tree.TreePath path) {
+        Object node=path.getLastPathComponent();
+        if("Sharpener".equals(String.valueOf(node))) {tree.setSelectionPath(path);tree.scrollPathToVisible(path);return;}
+        for(int i=0;i<tree.getModel().getChildCount(node);i++)selectNode(tree,path.pathByAddingChild(tree.getModel().getChild(node,i)));
+    }
     static boolean owned(Window window,Window parent){for(Window p=window.getOwner();p!=null;p=p.getOwner())if(p==parent)return true;return false;}
-    static void dialog(JFrame parent,Runnable action,String title,Consumer<JDialog> respond)throws Exception {
+    static void dialog(Window parent,Runnable action,String title,Consumer<JDialog> respond)throws Exception {
         CompletableFuture<Void> complete=new CompletableFuture<>();
         SwingUtilities.invokeLater(()->{try{action.run();complete.complete(null);}catch(Throwable failure){complete.completeExceptionally(failure);}});
         try {

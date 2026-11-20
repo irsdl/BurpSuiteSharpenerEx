@@ -98,3 +98,13 @@ The test runner excludes Pro licensing and checks `COMMUNITY_EDITION` explicitly
 Headless Swing and mocked Montoya tests establish defensive behaviour, not proof
 of host compatibility. See [dependency review](dependency-review.md) for the
 separate unresolved build/CI admission and provenance gates.
+
+## Unreleased native settings surface
+
+Every supported host retains the complete Sharpener menu. Supporting hosts
+also offer Settings > Extensions > Sharpener as an optional configuration page. Native panel registration and optional
+Settings navigation are checked separately. See [the migration inventory and
+validation limits](native-settings-panel.md). The Java 21 baseline and existing
+platform guards are unchanged; the 4.93 release exception does not approve this
+new presentation. Full current Stable/EA, Community and other-OS evidence must
+be recorded for the exact changed jar.

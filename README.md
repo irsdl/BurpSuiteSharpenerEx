@@ -78,9 +78,31 @@ Please feel free to submit your new feature requests using `FR: ` in its title i
 It would be great to also list any known available extensions which might have implemented suggested features.
 Perhaps the best features can be imported from different open-source extensions so the overhead of adding different extensions can be reduced.
 
+## Settings (unreleased)
+
+The **Sharpener** top menu remains available on every supported host, with all
+existing settings, Keyboard Shortcuts, help links and maintenance commands.
+
+Supporting hosts also offer **Settings > Extensions > Sharpener** as an optional
+configuration page. Its Global and Project tabs use compact selectors, aligned
+fields and sections for appearance, window behavior, highlighting, diagnostics
+and shortcuts. Changes apply immediately through the same preferences as the
+menu. Help and maintenance commands stay in the top menu.
+
+Older hosts use the complete menu without needing the optional Settings API.
+Repeater/Intruder context menus also retain Keyboard Shortcuts and offer
+**Sharpener Settings...** when host navigation is available. See the
+[settings inventory and compatibility notes](docs/native-settings-panel.md).
+
+![Optional native Sharpener Settings form](images/sharpener-settings.png)
+
+The Global form above was captured in an isolated Professional host. A
+[Project tab layout preview](images/sharpener-project-settings-preview.png) shows
+the same form with synthetic values in the dark theme.
+
 ## Keyboard Shortcuts
 
-All Sharpener shortcuts can be viewed and changed inside Burp: use the `Sharpener` top menu > `Keyboard Shortcuts`, or the `Keyboard Shortcuts` item at the bottom of a Repeater/Intruder tab right-click menu. Changes are validated (Burp's own default hotkeys such as Ctrl+R cannot be taken) and applied right away.
+All Sharpener shortcuts can be viewed and changed inside Burp: use the `Sharpener` top menu > `Keyboard Shortcuts`, the optional Settings page, or the `Keyboard Shortcuts` item at the bottom of a Repeater/Intruder tab right-click menu. Changes are validated (Burp's own default hotkeys such as Ctrl+R cannot be taken) and applied right away.
 
 Each configurable action has ONE shortcut. In the dialog you set it by clicking the cell and pressing the key combination (no typing). A shortcut works anywhere in Burp, even while typing in the editor, so it needs Ctrl, Alt, or a function key. If you press a key that is already used, the dialog offers to move it.
 
@@ -144,6 +166,9 @@ Fixed mouse actions on the Repeater and Intruder tabs (not configurable):
 * Use the `Debug` option in `Global Settings` if you are reporting a bug or if you want to see what is happening
 * Check the [extension's GitHub repository](https://github.com/irsdl/BurpSuiteSharpenerEx) rather than BApp Store for the latest updates
 * Sample icons are available in the [burpicon-sample/](burpicon-sample/) and [hacker-sample-icons/](hacker-sample-icons/) directories
+
+The screenshots below show the existing tab features and Sharpener menu. The
+optional Settings form is described above.
 
 ![Sharpener screenshot 1](images/img.png)
 

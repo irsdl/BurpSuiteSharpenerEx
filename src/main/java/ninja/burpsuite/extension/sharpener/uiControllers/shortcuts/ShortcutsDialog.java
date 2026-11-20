@@ -8,6 +8,7 @@ package ninja.burpsuite.extension.sharpener.uiControllers.shortcuts;
 
 import ninja.burpsuite.libs.thirdparty.burpextenderutilities.Preferences;
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
+import ninja.burpsuite.extension.sharpener.uiSelf.settings.SettingsDialogs;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -45,8 +46,7 @@ public final class ShortcutsDialog {
             currentKeys[i] = effective.globalKeys().get(configurable.get(i).actionKey());
         }
 
-        Component parent = sharedParameters.get_mainFrameUsingMontoya();
-        ShortcutTableModel tableModel = new ShortcutTableModel(configurable, currentKeys, parent);
+        ShortcutTableModel tableModel = new ShortcutTableModel(configurable, currentKeys, sharedParameters.settingsActions().dialogs);
 
         JTable table = new JTable(tableModel);
         table.setRowHeight(table.getRowHeight() + 8);
@@ -73,22 +73,20 @@ public final class ShortcutsDialog {
 
         String[] options = {"Save", "Reset to Defaults", "Close"};
 
-        while (true) {
+        while (!sharedParameters.isUnloaded()) {
             if (table.isEditing())
                 table.getCellEditor().stopCellEditing();
 
-            int choice = JOptionPane.showOptionDialog(parent, panel,
-                    "Sharpener Keyboard Shortcuts", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
-                    null, options, options[2]);
+            int choice = sharedParameters.settingsActions().dialogs.option(panel, "Sharpener Keyboard Shortcuts", options, 2);
 
+            if (sharedParameters.isUnloaded()) return;
             if (table.isEditing())
                 table.getCellEditor().stopCellEditing();
 
             if (choice == 1) { // Reset to Defaults
-                int confirm = JOptionPane.showConfirmDialog(parent,
-                        "Are you sure you want to reset all shortcuts to their defaults?",
-                        "Reset Shortcuts", JOptionPane.YES_NO_OPTION);
-                if (confirm == JOptionPane.YES_OPTION) {
+                boolean confirm = sharedParameters.settingsActions().dialogs.confirm("Reset Shortcuts",
+                        "Are you sure you want to reset all shortcuts to their defaults?");
+                if (confirm) {
                     sharedParameters.preferences.safeSetSetting(ShortcutMappings.CUSTOM_SHORTCUTS_SETTING_NAME,
                             null, Preferences.Visibility.GLOBAL);
                     reloadBindings(sharedParameters);
@@ -108,8 +106,8 @@ public final class ShortcutsDialog {
 
             List<String> errors = ShortcutMappings.validate(keysByAction);
             if (!errors.isEmpty()) {
-                JOptionPane.showMessageDialog(parent, String.join("\n", errors),
-                        "Invalid Shortcuts", JOptionPane.WARNING_MESSAGE);
+                sharedParameters.settingsActions().dialogs.option(String.join("\n", errors),
+                        "Invalid Shortcuts", new String[]{"OK"}, 0);
                 continue;
             }
 
@@ -171,13 +169,13 @@ public final class ShortcutsDialog {
     private static final class ShortcutTableModel extends AbstractTableModel {
         private final List<ShortcutMappings.ShortcutActionDef> definitions;
         private final KeyStroke[] keys;
-        private final Component parent;
+        private final SettingsDialogs dialogs;
         private final String[] columnNames = {"Action", "What it does", "Shortcut (click, then press keys)"};
 
-        private ShortcutTableModel(List<ShortcutMappings.ShortcutActionDef> definitions, KeyStroke[] keys, Component parent) {
+        private ShortcutTableModel(List<ShortcutMappings.ShortcutActionDef> definitions, KeyStroke[] keys, SettingsDialogs dialogs) {
             this.definitions = definitions;
             this.keys = keys;
-            this.parent = parent;
+            this.dialogs = dialogs;
         }
 
         private KeyStroke keyAt(int row) {
@@ -225,17 +223,17 @@ public final class ShortcutsDialog {
             if (newKey != null) {
                 String reason = ShortcutMappings.rejectReasonForGlobalKey(newKey);
                 if (reason != null) {
-                    JOptionPane.showMessageDialog(parent, reason, "Invalid Shortcut", JOptionPane.WARNING_MESSAGE);
+                    dialogs.option(reason, "Invalid Shortcut", new String[]{"OK"}, 0);
                     return;
                 }
 
                 for (int other = 0; other < keys.length; other++) {
                     if (other != row && newKey.equals(keys[other])) {
-                        int response = JOptionPane.showConfirmDialog(parent,
+                        int response = dialogs.option(
                                 ShortcutMappings.formatKeyStroke(newKey) + " is already used by \""
                                         + definitions.get(other).title() + "\".\nMove it to \""
                                         + definitions.get(row).title() + "\"?",
-                                "Shortcut Already Used", JOptionPane.YES_NO_OPTION);
+                                "Shortcut Already Used", new String[]{"Yes", "No"}, 0);
                         if (response != JOptionPane.YES_OPTION)
                             return;
                         keys[other] = null;

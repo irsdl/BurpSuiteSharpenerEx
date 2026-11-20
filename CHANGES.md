@@ -1,5 +1,10 @@
 # Change History
 
+## Unreleased
+
+- Keep the full Sharpener menu on every supported host and add an optional native Settings page.
+- Organize optional Settings into Global and Project tabs with compact selectors, aligned fields and immediate preference updates.
+
 ## Version 4.93 (2026-11-18)
 
 - Fixed loading, main-tab discovery, tab-icon and empty context-menu failures with Burp's changed UI.
