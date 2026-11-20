@@ -6,7 +6,8 @@ Unreleased.
 
 - Keep the full Sharpener menu on every supported host and add an optional native Settings page.
 - Organize optional Settings into Global and Project tabs with compact selectors, aligned fields and immediate preference updates.
-- Limit Logger marker inspection to the first 65,536 raw HTTP message bytes by default, with a saved option grouped under Manual Highlighter for complete inspection. Scan bytes without whole-message String conversion; Proxy rewriting and WebSocket handling retain their existing behavior.
+- Limit Logger inspection to 64 KiB by default. Use Content-Length only as an initial hint, then check actual whole-request size before scanning its body; oversized or unknown-size requests use headers. Responses use their first 64 KiB. Turn the limit off for complete inspection. Proxy and WebSocket behavior is unchanged.
+- Known Montoya API limitation: an understated Content-Length can still cause a complete copy before rejection. Copy-free actual-size metadata and bounded byte reads would remove this overhead; see [the API proposal](docs/montoya-message-size-api.md).
 
 ## Version 4.93 (2026-11-18)
 

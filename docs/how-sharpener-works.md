@@ -250,8 +250,15 @@ Shipped capabilities (both enabled by default, toggled from the top menu):
 
 The unreleased manual highlighter adds global
 `manualHighlightLimitLoggerInspection` (default true). General HTTP callbacks
-scan only the first 65,536 raw message bytes by default with a bounded-chunk byte
-scanner; disabling the option restores complete inspection. The full menu and
+scan up to 65,536 bytes by default with a bounded-chunk byte scanner. Requests
+use a valid single Content-Length plus `bodyOffset()` only as an initial size
+hint, rejecting Transfer-Encoding or ambiguous lengths. An admitted request is
+read from its original bytes and scanned completely only when its actual total
+length is at most 65,536. Larger or unknown-size requests use an immutable
+`withBody("")` header-only view. Understated lengths can still incur a complete
+copy before rejection; the [API proposal](montoya-message-size-api.md) describes
+copy-free size metadata and bounded reads. Responses scan their raw
+prefix. Disabling the option restores complete inspection. The full menu and
 optional native form expose the same saved setting. Cached temporary Proxy
 colors bypass scanning. Proxy transformations and text WebSocket paths retain
 their existing full-message behavior. See [behavior and host measurements](manual-highlighter-performance.md).

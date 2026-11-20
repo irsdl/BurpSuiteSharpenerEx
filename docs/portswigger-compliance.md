@@ -1,9 +1,9 @@
 # PortSwigger review and publication gates
 
-Reviewed 2026-11-18 against the official
+Reviewed 2026-11-20 against the official
 [AI extension best practices](https://portswigger.net/burp/documentation/desktop/extend-burp/extensions/creating/creating-ai-extensions/best-practices)
 and [BApp Store acceptance criteria](https://portswigger.net/burp/documentation/desktop/extend-burp/extensions/creating/bapp-store-acceptance-criteria).
-Both pages reported an update on 2026-11-17. Re-read them before each push and
+Both pages reported an update on 2026-11-20. Re-read them before each push and
 release; this mapping must follow later upstream changes. Repository gates are
 additional project requirements, not a claim of PortSwigger certification.
 
@@ -11,6 +11,16 @@ The maintainer explicitly authorized GitHub 4.93 with the listed validation and
 provenance gaps deferred in [the approval](release-4.93-approval.json). Their
 pending/blocked evidence results remain truthful; this is not full compliance,
 a completed host matrix or BApp Store certification. The changelog is finalized.
+
+For the 4.94 candidate, [the separate approval record](release-4.94-approval.json)
+starts pending. The 4.93 acceptance cannot approve another version. The release
+gate and publisher select the approval matching the exact extension version;
+they require explicit, unexpired acceptance of every unresolved finding and
+matching source, packaged version, review and tested Windows jar hashes.
+The [fresh security check](release-4.94-security-check.json) covers the unchanged
+99 known coordinates; incomplete native/shaded provenance remains explicit.
+Current host and benchmark evidence is in
+[the size-guard validation](manual-highlighter-size-guard-validation.json).
 
 The current workflow uses native Git and a checked-in standard-library bootstrap
 for the exact vendor JDK pinned in `gradle/ci-jdk.json`; it executes no marketplace
@@ -90,7 +100,7 @@ settings were changed by this work.
 
 ## Before a release or BApp update
 
-For GitHub 4.93 the named maintainer approval explicitly supersedes the otherwise
+For GitHub 4.93 the named maintainer approval explicitly superseded the otherwise
 mandatory host/provenance completion below. `verifyReleaseReadiness` still runs
 build/tests/package checks, validates the version-specific approval and every
 deferred finding, and emits exact source/jar/review/approval hashes and test
@@ -98,7 +108,8 @@ counts. Failed tests, new unwaived blockers, wrong artifacts and stale reviews
 remain failures. The separate manual workflow tests Linux and Windows read-only,
 then an isolated publisher rebuilds with identical pins and requires the exact
 tested Windows SHA-256. Credentials are supplied only to publication. Existing
-releases/tags/assets are never replaced. BApp submission is not authorized.
+releases/tags/assets are never replaced. Each subsequent version requires its own
+approval record; BApp submission authority must be recorded separately.
 
 Run `verifyReleaseReadiness` with the same offline/strict flags. For full approval
 without a maintainer exception, complete the following evidence:

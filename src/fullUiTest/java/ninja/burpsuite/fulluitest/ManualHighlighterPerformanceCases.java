@@ -52,7 +52,9 @@ final class ManualHighlighterPerformanceCases {
             settings.setEnabled(true);settings.setLoggerInspectionLimited(false);
             parity();result.put("non_ascii_host_parity","PASS: literal byte scanner matches unchanged host String conversion with NUL, Latin-1 and UTF-8 surrounding bytes");
             result.put("host_api_components",apiComponents());
-            for(int size:new int[]{1024,65536,1048576,10485760})for(String marker:List.of("absent","early","late"))for(String stage:List.of("request","response","proxy-rewrite")) {
+            result.put("fresh_request_api_components",freshRequestApiComponents());
+            result.put("fresh_limited_request_callbacks",freshLimitedRequestCallbacks());
+            for(int size:new int[]{1024,65536,1048576,10485760})for(String marker:List.of("absent","early","late","header","unknown","understated"))for(String stage:List.of("request","response","proxy-rewrite")) {
                 byte[] raw=fixture(size,marker,stage);
                 // Alternate order to reduce systematic baseline-first JVM warmup bias.
                 for(int workers:new int[]{1,4})for(String version:(size==65536||size==10485760?List.of("limited","unlimited","baseline"):List.of("baseline","limited","unlimited")))
@@ -103,6 +105,65 @@ final class ManualHighlighterPerformanceCases {
         }
         return components;
     }
+    /** Measure first access too: a warmed message can hide a lazy full-body copy. */
+    List<Map<String,Object>> freshRequestApiComponents() {
+        List<Map<String,Object>> components=new ArrayList<>();
+        for(int size:new int[]{1024,65536,1048576,10485760}) {
+            byte[] raw=fixture(size,"absent","request");
+            HttpService service=HttpService.httpService("127.0.0.1",9,false);
+            for(String operation:List.of("toByteArray","body","bodyOffset","withoutBody")) {
+                long[] nanos=new long[16];long allocated=0;
+                try {
+                    for(int i=-3;i<nanos.length;i++) {
+                        // Construct a new message outside every measured interval.
+                        HttpRequest request=HttpRequest.httpRequest(service,ByteArray.byteArray(raw));
+                        long before=allocations.getThreadAllocatedBytes(Thread.currentThread().threadId()),at=System.nanoTime();
+                        apiResult=switch(operation) {
+                            case "body"->request.body();
+                            case "bodyOffset"->request.bodyOffset();
+                            case "withoutBody"->request.withBody("").toByteArray();
+                            default->request.toByteArray();
+                        };
+                        long elapsed=System.nanoTime()-at;
+                        long bytes=allocations.getThreadAllocatedBytes(Thread.currentThread().threadId())-before;
+                        if(i>=0){nanos[i]=elapsed;allocated+=bytes;}
+                    }
+                    Arrays.sort(nanos);
+                    components.add(Map.of("message_bytes",size,"operation",operation,"samples",nanos.length,
+                            "p50_ns",percentile(nanos,.50),"p95_ns",percentile(nanos,.95),"allocated_bytes_per_call",allocated/(double)nanos.length));
+                } finally {apiResult=null;}
+            }
+        }
+        return components;
+    }
+    List<Map<String,Object>> freshLimitedRequestCallbacks() {
+        List<Map<String,Object>> components=new ArrayList<>();
+        boolean previous=settings.isLoggerInspectionLimited();
+        settings.setLoggerInspectionLimited(true);
+        try {
+            var target=new ManualHighlighterRequestResponseHandler(parameters,settings);
+            for(int size:new int[]{1024,65536,1048576,10485760})for(String placement:List.of("absent","early","late","header","unknown","understated")) {
+                byte[] raw=fixture(size,placement,"request");long[] nanos=new long[16];long allocated=0;
+                for(int i=-3;i<nanos.length;i++) {
+                    Probe probe=new Probe(raw,"request",false);
+                    long before=allocations.getThreadAllocatedBytes(Thread.currentThread().threadId()),at=System.nanoTime();
+                    probe.call(target);
+                    long elapsed=System.nanoTime()-at,bytes=allocations.getThreadAllocatedBytes(Thread.currentThread().threadId())-before;
+                    int originals=hintAdmits(size,placement)?1:0,headers=size>65536||placement.equals("unknown")?1:0;
+                    Ui.require(probe.arrays==originals&&probe.bodies==0&&probe.strings==0,"Fresh callback did not follow the size-hint guard");
+                    Ui.require(probe.headerViews==headers&&probe.headerArrays==headers&&probe.maxRead<=65536,"Fresh limited callback exceeded its inspection budget");
+                    Ui.require(probe.annotations.highlightColor()==expected("request",placement,"limited",size),"Fresh limited request colour mismatch");
+                    if(i>=0){nanos[i]=elapsed;allocated+=bytes;}
+                }
+                Arrays.sort(nanos);
+                components.add(Map.of("message_bytes",size,"placement",placement,"samples",nanos.length,"p50_ns",percentile(nanos,.50),
+                        "p95_ns",percentile(nanos,.95),"allocated_bytes_per_callback",allocated/(double)nanos.length,
+                        "original_request_conversions_per_callback",hintAdmits(size,placement)?1:0,
+                        "header_views_per_callback",size>65536||placement.equals("unknown")?1:0));
+            }
+        } finally {settings.setLoggerInspectionLimited(previous);}
+        return components;
+    }
     void parity()throws Exception {
         for(String stage:List.of("request","response","proxy-rewrite"))for(String text:List.of("\u00ff\0tempcolorRED\u0080permcolorblue","\u00c3\u00a9permcolorPINK\u00ff","tempcolorinvalid\0permcolormagenta","plain\u00ff\0")) {
             byte[] raw=(stage.equals("response")?"HTTP/1.1 200 OK\r\n\r\n":"POST / HTTP/1.1\r\nHost: fixture\r\n\r\n").concat(text).getBytes(StandardCharsets.ISO_8859_1);
@@ -114,15 +175,31 @@ final class ManualHighlighterPerformanceCases {
     }
     static byte[] fixture(int size,String placement,String stage) {
         byte[] raw=new byte[size];Arrays.fill(raw,(byte)'x');
-        byte[] prefix=(stage.equals("response")?"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\n\r\n":"POST / HTTP/1.1\r\nHost: fixture\r\nContent-Type: application/octet-stream\r\n\r\n").getBytes(StandardCharsets.US_ASCII);
+        String marker=stage.equals("response")?"permcolorblue":"tempcolorred";
+        String fields=(stage.equals("response")?"HTTP/1.1 200 OK\r\n":"POST / HTTP/1.1\r\nHost: fixture\r\n")
+                +(placement.equals("header")?"X-Color: "+marker+"\r\n":"")+"Content-Type: application/octet-stream\r\n";
+        String prefixText=fields+(placement.equals("unknown")?"":"Content-Length: 0000000000\r\n")+"\r\n";
+        if(!placement.equals("unknown"))prefixText=fields+"Content-Length: "+String.format(Locale.ROOT,"%010d",placement.equals("understated")?1:size-prefixText.length())+"\r\n\r\n";
+        byte[] prefix=prefixText.getBytes(StandardCharsets.US_ASCII);
         System.arraycopy(prefix,0,raw,0,prefix.length);
-        if(!placement.equals("absent")) {
-            byte[] marker=(stage.equals("response")?"permcolorblue":"tempcolorred").getBytes(StandardCharsets.US_ASCII);
-            System.arraycopy(marker,0,raw,placement.equals("early")?prefix.length+3:raw.length-marker.length,marker.length);
+        if(placement.equals("early")||placement.equals("late")||placement.equals("unknown")||placement.equals("understated")) {
+            byte[] bytes=marker.getBytes(StandardCharsets.US_ASCII);
+            System.arraycopy(bytes,0,raw,placement.equals("late")?raw.length-bytes.length:prefix.length+3,bytes.length);
         }
         return raw;
     }
-    record Samples(long[] nanos,long allocated,int maxRead,long strings,long arrays) {}
+    static boolean hintAdmits(int size,String placement) {
+        return !placement.equals("unknown")&&(size<=65536||placement.equals("understated"));
+    }
+    static HighlightColor expected(String stage,String placement,String version,int size) {
+        if(placement.equals("disabled")||placement.equals("absent"))return HighlightColor.NONE;
+        if(version.equals("limited")) {
+            if(stage.equals("request")&&!placement.equals("header")&&!placement.equals("cached")&&(size>65536||placement.equals("unknown")))return HighlightColor.NONE;
+            if(stage.equals("response")&&placement.equals("late")&&size>65536)return HighlightColor.NONE;
+        }
+        return stage.equals("response")?HighlightColor.BLUE:HighlightColor.RED;
+    }
+    record Samples(long[] nanos,long allocated,int maxRead,long strings,long arrays,long headerViews,long headerArrays,long bodies) {}
     void measure(byte[] raw,String placement,String stage,String version,int workers)throws Exception {
         settings.setEnabled(!placement.equals("disabled"));settings.setLoggerInspectionLimited(version.equals("limited"));
         int iterations=placement.equals("cached")?16:placement.equals("disabled")?200:Math.max(4,Math.min(200,2_621_440/raw.length));
@@ -142,13 +219,15 @@ final class ManualHighlighterPerformanceCases {
                     long at=System.nanoTime();probe.call(target);nanos[i]=System.nanoTime()-at;
                 }
                 long allocated=allocations.getThreadAllocatedBytes(Thread.currentThread().threadId())-before;
-                HighlightColor expected=placement.equals("disabled")||placement.equals("absent")||(placement.equals("late")&&version.equals("limited")&&!stage.equals("proxy-rewrite")&&raw.length>65536)
-                        ?HighlightColor.NONE:stage.equals("response")?HighlightColor.BLUE:HighlightColor.RED;
-                Ui.require(probe.annotations.highlightColor()==expected,"Measured callback colour mismatch: "+version+" "+stage+" "+placement);
-                if(placement.equals("disabled")||placement.equals("cached"))Ui.require(probe.arrays==0&&probe.strings==0,"Fast path read message content");
+                Ui.require(probe.annotations.highlightColor()==expected(stage,placement,version,raw.length),"Measured callback colour mismatch: "+version+" "+stage+" "+placement);
+                if(placement.equals("disabled")||placement.equals("cached"))Ui.require(probe.arrays==0&&probe.strings==0&&probe.headerViews==0&&probe.bodies==0,"Fast path read message content");
                 if(!version.equals("baseline")&&!stage.equals("proxy-rewrite"))Ui.require(probe.strings==0,"General callback decoded a String");
                 if(version.equals("limited")&&!stage.equals("proxy-rewrite"))Ui.require(probe.maxRead<=65536,"Scanner exceeded cutoff");
-                return new Samples(nanos,allocated,probe.maxRead,probe.strings,probe.arrays);
+                if(version.equals("limited")&&stage.equals("request")) {
+                    long copies=!placement.equals("disabled")&&!placement.equals("cached")&&hintAdmits(raw.length,placement)?iterations:0;
+                    Ui.require(probe.arrays==copies&&probe.bodies==0,"Limited request bypassed the size-hint guard");
+                }
+                return new Samples(nanos,allocated,probe.maxRead,probe.strings,probe.arrays,probe.headerViews,probe.headerArrays,probe.bodies);
             }));}
             if(!ready.await(60,TimeUnit.SECONDS))throw new IllegalStateException("Measurement workers did not start");
             long collections=gcCount(),gcMillis=gcMillis(),at=System.nanoTime();start.countDown();
@@ -160,6 +239,7 @@ final class ManualHighlighterPerformanceCases {
             long allocated=samples.stream().mapToLong(Samples::allocated).sum();row.put("allocated_bytes_per_callback",allocated/(double)nanos.length);row.put("allocated_bytes_per_second",allocated/(elapsed/1e9));
             row.put("callbacks_per_second",nanos.length/(elapsed/1e9));row.put("gc_collections",gcCount()-collections);row.put("gc_millis",gcMillis()-gcMillis);
             row.put("max_scanner_read_exclusive",samples.stream().mapToInt(Samples::maxRead).max().orElse(0));row.put("message_string_calls",samples.stream().mapToLong(Samples::strings).sum());row.put("message_to_byte_array_calls",samples.stream().mapToLong(Samples::arrays).sum());
+            row.put("header_view_calls",samples.stream().mapToLong(Samples::headerViews).sum());row.put("header_to_byte_array_calls",samples.stream().mapToLong(Samples::headerArrays).sum());row.put("message_body_calls",samples.stream().mapToLong(Samples::bodies).sum());
             row.put("message_bytes_materialized_as_string",samples.stream().anyMatch(sample->sample.strings()>0)?raw.length:0);
             rows.add(row);
         } finally {executor.shutdownNow();executor.awaitTermination(5,TimeUnit.SECONDS);}
@@ -176,7 +256,7 @@ final class ManualHighlighterPerformanceCases {
         final String stage;
         final Object message;
         int id=1,maxRead;
-        long strings,arrays;
+        long strings,arrays,headerViews,headerArrays,bodies;
         Probe(byte[] raw,String stage,boolean proxy) {
             this.stage=stage;
             HttpService service=HttpService.httpService("127.0.0.1",9,false);
@@ -191,17 +271,29 @@ final class ManualHighlighterPerformanceCases {
                 case "toolSource"->source;
                 case "httpService"->service;
                 case "toString"->{strings++;yield response==null?request.toString():response.toString();}
+                case "body"->{bodies++;yield response==null?request.body():response.body();}
+                case "withBody"->{
+                    headerViews++;
+                    HttpRequest view=request.withBody((String)args[0]);
+                    yield Proxy.newProxyInstance(HttpRequest.class.getClassLoader(),new Class<?>[]{HttpRequest.class},(p2,m2,args2)->{
+                        if(m2.getName().equals("toByteArray")){headerArrays++;return tracked(view.toByteArray());}
+                        try{return m2.invoke(view,args2);}catch(InvocationTargetException failure){throw failure.getCause();}
+                    });
+                }
                 case "toByteArray"->{
                     arrays++;ByteArray bytes=response==null?request.toByteArray():response.toByteArray();
-                    yield Proxy.newProxyInstance(ByteArray.class.getClassLoader(),new Class<?>[]{ByteArray.class},(p2,m2,args2)->{
-                        if(m2.getName().equals("subArray"))maxRead=Math.max(maxRead,(int)args2[1]);
-                        return m2.invoke(bytes,args2);
-                    });
+                    yield tracked(bytes);
                 }
                 default->{
                     try {yield (response==null?HttpRequest.class:HttpResponse.class).getMethod(m.getName(),m.getParameterTypes()).invoke(response==null?request:response,args);}
                     catch(InvocationTargetException failure){throw failure.getCause();}
                 }
+            });
+        }
+        ByteArray tracked(ByteArray bytes) {
+            return (ByteArray)Proxy.newProxyInstance(ByteArray.class.getClassLoader(),new Class<?>[]{ByteArray.class},(p,m,args)->{
+                if(m.getName().equals("subArray"))maxRead=Math.max(maxRead,(int)args[1]);
+                try{return m.invoke(bytes,args);}catch(InvocationTargetException failure){throw failure.getCause();}
             });
         }
         Object call(Object handler) {
@@ -211,6 +303,6 @@ final class ManualHighlighterPerformanceCases {
                 default->((HttpHandler)handler).handleHttpRequestToBeSent((HttpRequestToBeSent)message);
             };
         }
-        void reset(){strings=arrays=0;maxRead=0;}
+        void reset(){strings=arrays=headerViews=headerArrays=bodies=0;maxRead=0;}
     }
 }

@@ -9,6 +9,7 @@ import burp.api.montoya.core.*;
 import burp.api.montoya.http.HttpService;
 import burp.api.montoya.http.handler.*;
 import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.requests.MalformedRequestException;
 import burp.api.montoya.internal.*;
 import burp.api.montoya.proxy.http.*;
 import burp.api.montoya.proxy.websocket.*;
@@ -54,6 +55,23 @@ class ManualHighlighterTest {
         var request=mock(InterceptedRequest.class);when(request.toString()).thenReturn(raw);when(request.annotations()).thenReturn(annotations);
         when(request.httpService()).thenReturn(mock(HttpService.class));return request;
     }
+    void headerView(HttpRequest request, String headers) {
+        var view=mock(HttpRequest.class);
+        when(view.toByteArray()).thenReturn(ManualHighlightScannerTest.bytes(headers));
+        when(request.withBody("")).thenReturn(view);
+    }
+    void requestMetadata(HttpRequest request, String head) {
+        var headers=new java.util.ArrayList<burp.api.montoya.http.message.HttpHeader>();
+        for(String line:head.substring(head.indexOf("\r\n")+2).split("\r\n")) {
+            int colon=line.indexOf(':');if(colon<0)continue;
+            var header=mock(burp.api.montoya.http.message.HttpHeader.class);
+            when(header.name()).thenReturn(line.substring(0,colon));when(header.value()).thenReturn(line.substring(colon+1).trim());headers.add(header);
+        }
+        when(request.headers()).thenReturn(headers);
+        boolean transferEncoded=headers.stream().anyMatch(h->h.name().equalsIgnoreCase("Transfer-Encoding"));
+        when(request.hasHeader("Transfer-Encoding")).thenReturn(transferEncoded);
+        when(request.bodyOffset()).thenReturn(head.getBytes(StandardCharsets.ISO_8859_1).length);
+    }
 
     @Test void proxyRemovesEveryRecognisedTemporaryMarkerIgnoringCase() {
         var request=request("POST /TempColorRED HTTP/1.1\r\nHost: fixture\r\n\r\nprefix-tempcolorblue-TemPcoLorRed-suffix-tempcolorinvalid");
@@ -89,7 +107,7 @@ class ManualHighlighterTest {
     }
     @ParameterizedTest @ValueSource(strings={"tempcolorred","permcolorred"})
     void loggerRequestAnnotationDoesNotRewriteOtherToolTraffic(String marker) {
-        var request=mock(HttpRequestToBeSent.class);when(request.toByteArray()).thenReturn(ManualHighlightScannerTest.bytes(marker));when(request.annotations()).thenReturn(annotations);
+        var request=mock(HttpRequestToBeSent.class);headerView(request,"GET /"+marker+" HTTP/1.1\r\n\r\n");when(request.annotations()).thenReturn(annotations);
         var result=handler.handleHttpRequestToBeSent(request);assertSame(request,result.request());assertSame(annotations,result.annotations());verify(annotations).setHighlightColor(HighlightColor.RED);
     }
     @Test void loggerResponseUsesPermanentMarker() {
@@ -110,9 +128,11 @@ class ManualHighlighterTest {
         when(source.isFromTool(ToolType.PROXY)).thenReturn(true);when(outgoing.toolSource()).thenReturn(source);when(outgoing.messageId()).thenReturn(42);when(outgoing.annotations()).thenReturn(loggerAnnotations);
         when(outgoing.toString()).thenReturn("GET //permcolorblue HTTP/1.1\r\n\r\n");
         when(outgoing.toByteArray()).thenReturn(ManualHighlightScannerTest.bytes("GET //permcolorblue HTTP/1.1\r\n\r\n"));
+        headerView(outgoing,"GET //permcolorblue HTTP/1.1\r\n\r\n");
         handler.handleHttpRequestToBeSent(outgoing);verify(loggerAnnotations).setHighlightColor(HighlightColor.RED);
         verify(loggerAnnotations,never()).setHighlightColor(HighlightColor.BLUE);
         verify(outgoing,never()).toByteArray();
+        verify(outgoing,never()).withBody(anyString());
         clearInvocations(loggerAnnotations);handler.handleHttpRequestToBeSent(outgoing);verify(loggerAnnotations).setHighlightColor(HighlightColor.BLUE);
     }
     @Test void pendingColoursAreBoundedAndConsumedOnce() {
@@ -125,6 +145,7 @@ class ManualHighlighterTest {
         var outgoing=mock(HttpRequestToBeSent.class);var source=mock(ToolSource.class);var loggerAnnotations=mock(Annotations.class);
         when(outgoing.toolSource()).thenReturn(source);when(outgoing.messageId()).thenReturn(42);when(outgoing.annotations()).thenReturn(loggerAnnotations);
         when(outgoing.toByteArray()).thenReturn(ManualHighlightScannerTest.bytes(""));
+        headerView(outgoing,"");
         handler.handleHttpRequestToBeSent(outgoing);verifyNoInteractions(loggerAnnotations);
         when(source.isFromTool(ToolType.PROXY)).thenReturn(true);handler.handleHttpRequestToBeSent(outgoing);verify(loggerAnnotations).setHighlightColor(HighlightColor.RED);
     }
@@ -135,6 +156,7 @@ class ManualHighlighterTest {
         handler.handleHttpRequestToBeSent(outgoing);verifyNoInteractions(loggerAnnotations);
         when(settings.isEnabled()).thenReturn(true);
         when(outgoing.toByteArray()).thenReturn(ManualHighlightScannerTest.bytes(""));
+        headerView(outgoing,"");
         handler.handleHttpRequestToBeSent(outgoing);verifyNoInteractions(loggerAnnotations);
     }
     @Test void disabledHttpCallbacksNeverAccessBytesOrStrings() {
@@ -146,18 +168,25 @@ class ManualHighlighterTest {
         assertSame(request,handler.handleHttpRequestToBeSent(request).request());
         assertSame(response,handler.handleHttpResponseReceived(response).response());
         verify(request,never()).toByteArray();verify(response,never()).toByteArray();
+        verify(request,never()).withBody(anyString());verify(request,never()).body();
         verify(settings,never()).isLoggerInspectionLimited();verifyNoInteractions(annotations);
     }
-    @ParameterizedTest @ValueSource(strings={"", "Content-Type: application/octet-stream\r\n", "Content-Type: multipart/form-data; boundary=fixture\r\n", "Content-Type: text/plain\r\nContent-Length: 1\r\n"})
+    @ParameterizedTest @ValueSource(strings={"", "Content-Type: application/octet-stream\r\n", "Content-Type: multipart/form-data; boundary=fixture\r\n", "Content-Length: 1\r\n", "Content-Length: -1\r\n", "Content-Length: 0\r\nContent-Length: 1\r\n", "Transfer-Encoding: chunked\r\n"})
     void urlAndHeaderMarkersSurviveLargeBodiesWithoutRewritingOrDecoding(String headers) {
         String raw="POST /tempcolorred HTTP/1.1\r\nHost: fixture\r\nX-Color: permcolorblue\r\n"+headers+"\r\n\u00ff\0"+"x".repeat(2_000_000)+"tempcolorgreen";
-        var source=new ManualHighlightScannerTest.Bytes(raw.getBytes(StandardCharsets.ISO_8859_1),65536);
-        var request=mock(HttpRequestToBeSent.class);when(request.toByteArray()).thenReturn(source.array());when(request.annotations()).thenReturn(annotations);
+        var request=mock(HttpRequestToBeSent.class);when(request.annotations()).thenReturn(annotations);
+        headerView(request,raw.substring(0,raw.indexOf("\r\n\r\n")+4));
+        requestMetadata(request,raw.substring(0,raw.indexOf("\r\n\r\n")+4));
         when(request.toString()).thenThrow(new AssertionError("General request decoded"));
+        var original=new ManualHighlightScannerTest.Bytes(raw.getBytes(StandardCharsets.ISO_8859_1),0);
+        if(headers.equals("Content-Length: 1\r\n"))when(request.toByteArray()).thenReturn(original.array());
+        else when(request.toByteArray()).thenThrow(new AssertionError("Rejected declaration copied original request"));
+        when(request.body()).thenThrow(new AssertionError("Original body copied"));
         var result=handler.handleHttpRequestToBeSent(request);assertSame(request,result.request());assertSame(annotations,result.annotations());
-        verify(annotations).setHighlightColor(HighlightColor.RED);verify(request,times(1)).toByteArray();
+        verify(annotations).setHighlightColor(HighlightColor.RED);verify(request,times(headers.equals("Content-Length: 1\r\n")?1:0)).toByteArray();verify(request,never()).body();
+        assertEquals(0,original.maxRead,"Oversized actual request body must not be scanned");
+        verify(request,times(1)).withBody("");
         verify(settings,times(1)).isEnabled();verify(settings,times(1)).isLoggerInspectionLimited();
-        assertTrue(source.maxRead<=65536);
     }
     @Test void oversizedHeaderAndResponseBudgetUseRawLengthRatherThanContentLength() {
         String raw="HTTP/1.1 200 OK\r\nContent-Length: 0\r\nX-Padding: "+"x".repeat(65536)+"permcolorblue\r\n\r\n";
@@ -172,20 +201,96 @@ class ManualHighlighterTest {
     @ParameterizedTest @ValueSource(ints={65535,65536,65537})
     void actualMessageLengthDeterminesExclusiveInspectionEnd(int length) {
         byte[] raw=new byte[length];java.util.Arrays.fill(raw,(byte)'x');
-        byte[] marker="tempcolorred".getBytes(StandardCharsets.US_ASCII);
+        byte[] marker="permcolorred".getBytes(StandardCharsets.US_ASCII);
         System.arraycopy(marker,0,raw,raw.length-marker.length,marker.length);
         var source=new ManualHighlightScannerTest.Bytes(raw,Math.min(length,65536));
-        var request=mock(HttpRequestToBeSent.class);when(request.annotations()).thenReturn(annotations);when(request.toByteArray()).thenReturn(source.array());
-        assertSame(request,handler.handleHttpRequestToBeSent(request).request());
+        var request=mock(HttpResponseReceived.class);when(request.annotations()).thenReturn(annotations);when(request.toByteArray()).thenReturn(source.array());
+        assertSame(request,handler.handleHttpResponseReceived(request).response());
         if(length<=65536)verify(annotations).setHighlightColor(HighlightColor.RED);else verifyNoInteractions(annotations);
         clearInvocations(annotations);when(settings.isLoggerInspectionLimited()).thenReturn(false);
         when(request.toByteArray()).thenReturn(new ManualHighlightScannerTest.Bytes(raw,length).array());
-        handler.handleHttpRequestToBeSent(request);verify(annotations).setHighlightColor(HighlightColor.RED);
+        handler.handleHttpResponseReceived(request);verify(annotations).setHighlightColor(HighlightColor.RED);
     }
     @Test void noBodyHeaderPermanentMarkerIsInspected() {
         var request=mock(HttpRequestToBeSent.class);when(request.annotations()).thenReturn(annotations);
-        when(request.toByteArray()).thenReturn(ManualHighlightScannerTest.bytes("GET / HTTP/1.1\r\nX-Color: permcolorblue\r\n\r\n"));
+        headerView(request,"GET / HTTP/1.1\r\nX-Color: permcolorblue\r\n\r\n");
         assertSame(request,handler.handleHttpRequestToBeSent(request).request());verify(annotations).setHighlightColor(HighlightColor.BLUE);
+    }
+    @ParameterizedTest @ValueSource(ints={12,1024,65536,2_000_000})
+    void missingLengthUsesHeadersAndUnlimitedRestoresCompleteDetection(int bodySize) {
+        String head="POST / HTTP/1.1\r\nHost: fixture\r\nX-Color: permcolorblue\r\n\r\n";
+        String raw=head+"x".repeat(bodySize-12)+"tempcolorred";
+        var request=mock(HttpRequestToBeSent.class);when(request.annotations()).thenReturn(annotations);
+        headerView(request,head);requestMetadata(request,head);
+        when(request.toByteArray()).thenThrow(new AssertionError("Limited callback copied original request"));
+        when(request.body()).thenThrow(new AssertionError("Limited callback copied original body"));
+        assertSame(request,handler.handleHttpRequestToBeSent(request).request());
+        verify(annotations).setHighlightColor(HighlightColor.BLUE);verify(request,never()).body();verify(request,never()).toByteArray();
+        clearInvocations(annotations);
+        when(settings.isLoggerInspectionLimited()).thenReturn(false);
+        doReturn(ManualHighlightScannerTest.bytes(raw)).when(request).toByteArray();
+        assertSame(request,handler.handleHttpRequestToBeSent(request).request());verify(annotations).setHighlightColor(HighlightColor.RED);
+    }
+    @ParameterizedTest @ValueSource(strings={"0","1","12","00012"," 12 "})
+    void smallDeclaredLengthIsOnlyAHintAndActualBytesDetermineBodyHighlight(String declared) {
+        String head="POST / HTTP/1.1\r\nHost: fixture\r\nContent-Length: "+declared+"\r\nX-Color: permcolorblue\r\n\r\n";
+        String raw=head+"padding that is longer than the declaration-tempcolorred";
+        var request=mock(HttpRequestToBeSent.class);when(request.annotations()).thenReturn(annotations);requestMetadata(request,head);
+        when(request.toByteArray()).thenReturn(ManualHighlightScannerTest.bytes(raw));
+        assertSame(request,handler.handleHttpRequestToBeSent(request).request());
+        verify(annotations).setHighlightColor(HighlightColor.RED);verify(request,times(1)).toByteArray();
+        verify(request,never()).withBody(anyString());verify(request,never()).body();
+    }
+    @ParameterizedTest @ValueSource(ints={65535,65536,65537})
+    void actualWholeRequestSizeControlsAdmissionAfterAnUnderstatedLength(int size) {
+        String head="POST / HTTP/1.1\r\nContent-Length: 1\r\nX-Color: permcolorblue\r\n\r\n";
+        String raw=head+"x".repeat(size-head.length()-12)+"tempcolorred";
+        var actual=new ManualHighlightScannerTest.Bytes(raw.getBytes(StandardCharsets.ISO_8859_1),size<=65536?size:0);
+        var request=mock(HttpRequestToBeSent.class);when(request.annotations()).thenReturn(annotations);requestMetadata(request,head);headerView(request,head);
+        when(request.toByteArray()).thenReturn(actual.array());
+        assertSame(request,handler.handleHttpRequestToBeSent(request).request());
+        verify(annotations).setHighlightColor(size<=65536?HighlightColor.RED:HighlightColor.BLUE);
+        verify(request,times(1)).toByteArray();verify(request,times(size<=65536?0:1)).withBody("");
+        if(size>65536)assertEquals(0,actual.maxRead);
+    }
+    @ParameterizedTest @ValueSource(strings={"", "-1", "+1", "one", "1, 1", "999999999999999999999999999999", "65536", "65537"})
+    void invalidOrOversizedDeclaredWholeSizeNeverCopiesTheOriginal(String declared) {
+        String head="POST /tempcolorred HTTP/1.1\r\nContent-Length: "+declared+"\r\n\r\n";
+        var request=mock(HttpRequestToBeSent.class);when(request.annotations()).thenReturn(annotations);requestMetadata(request,head);headerView(request,head);
+        when(request.toByteArray()).thenThrow(new AssertionError("Rejected hint copied request"));
+        assertSame(request,handler.handleHttpRequestToBeSent(request).request());
+        verify(annotations).setHighlightColor(HighlightColor.RED);verify(request,never()).toByteArray();verify(request,never()).body();
+    }
+    @ParameterizedTest @ValueSource(strings={"Content-Length: 12\r\nContent-Length: 12\r\n", "Content-Length: 12\r\nTransfer-Encoding: chunked\r\n", "Transfer-Encoding: chunked\r\n", ""})
+    void absentAmbiguousOrTransferEncodedLengthsUseHeaderFallback(String fields) {
+        String head="POST /permcolorblue HTTP/1.1\r\n"+fields+"\r\n";
+        var request=mock(HttpRequestToBeSent.class);when(request.annotations()).thenReturn(annotations);requestMetadata(request,head);headerView(request,head);
+        assertSame(request,handler.handleHttpRequestToBeSent(request).request());
+        verify(annotations).setHighlightColor(HighlightColor.BLUE);verify(request,never()).toByteArray();verify(request,never()).body();
+    }
+    @Test void oversizedHeaderOffsetRejectsEvenAZeroDeclaredBodyWithoutCopyingOriginal() {
+        String head="POST /permcolorblue HTTP/1.1\r\nContent-Length: 0\r\n\r\n";
+        var request=mock(HttpRequestToBeSent.class);when(request.annotations()).thenReturn(annotations);requestMetadata(request,head);headerView(request,head);
+        when(request.bodyOffset()).thenReturn(65537);
+        handler.handleHttpRequestToBeSent(request);verify(annotations).setHighlightColor(HighlightColor.BLUE);verify(request,never()).toByteArray();
+    }
+    @ParameterizedTest @ValueSource(ints={65535,65536,65537})
+    void requestHeaderViewStillHasAnExclusiveByteBudget(int length) {
+        byte[] head=new byte[length];java.util.Arrays.fill(head,(byte)'x');
+        byte[] marker="tempcolorred".getBytes(StandardCharsets.US_ASCII);
+        System.arraycopy(marker,0,head,length-marker.length,marker.length);
+        var bytes=new ManualHighlightScannerTest.Bytes(head,Math.min(length,65536));
+        var view=mock(HttpRequest.class);when(view.toByteArray()).thenReturn(bytes.array());
+        var request=mock(HttpRequestToBeSent.class);when(request.withBody("")).thenReturn(view);when(request.annotations()).thenReturn(annotations);
+        assertSame(request,handler.handleHttpRequestToBeSent(request).request());
+        if(length<=65536)verify(annotations).setHighlightColor(HighlightColor.RED);else verifyNoInteractions(annotations);
+        assertTrue(bytes.maxRead<=65536);verify(request,never()).toByteArray();verify(request,never()).body();
+    }
+    @Test void malformedRequestCannotFallBackToFullMaterializationInLimitedMode() {
+        var request=mock(HttpRequestToBeSent.class);when(request.annotations()).thenReturn(annotations);
+        when(request.withBody("")).thenThrow(new MalformedRequestException("Synthetic malformed request"));
+        assertSame(request,handler.handleHttpRequestToBeSent(request).request());
+        verifyNoInteractions(annotations);verify(request,never()).toByteArray();verify(request,never()).body();
     }
     @Test void generalResponsesIgnoreTemporaryAndPreserveExistingAnnotationWhenNoPermanentMatches() {
         var response=mock(HttpResponseReceived.class);when(response.toByteArray()).thenReturn(ManualHighlightScannerTest.bytes("tempcolorred\0permcolorinvalid"));when(response.annotations()).thenReturn(annotations);

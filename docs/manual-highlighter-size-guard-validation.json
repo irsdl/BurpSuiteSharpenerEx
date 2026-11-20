@@ -1,0 +1,475 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-11-20T18:19:11.642915+00:00",
+  "version": "4.94",
+  "disposition": "Unreleased local Content-Length admission hint plus actual-size guard; supersedes the headers-only implementation without refreshing its historical records.",
+  "maintainer_direction": "Use Content-Length initially, then process original request bytes and skip an actually oversized body; document the API improvement in code and release notes.",
+  "source_revision": "d3d48763d1c6961fbbb04e2eb61e59a1b364cd98",
+  "source_state": "Uncommitted behavior, regression harness, documentation and API proposal; pre-existing description edits preserved",
+  "digest_algorithm": "SHA-256 over sorted repository-relative UTF-8 path, NUL, raw per-file SHA-256 bytes",
+  "input_selection_record": "docs/manual-highlighter-performance-validation.json",
+  "production_inputs_sha256": "85153df6c033c044c03726e14a0119787620c5cb6ec4015720a00d8bf8888e40",
+  "headless_inputs_sha256": "f5dab859e9aedf2470c0dc3ce061b180a59c1a1d8e9ef243922bd18b47c28deb",
+  "full_ui_inputs_sha256": "6655726113b9208860a4deef3d992eb69c8f3a03ffde31eeea490e636ab9d248",
+  "jar_sha256": "fcf9a5376ffb503001c9ac64f2e24238fe1d585afdbfa3fe03a99567b4b48d66",
+  "jdk_pin": "gradle/validation-jdk.json",
+  "jdk_pin_sha256": "caa67f9c40498613f42bd820b0c9224c7aae7be0e3765b97579838d9154f42e1",
+  "gradle_composition_pin": "gradle/security-toolchain.properties",
+  "gradle_composition_pin_sha256": "84633e5aee6a30f5dc1f3b9cdf552a97bb18b10221cc60d23628162bc4866f51",
+  "headless": {
+    "command": "gradlew.bat build fullUiTestPlan --offline --dependency-verification strict",
+    "result": "PASS",
+    "tests": 419,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "log": "temp/content-length-guard-final-build.log",
+    "log_sha256": "632ba25d91ecf6dae0970f949569333819d6feb14d860fc8358329471cb00299"
+  },
+  "host": {
+    "harness_sha256": "0064020d1ee8ff055a8f04c80e570bdba73a0732f6375bc6f4745561c1fdde95",
+    "burp_build": "20261102000055152",
+    "edition": "PROFESSIONAL",
+    "requested_edition": "professional",
+    "os": "Windows 11",
+    "jre": "25.0.5.1+2-LTS",
+    "os_family": "windows"
+  },
+  "host_tested_utc": "2026-11-20T18:17:28.071614300Z",
+  "host_overall": "INCOMPLETE",
+  "host_counts": {
+    "PASS": 27,
+    "BLOCKED": 1,
+    "NOT_APPLICABLE": 1,
+    "MANUAL_REQUIRED": 8
+  },
+  "host_results": "temp/full-ui-test-reports/run-12903822480189780990/results.json",
+  "host_results_sha256": "2fdd6410e25a4e51294e67792c81165ddcd95f9481f82c594226c66cf8b38b0b",
+  "owned_host_exited": true,
+  "host_gradle_exit": 1,
+  "host_gradle_exit_reason": "INCOMPLETE overall: clipboard opt-in absent and eight manual groups required; zero failed automated assertions.",
+  "host_log": "temp/content-length-guard-live.log",
+  "host_log_sha256": "f364975a5d60ff93ff9162c21b96f3b4eb80081612a7cb02d8ff6684f8f0d954",
+  "benchmark": {
+    "result": "PASS",
+    "cells": 444,
+    "matrix": "docs/manual-highlighter-size-guard-benchmark.csv",
+    "matrix_sha256": "6ea1c2e4f936c40b8985961717eed968aae8a6cbfb3fa8d8418b3a986fdebfdf",
+    "raw_report": "temp/full-ui-test-reports/run-12903822480189780990/manual-highlighter-performance.json",
+    "raw_report_sha256": "0321669fac3ddd304c9260dafcf26d13f9428b08bb5f8908acb26653e809784c",
+    "baseline_jar_sha256": "a667081b95d8d13de3cef73078a2af895ae9f4b10b925e356797571f3eb1119e",
+    "scope": "Same actual host/JVM message, ByteArray, annotation and action implementations; callback interfaces are developer adapters. Complete callbacks include metadata access, original-message conversion when admitted and header-view conversion on fallback. Fixtures include correct, absent and understated lengths. Fresh measurements create a new request outside each measured interval.",
+    "fresh_request_api_components": [
+      {
+        "message_bytes": 1024,
+        "samples": 16,
+        "p50_ns": 1300,
+        "operation": "toByteArray",
+        "p95_ns": 1400,
+        "allocated_bytes_per_call": 1592.0
+      },
+      {
+        "message_bytes": 1024,
+        "samples": 16,
+        "p50_ns": 1900,
+        "operation": "body",
+        "p95_ns": 3200,
+        "allocated_bytes_per_call": 1624.0
+      },
+      {
+        "message_bytes": 1024,
+        "samples": 16,
+        "p50_ns": 3100,
+        "operation": "bodyOffset",
+        "p95_ns": 17600,
+        "allocated_bytes_per_call": 1712.0
+      },
+      {
+        "message_bytes": 1024,
+        "samples": 16,
+        "p50_ns": 22900,
+        "operation": "withoutBody",
+        "p95_ns": 191700,
+        "allocated_bytes_per_call": 10315.0
+      },
+      {
+        "message_bytes": 65536,
+        "samples": 16,
+        "p50_ns": 5900,
+        "operation": "toByteArray",
+        "p95_ns": 22300,
+        "allocated_bytes_per_call": 66104.0
+      },
+      {
+        "message_bytes": 65536,
+        "samples": 16,
+        "p50_ns": 6500,
+        "operation": "body",
+        "p95_ns": 10200,
+        "allocated_bytes_per_call": 66136.0
+      },
+      {
+        "message_bytes": 65536,
+        "samples": 16,
+        "p50_ns": 3100,
+        "operation": "bodyOffset",
+        "p95_ns": 4700,
+        "allocated_bytes_per_call": 1712.0
+      },
+      {
+        "message_bytes": 65536,
+        "samples": 16,
+        "p50_ns": 20800,
+        "operation": "withoutBody",
+        "p95_ns": 36800,
+        "allocated_bytes_per_call": 7840.0
+      },
+      {
+        "message_bytes": 1048576,
+        "samples": 16,
+        "p50_ns": 90300,
+        "operation": "toByteArray",
+        "p95_ns": 120500,
+        "allocated_bytes_per_call": 1049144.0
+      },
+      {
+        "message_bytes": 1048576,
+        "samples": 16,
+        "p50_ns": 88900,
+        "operation": "body",
+        "p95_ns": 102000,
+        "allocated_bytes_per_call": 1049176.0
+      },
+      {
+        "message_bytes": 1048576,
+        "samples": 16,
+        "p50_ns": 5700,
+        "operation": "bodyOffset",
+        "p95_ns": 31800,
+        "allocated_bytes_per_call": 1712.0
+      },
+      {
+        "message_bytes": 1048576,
+        "samples": 16,
+        "p50_ns": 24600,
+        "operation": "withoutBody",
+        "p95_ns": 57500,
+        "allocated_bytes_per_call": 7840.0
+      },
+      {
+        "message_bytes": 10485760,
+        "samples": 16,
+        "p50_ns": 873500,
+        "operation": "toByteArray",
+        "p95_ns": 1264200,
+        "allocated_bytes_per_call": 10486328.0
+      },
+      {
+        "message_bytes": 10485760,
+        "samples": 16,
+        "p50_ns": 1816700,
+        "operation": "body",
+        "p95_ns": 6020900,
+        "allocated_bytes_per_call": 10486360.0
+      },
+      {
+        "message_bytes": 10485760,
+        "samples": 16,
+        "p50_ns": 18700,
+        "operation": "bodyOffset",
+        "p95_ns": 61400,
+        "allocated_bytes_per_call": 1712.0
+      },
+      {
+        "message_bytes": 10485760,
+        "samples": 16,
+        "p50_ns": 82600,
+        "operation": "withoutBody",
+        "p95_ns": 161700,
+        "allocated_bytes_per_call": 7840.0
+      }
+    ],
+    "fresh_limited_request_callbacks": [
+      {
+        "samples": 16,
+        "p50_ns": 33600,
+        "header_views_per_callback": 0,
+        "message_bytes": 1024,
+        "allocated_bytes_per_callback": 14016.0,
+        "placement": "absent",
+        "original_request_conversions_per_callback": 1,
+        "p95_ns": 70700
+      },
+      {
+        "samples": 16,
+        "p50_ns": 30600,
+        "header_views_per_callback": 0,
+        "message_bytes": 1024,
+        "allocated_bytes_per_callback": 17005.5,
+        "placement": "early",
+        "original_request_conversions_per_callback": 1,
+        "p95_ns": 179700
+      },
+      {
+        "samples": 16,
+        "p50_ns": 35100,
+        "header_views_per_callback": 0,
+        "message_bytes": 1024,
+        "allocated_bytes_per_callback": 19406.0,
+        "placement": "late",
+        "original_request_conversions_per_callback": 1,
+        "p95_ns": 409600
+      },
+      {
+        "samples": 16,
+        "p50_ns": 32800,
+        "header_views_per_callback": 0,
+        "message_bytes": 1024,
+        "allocated_bytes_per_callback": 20964.0,
+        "placement": "header",
+        "original_request_conversions_per_callback": 1,
+        "p95_ns": 418000
+      },
+      {
+        "samples": 16,
+        "p50_ns": 31600,
+        "header_views_per_callback": 1,
+        "message_bytes": 1024,
+        "allocated_bytes_per_callback": 18386.0,
+        "placement": "unknown",
+        "original_request_conversions_per_callback": 0,
+        "p95_ns": 324800
+      },
+      {
+        "samples": 16,
+        "p50_ns": 26800,
+        "header_views_per_callback": 0,
+        "message_bytes": 1024,
+        "allocated_bytes_per_callback": 14456.0,
+        "placement": "understated",
+        "original_request_conversions_per_callback": 1,
+        "p95_ns": 50800
+      },
+      {
+        "samples": 16,
+        "p50_ns": 305600,
+        "header_views_per_callback": 0,
+        "message_bytes": 65536,
+        "allocated_bytes_per_callback": 213432.0,
+        "placement": "absent",
+        "original_request_conversions_per_callback": 1,
+        "p95_ns": 376200
+      },
+      {
+        "samples": 16,
+        "p50_ns": 42900,
+        "header_views_per_callback": 0,
+        "message_bytes": 65536,
+        "allocated_bytes_per_callback": 95811.0,
+        "placement": "early",
+        "original_request_conversions_per_callback": 1,
+        "p95_ns": 389200
+      },
+      {
+        "samples": 16,
+        "p50_ns": 211100,
+        "header_views_per_callback": 0,
+        "message_bytes": 65536,
+        "allocated_bytes_per_callback": 216431.5,
+        "placement": "late",
+        "original_request_conversions_per_callback": 1,
+        "p95_ns": 458900
+      },
+      {
+        "samples": 16,
+        "p50_ns": 40300,
+        "header_views_per_callback": 0,
+        "message_bytes": 65536,
+        "allocated_bytes_per_callback": 94728.0,
+        "placement": "header",
+        "original_request_conversions_per_callback": 1,
+        "p95_ns": 60100
+      },
+      {
+        "samples": 16,
+        "p50_ns": 29600,
+        "header_views_per_callback": 1,
+        "message_bytes": 65536,
+        "allocated_bytes_per_callback": 13248.0,
+        "placement": "unknown",
+        "original_request_conversions_per_callback": 0,
+        "p95_ns": 68300
+      },
+      {
+        "samples": 16,
+        "p50_ns": 42200,
+        "header_views_per_callback": 0,
+        "message_bytes": 65536,
+        "allocated_bytes_per_callback": 93336.0,
+        "placement": "understated",
+        "original_request_conversions_per_callback": 1,
+        "p95_ns": 229700
+      },
+      {
+        "samples": 16,
+        "p50_ns": 80600,
+        "header_views_per_callback": 1,
+        "message_bytes": 1048576,
+        "allocated_bytes_per_callback": 20690.5,
+        "placement": "absent",
+        "original_request_conversions_per_callback": 0,
+        "p95_ns": 381600
+      },
+      {
+        "samples": 16,
+        "p50_ns": 43400,
+        "header_views_per_callback": 1,
+        "message_bytes": 1048576,
+        "allocated_bytes_per_callback": 18120.0,
+        "placement": "early",
+        "original_request_conversions_per_callback": 0,
+        "p95_ns": 204800
+      },
+      {
+        "samples": 16,
+        "p50_ns": 52600,
+        "header_views_per_callback": 1,
+        "message_bytes": 1048576,
+        "allocated_bytes_per_callback": 18120.0,
+        "placement": "late",
+        "original_request_conversions_per_callback": 0,
+        "p95_ns": 155900
+      },
+      {
+        "samples": 16,
+        "p50_ns": 63000,
+        "header_views_per_callback": 1,
+        "message_bytes": 1048576,
+        "allocated_bytes_per_callback": 20528.0,
+        "placement": "header",
+        "original_request_conversions_per_callback": 0,
+        "p95_ns": 201400
+      },
+      {
+        "samples": 16,
+        "p50_ns": 30400,
+        "header_views_per_callback": 1,
+        "message_bytes": 1048576,
+        "allocated_bytes_per_callback": 15723.0,
+        "placement": "unknown",
+        "original_request_conversions_per_callback": 0,
+        "p95_ns": 272700
+      },
+      {
+        "samples": 16,
+        "p50_ns": 349400,
+        "header_views_per_callback": 1,
+        "message_bytes": 1048576,
+        "allocated_bytes_per_callback": 1067736.0,
+        "placement": "understated",
+        "original_request_conversions_per_callback": 1,
+        "p95_ns": 730000
+      },
+      {
+        "samples": 16,
+        "p50_ns": 105700,
+        "header_views_per_callback": 1,
+        "message_bytes": 10485760,
+        "allocated_bytes_per_callback": 18120.0,
+        "placement": "absent",
+        "original_request_conversions_per_callback": 0,
+        "p95_ns": 216400
+      },
+      {
+        "samples": 16,
+        "p50_ns": 104300,
+        "header_views_per_callback": 1,
+        "message_bytes": 10485760,
+        "allocated_bytes_per_callback": 18120.0,
+        "placement": "early",
+        "original_request_conversions_per_callback": 0,
+        "p95_ns": 169200
+      },
+      {
+        "samples": 16,
+        "p50_ns": 105100,
+        "header_views_per_callback": 1,
+        "message_bytes": 10485760,
+        "allocated_bytes_per_callback": 18120.0,
+        "placement": "late",
+        "original_request_conversions_per_callback": 0,
+        "p95_ns": 206400
+      },
+      {
+        "samples": 16,
+        "p50_ns": 102800,
+        "header_views_per_callback": 1,
+        "message_bytes": 10485760,
+        "allocated_bytes_per_callback": 20528.0,
+        "placement": "header",
+        "original_request_conversions_per_callback": 0,
+        "p95_ns": 174900
+      },
+      {
+        "samples": 16,
+        "p50_ns": 67700,
+        "header_views_per_callback": 1,
+        "message_bytes": 10485760,
+        "allocated_bytes_per_callback": 13212.0,
+        "placement": "unknown",
+        "original_request_conversions_per_callback": 0,
+        "p95_ns": 103500
+      },
+      {
+        "samples": 16,
+        "p50_ns": 902800,
+        "header_views_per_callback": 1,
+        "message_bytes": 10485760,
+        "allocated_bytes_per_callback": 10504800.0,
+        "placement": "understated",
+        "original_request_conversions_per_callback": 1,
+        "p95_ns": 1279900
+      }
+    ]
+  },
+  "behavior": {
+    "limit_default": true,
+    "whole_request_byte_limit": 65536,
+    "initial_hint": "One usable nonnegative decimal Content-Length plus nonnegative bodyOffset, with no Transfer-Encoding; declared total must fit.",
+    "subsequent_processing": "Obtain original request bytes once, compare their actual total length and scan the complete actual request only at or below the limit; never truncate scanning to Content-Length.",
+    "oversized_or_unusable_hint": "Inspect at most 65,536 bytes of an immutable header-only view, including the URL; skip the original body completely.",
+    "understated_length": "An actually oversized request falls back to headers after its actual length is known; one full host copy can already have occurred.",
+    "unlimited": "Complete original request and response inspection; no Content-Length filtering.",
+    "responses": "Limited raw response prefix remains unchanged.",
+    "proxy_and_websockets": "Existing full Proxy rewriting/cache and text WebSocket behavior unchanged."
+  },
+  "regression_coverage": [
+    "Actual whole-request sizes 65,535, 65,536 and 65,537 after an understated declaration.",
+    "Markers beyond the declared length are found when the actual complete request fits.",
+    "Oversized actual ByteArray objects reject any scanner reads, proving body scanning is skipped.",
+    "Missing, invalid, duplicate, overflowed and transfer-encoded length hints use header fallback.",
+    "Declared large body and oversized header-offset paths avoid original serialization.",
+    "Unlimited mode, cache, disabled paths, original object identity and wire bytes retained."
+  ],
+  "historical_failure": {
+    "log": "temp/content-length-guard-build.log",
+    "log_sha256": "fc36f6305de22343152fdf0ae778dce302d9583a29bf7ceeec8ce52cdade998b",
+    "disposition": "Initial unit run had 31 Mockito UnfinishedStubbingException fixture errors: computing a stub value invoked other mocks inside an unfinished when(). Compute that boolean before stubbing. Final 419 tests pass; assertions were not suppressed."
+  },
+  "api_proposal": {
+    "file": "docs/montoya-message-size-api.md",
+    "sha256": "1e4bb7167b438019cbab9b0b4d742cdce4da7561688f4a56507b8cf425b2bff3",
+    "scope": "Local proposal for copy-free actual total/body lengths and an explicitly bounded byte-range copy/reader; not existing or announced API methods.",
+    "upstream_comment_submitted": false
+  },
+  "pending": [
+    "A misleading small length can still cause a complete host copy before rejection; no hard total-allocation bound is claimed.",
+    "Host operations on unusually large header sections remain outside the scanner byte bound.",
+    "Clipboard opt-in/manual checks and current Community/Early Adopter/macOS/Linux evidence remain incomplete."
+  ],
+  "dependencies_toolchain_or_workflows_changed": false,
+  "professional_activation": "Existing activation cache reused by isolated runner; no new activation performed",
+  "raw_reports_retained": true,
+  "release_approved": false,
+  "publication_performed": false
+}

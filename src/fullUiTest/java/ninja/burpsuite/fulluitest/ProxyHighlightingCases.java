@@ -146,16 +146,18 @@ final class ProxyHighlightingCases implements AutoCloseable {
                 Ui.require(expected==HighlightColor.NONE?uncoloredBackgrounds.contains(background):background==palette.get(expected),"Logger rendered cutoff colour mismatch: "+name+" callback="+observed.get(stage)+" actual="+background+" expected="+palette.get(expected));
             }
             Ui.run(()->((ManualHighlighterSettings)setting).setLoggerInspectionLimited(limited));
-            String other=id("other-late-"+suffix);replies.put(other,"reply tempcolorred");
-            String body="x".repeat(100_000)+"tempcolorred";
-            var largeRequest=HttpRequest.httpRequest(HttpService.httpService("127.0.0.1",origin.getLocalPort(),false),"POST /"+other+" HTTP/1.1\r\nHost: 127.0.0.1:"+origin.getLocalPort()+"\r\nX-Sharpener-Test: "+other+"\r\nContent-Length: "+body.length()+"\r\nConnection: close\r\n\r\n"+body);
-            var result=api.http().sendRequest(largeRequest);
-            await(()->received.containsKey(other)&&messageIds.containsKey(other)&&messageIds.get(other).containsKey("http_color"),"Other-tool late marker did not reach Logger");
-            Ui.require(received.get(other).body().equals(body),"Non-Proxy large body was rewritten");
-            Ui.require((limited?"NONE":"RED").equals(messageIds.get(other).get("http_color")),"Non-Proxy late-marker cutoff mismatch");
-            Ui.require(Arrays.equals(result.request().toByteArray().getBytes(),largeRequest.toByteArray().getBytes()),"Non-Proxy request content changed");
+            for(String placement:List.of("small","early","late")) {
+                String other=id("other-"+placement+"-"+suffix);replies.put(other,"reply tempcolorred");
+                String body=switch(placement){case "small"->"tempcolorred";case "early"->"tempcolorred"+"x".repeat(100_000);default->"x".repeat(100_000)+"tempcolorred";};
+                var sentRequest=HttpRequest.httpRequest(HttpService.httpService("127.0.0.1",origin.getLocalPort(),false),"POST /"+other+" HTTP/1.1\r\nHost: 127.0.0.1:"+origin.getLocalPort()+"\r\nX-Sharpener-Test: "+other+"\r\nContent-Length: "+body.length()+"\r\nConnection: close\r\n\r\n"+body);
+                var result=api.http().sendRequest(sentRequest);
+                await(()->received.containsKey(other)&&messageIds.containsKey(other)&&messageIds.get(other).containsKey("http_color"),"Other-tool body marker did not reach Logger");
+                Ui.require(received.get(other).body().equals(body),"Non-Proxy body was rewritten");
+                Ui.require((limited&&!placement.equals("small")?"NONE":"RED").equals(messageIds.get(other).get("http_color")),"Non-Proxy body-marker limit mismatch: "+placement);
+                Ui.require(Arrays.equals(result.request().toByteArray().getBytes(),sentRequest.toByteArray().getBytes()),"Non-Proxy request content changed");
+            }
         }
-        evidence.put("logger_cutoff","Verified late permanent request/response differences, cached Proxy temporary colours and non-Proxy wire preservation with both limits");save();
+        evidence.put("logger_cutoff","Verified Content-Length hint plus actual-size guard: small bodies inspected, large early/late bodies skipped with the limit on, complete inspection with it off, response prefixes, cached Proxy colours and unchanged wire bytes");save();
     }
     String id(String name){return "sharpener-highlight-"+name+"-"+UUID.randomUUID().toString().substring(0,8);}
     void observe(String id,String stage,int number,HighlightColor color){if(id!=null&&id.startsWith("sharpener-highlight-")){var values=messageIds.computeIfAbsent(id,ignored->new ConcurrentHashMap<>());values.put(stage+"_id",number);values.put(stage+"_color",color.name());}}

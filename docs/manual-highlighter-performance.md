@@ -1,12 +1,18 @@
 # Manual highlighter performance (unreleased)
 
 Implemented 2026-11-20 on top of the restored Sharpener menu and optional Settings
-form. Development version 4.94 remains unreleased; the benchmark and menu host
-evidence below records the earlier tested 4.93 jars. This work introduces no dependency, toolchain or
+form. Development version 4.94 remains unreleased. Historical benchmark/menu host
+evidence records the earlier tested 4.93 jars; the header-fallback follow-up records
+its tested 4.94 jar separately. This work introduces no dependency, toolchain or
 publication approval. The separate development branch is
 `perf/manual-highlighter-inspection`.
 
 ## Behavior and configuration
+
+The Content-Length admission hint plus actual-size guard below supersedes the
+original body-prefix behavior and the subsequent headers-only implementation.
+Earlier measurements and their source-bound records are retained as historical
+evidence; they are not measurements of the current guard.
 
 `manualHighlightLimitLoggerInspection` is a global boolean, default **true**,
 registered constructor-safely by `ManualHighlighterSettings`. Existing installs
@@ -26,11 +32,33 @@ The [menu-grouping follow-up](manual-highlighter-menu-validation.json) validates
 the current presentation separately. The benchmark below remains bound to its
 recorded earlier jar; it was not repeated for this UI-only regrouping.
 
-With the option on, general HTTP handlers inspect only raw byte offsets
-`[0, min(actualLength, 65536))`, including the request/status line, headers and
-body. They do not trust Content-Length or filter by Content-Type. They do not
-decode or decompress bodies. A complete marker must fit inside the range.
-Turning the option off searches the complete message and remains O(message size).
+With the option on, request callbacks first examine a single valid Content-Length
+and the header-section size from `bodyOffset()`. Duplicate/invalid/missing lengths,
+Transfer-Encoding, or a declared total above 65,536 go directly to the header
+fallback. The declaration is only an admission hint. If the request could fit,
+its **original bytes** are obtained and their actual total length is checked.
+At or below 65,536 bytes, the complete actual request is scanned, including bytes
+beyond the declared length. Above that threshold the body is not scanned at all;
+only the header view is inspected. Neither declarations nor the inspection view
+replace/truncate the transmitted request.
+
+An understated declaration can still incur one full host copy before the
+actual-size check rejects body inspection. Montoya provides sizes through
+ByteArray but no documented copy-free actual-length accessor or bounded raw
+request reader. The source comment, unreleased release note and
+[local API proposal](montoya-message-size-api.md) describe this remaining cost
+and suggested improvements; no upstream issue has been submitted.
+
+`withBody` may normalize the inspection copy's framing headers, including
+Content-Length; the 65,536-byte range applies to that view. It is never forwarded
+or saved. Malformed requests that cannot create the view retain their original
+traffic and annotations; they do not fall back to full serialization. Host work
+on exceptionally large header sections is not claimed to be bounded.
+
+Response callbacks retain their raw `[0, min(actualLength, 65536))` prefix scan.
+They do not trust Content-Length, filter by Content-Type, decode or decompress
+bodies. A complete marker must fit inside the range. Turning the option off
+searches complete requests/responses and remains O(message size).
 
 Requests prefer the first valid temporary marker anywhere in the inspected
 range; otherwise the first permanent marker wins. Responses only match permanent
@@ -73,7 +101,7 @@ An unlimited byte precheck that skips String conversion for no-temporary-marker
 Proxy traffic remains a possible follow-up; this change does not implement or
 claim measurements for that alternative.
 
-## Validation and measurements
+## Historical validation and measurements before the header fallback
 
 `build fullUiTestPlan --offline --dependency-verification strict` passed using
 the pinned validation JDK 21: **387 tests, zero failures/errors/skips**. Regression
@@ -135,7 +163,7 @@ Separate host `toByteArray()` probes for a 10 MiB message (16 samples):
 | request | 1.113 | 10.001 |
 | response | 0.001 | 0.001 |
 
-The actual request API still copies the complete message on this host. The
+In that earlier implementation the request API still copied the complete message on this host. The
 limit bounds extra scanner reads, **not total callback allocation or cost**.
 Response conversion has much lower measured allocation. Bounded slice/copy
 measurements are recorded separately. API internals can vary by host; the
@@ -149,3 +177,85 @@ message size. Legacy Proxy transformations retain their full-message costs.
 These remaining costs are explicit follow-up work, not a claim that every path
 is now bounded. Users can disable the cutoff when complete Logger detection is
 more important than limiting the extra search.
+
+## First-access copy investigation (2026-11-20)
+
+The [fresh-request API probes](manual-highlighter-copy-investigation.json) use
+a new real Burp request for every measured call, with construction excluded
+from the timing and allocation interval. On the same Windows Professional host,
+first access to `body()` also copies the full body. Switching to `body()` before
+slicing would therefore leave the large-request allocation problem in place.
+
+| Operation on a fresh 10 MiB request | Allocated bytes/call |
+| --- | ---: |
+| `toByteArray()` | 10,486,328 |
+| `body()` | 10,486,384 |
+| `bodyOffset()` | 1,584 |
+| `withBody("").toByteArray()` on an immutable copy | 4,520 |
+
+The public request API has no bounded raw-request byte reader. The last operation
+avoids copying the payload in these measurements. The investigation record
+preserves its then-pending decision. The maintainer subsequently authorized the
+header fallback when a cheap bounded request-body read is unavailable. The
+implementation now uses that fallback while the limit is enabled; these probes
+do not modify or send the original request.
+
+The isolated host run recorded 27 PASS, zero FAIL, one clipboard BLOCKED,
+one disabled-editor NOT_APPLICABLE and eight MANUAL_REQUIRED; overall remains
+INCOMPLETE. `build fullUiTestPlan --offline --dependency-verification strict`
+passed with 387 headless tests. The developer probes remain outside the extension
+jar. Existing reports and earlier benchmark results are retained unchanged.
+
+## Historical header-fallback follow-up
+
+The developer benchmark now distinguishes header and body markers, records
+header-view conversions separately from original-message conversions, and rejects
+any original-message/body access from limited request callbacks. Fresh-request
+callback measurements exercise first access on each newly constructed host
+message, preventing warm caches from hiding body-sized allocations. Real loopback
+checks cover small, early and late request-body markers with both limit settings
+and retain byte-for-byte original traffic checks. The current evidence is recorded
+separately in [the follow-up validation](manual-highlighter-copy-fix-validation.json).
+
+`build fullUiTestPlan --offline --dependency-verification strict` passed with
+398 tests and zero failures/errors/skips. All 300 current benchmark cells passed.
+For fresh 10 MiB requests without markers, complete limited callbacks allocated
+6,856 bytes per call (16 measured fresh requests after three warmup objects),
+with zero original-message/body accesses. This avoids the measured 10 MiB
+full-request copy. These are host measurements, not latency/allocation guarantees
+for other Burp implementations or unusually large headers.
+
+The isolated Windows Professional 2026.11.2 run recorded 27 PASS, zero FAIL,
+one clipboard BLOCKED, one disabled-editor NOT_APPLICABLE and eight
+MANUAL_REQUIRED. The full task exits nonzero for that INCOMPLETE result. All
+owned host processes exited. The [current matrix](manual-highlighter-copy-fix-benchmark.csv)
+is separate from the preserved historical benchmark; no other-host, complete
+full-suite or release approval is inferred.
+
+## Content-Length hint and actual-size guard
+
+The current developer fixtures supply correct lengths for normal cells, and
+separate absent/understated lengths. Fresh callbacks verify that declared large
+requests avoid original-message conversion, small fitting requests inspect their
+complete bytes, and understated large requests may incur conversion but never
+body scanning. Loopback cases verify small-body detection with the limit on,
+large early/late body rejection and complete detection with the limit off, while
+retaining original wire bytes. Current results are bound separately in
+[the size-guard validation](manual-highlighter-size-guard-validation.json).
+
+The offline strict-verification build and plan passed with 419 headless tests,
+zero failures/errors/skips. All 444 current benchmark cells passed, including
+correct, missing and understated lengths. In fresh 10 MiB no-marker request
+callbacks, a correct declaration allocated 18,120 bytes with zero original
+conversions; an absent declaration allocated 13,212 bytes with zero conversions;
+an understated declaration allocated 10,504,800 bytes with one original conversion
+and then header-only inspection. These 16-sample measurements after three warmup
+objects illustrate both the fast rejection and the remaining API cost; they are
+not performance guarantees. The [current matrix](manual-highlighter-size-guard-benchmark.csv)
+is separate from prior implementation measurements.
+
+The isolated Windows Professional 2026.11.2 run recorded 27 PASS, zero FAIL,
+one clipboard BLOCKED, one disabled-editor NOT_APPLICABLE and eight
+MANUAL_REQUIRED. Its nonzero task exit reflects the INCOMPLETE full suite. The
+owned host process exited. Earlier unit fixture errors and their correction are
+recorded in the validation record; no assertion or required check was waived.

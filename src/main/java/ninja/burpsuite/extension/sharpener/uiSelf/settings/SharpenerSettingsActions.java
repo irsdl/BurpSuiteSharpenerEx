@@ -136,7 +136,7 @@ public final class SharpenerSettingsActions implements AutoCloseable {
             if (setting instanceof ManualHighlighterSettings manual) {
                 c.add(new Control(MANUAL_HIGHLIGHTER_ENABLED, Kind.CHECK, setting.capability.description, setting::isEnabled, setting::setEnabled, null));
                 c.add(new Control(MANUAL_HIGHLIGHTER_LIMIT, Kind.CHECK,
-                        "Inspect only the first 65,536 bytes of each HTTP message for Logger highlighting. Turn off to inspect complete messages. Proxy temporary-marker removal is unchanged.",
+                        "Use Content-Length only as an initial size hint, then inspect the actual complete request only if it fits within 65,536 bytes. Oversized or ambiguous requests use headers; responses use their first 65,536 bytes. Incorrect lengths can still cause a host copy before rejection. Turn off for complete inspection. Proxy temporary-marker removal is unchanged.",
                         manual::isLoggerInspectionLimited, manual::setLoggerInspectionLimited, null));
             } else c.add(new Control("Global Settings/Supported Capabilities/" + setting.capability.name, Kind.CHECK, setting.capability.description, setting::isEnabled, setting::setEnabled, null));
             if (setting instanceof PwnFoxSettings fox)

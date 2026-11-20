@@ -1,148 +1,105 @@
-<p>This extension should add a number of UI and functional features to Burp Suite to make working with it easier.</p>
+<p>Sharpener adds UI customisation, tab navigation and traffic highlighting features to Burp Suite.</p>
 
-<p><b>Current Features</b></p>
+<p><b>Features</b></p>
 
 <ul>
-	<li>Making main tools' tabs more distinguishable by choosing a theme</li>
-	<li>Ability to control style of sub-tabs in Repeater and Intruder</li>
-	<li>Ability to change Burp Suite title and its icon (also updates the Windows taskbar and macOS Dock icon)</li>
-	<li>Copy &amp; pasting style ability for Repeater and Intruder tabs</li>
-	<li>Pasting style for Repeater and Intruder tabs when their title matches a Regular Expression</li>
-	<li>Copy &amp; pasting titles by creating unique titles by adding a number in the end</li>
-	<li>Rename titles without a need to double-click on the title</li>
-	<li>Jump to first and last tabs in Repeater and Intruder</li>
-	<li>Back and Forward feature depends on the previously selected tabs</li>
-	<li>Finding Repeater and Intruder tabs when their title matches a Regular Expression</li>
-	<li>Scrollable main tool tabs</li>
-	<li>Scrollable Repeater and Intruder tabs</li>
-	<li>Taking screenshot of repeater or intruder tabs</li>
-	<li>Trimming long titles into 100 characters</li>
-	<li>Show previously chosen titles for a tab</li>
-	<li>Keyboard shortcuts to make the tab navigation easier, viewable and customisable inside Burp</li>
-	<li>Keyboard shortcut to jump from a tab into the HTTP request editor and back to the tab</li>
-	<li>Support for PwnFox Firefox extension highlighter, with an option to keep the X-PwnFox-Color header for other tools</li>
-	<li>Highlighting HTTP and WebSocket messages in Proxy using the "tempcolorCOLORNAME" and "permcolorCOLORNAME" patterns</li>
-	<li>Ability to save the last size and position of Burp Suite to move it to the same location next time</li>
-	<li>Ability to detect off-screen Burp Suite window to bring it to the centre</li>
+	<li>Choose themes and icons to distinguish the main tool tabs.</li>
+	<li>Customise Repeater and Intruder tab fonts, colours and icons.</li>
+	<li>Copy and paste tab styles, including applying a style to tabs whose titles match a regular expression.</li>
+	<li>Copy, paste and rename tab titles, with numbered suffixes for duplicate pasted titles and a history of previous titles.</li>
+	<li>Trim long tab titles to 100 characters.</li>
+	<li>Jump between tabs, find titles using regular expressions, and move back and forward through tab-selection history.</li>
+	<li>Enable scrolling for main tool tabs and Repeater/Intruder tabs.</li>
+	<li>Capture screenshots of Repeater and Intruder tabs.</li>
+	<li>Customise keyboard shortcuts for tab actions and move focus between tab headers and the HTTP request editor.</li>
+	<li>Change the Burp window title and icon, with macOS Dock icon support where available.</li>
+	<li>Use PwnFox highlighting, with an option to retain the X-PwnFox-Color header for other tools.</li>
+	<li>Highlight HTTP and WebSocket traffic in Proxy using tempcolorCOLORNAME and permcolorCOLORNAME markers.</li>
+	<li>Highlight HTTP traffic in Logger using the same markers, including requests sent by other Burp tools. Only Proxy removes temporary markers from outgoing requests; permanent markers are retained.</li>
+	<li>Remember the Burp window size and position, and recover an off-screen window.</li>
 </ul>
-<br>
+
+<p><b>Settings</b></p>
+
+<p>Use the Sharpener top menu for configuration, keyboard shortcuts, help and maintenance.</p>
+
+<p><b>Unreleased Settings changes:</b> The Sharpener top menu remains available on every supported host for quick access to UI customisation, keyboard shortcuts, help and maintenance. Supporting hosts additionally offer configuration under Settings &gt; Extensions &gt; Sharpener. Search Settings for Sharpener, icons, themes or shortcuts. Repeater/Intruder tab menus also offer Sharpener Settings... when the host supports opening Settings programmatically.</p>
+
+<p>Settings changes apply immediately. Global settings apply across projects; the window title and icon are project settings. The separate Keyboard Shortcuts dialog uses Save to apply edits. Update checks are optional and disabled by default.</p>
+
+<p><b>Unreleased manual highlighting limit:</b> Logger inspection is limited to 64 KiB by default. Content-Length is only an initial request-size hint: Sharpener then checks actual whole-request size before inspecting a body. Requests that are declared or actually oversized, or have missing or ambiguous length information, use a header-only inspection view, including the URL. Responses inspect their first 64 KiB. Incorrect length headers can still cause a full host copy before an oversized body is rejected. Turn off Limit Logger inspection to 64 KiB under Manual Highlighter (Proxy and Logger) for complete inspection. Original non-Proxy traffic is unchanged; Proxy temporary-marker removal retains its existing behavior.</p>
+
 <p><b>Keyboard Shortcuts</b></p>
-<style>
-	table{
-	  border-collapse: collapse;
-	}
 
-	th, td {
-	  border: 1px solid black;
-	  border-collapse: collapse;
-	  text-align: left;
-	}
-</style>
-<p>All shortcuts can be viewed and changed inside Burp: open the <code>Sharpener</code> top menu &gt; <code>Keyboard Shortcuts</code>, or the <code>Keyboard Shortcuts</code> item at the bottom of a Repeater/Intruder tab right-click menu. Each action has one shortcut, set by clicking the cell and pressing the key combination. A shortcut works anywhere in Burp, even while typing in the editor, so it needs Ctrl, Alt, or a function key. Burp's own hotkeys and basic editing keys (Ctrl+C, Ctrl+V) cannot be used.</p>
+<p>Open Keyboard Shortcuts from the Sharpener top menu, from the bottom of a Repeater/Intruder tab menu, or from the optional unreleased Settings panel. Each configurable action has one shortcut: click its cell, press the key combination, then choose Save. These shortcuts work within the Burp window, including while typing in an editor, so they require Ctrl, Alt, Meta or a function key. Known Burp default hotkeys and basic editing keys such as Ctrl+C and Ctrl+V are rejected; custom Burp or operating-system shortcuts may still conflict.</p>
+
+<p><b>Default Repeater and Intruder shortcuts</b></p>
+
 <ul>
-	<li>Configurable shortcuts for Repeater and Intruder tabs (defaults):<br>
-		<table>
-			<thead>
-			<tr>
-				<th>Description</th>
-				<th>Default Shortcut</th>
-			</tr>
-			</thead>
-			<tbody>
-			<tr><td>Previous Tab</td><td>Ctrl + PageUp</td></tr>
-			<tr><td>Next Tab</td><td>Ctrl + PageDown</td></tr>
-			<tr><td>First Tab</td><td>Alt + Home</td></tr>
-			<tr><td>Last Tab</td><td>Alt + End</td></tr>
-			<tr><td>Focus Tab (from the request or response editor)</td><td>Alt + Up</td></tr>
-			<tr><td>Show Tab Menu</td><td>Ctrl + Enter</td></tr>
-			<tr><td>Find Tabs (RegEx)</td><td>Ctrl + Shift + F</td></tr>
-			<tr><td>Find Next</td><td>F3</td></tr>
-			<tr><td>Find Previous</td><td>Shift + F3</td></tr>
-			<tr><td>Back (Previously Selected Tab)</td><td>Alt + Left</td></tr>
-			<tr><td>Forward</td><td>Alt + Right</td></tr>
-			<tr><td>Copy Subtab Title</td><td>Ctrl + Shift + C</td></tr>
-			<tr><td>Paste Subtab Title</td><td>Ctrl + Shift + V</td></tr>
-			<tr><td>Rename Subtab Title</td><td>F2</td></tr>
-			</tbody>
-		</table>
-	</li>
+	<li>Previous tab: Ctrl + PageUp</li>
+	<li>Next tab: Ctrl + PageDown</li>
+	<li>First tab: Alt + Home</li>
+	<li>Last tab: Alt + End</li>
+	<li>Focus tab header from the request or response editor: Alt + Up</li>
+	<li>Show tab menu: Ctrl + Enter</li>
+	<li>Find tabs by regular expression: Ctrl + Shift + F</li>
+	<li>Find next: F3</li>
+	<li>Find previous: Shift + F3</li>
+	<li>Back to the previously selected tab: Alt + Left</li>
+	<li>Forward through tab-selection history: Alt + Right</li>
+	<li>Copy tab title: Ctrl + Shift + C</li>
+	<li>Paste tab title: Ctrl + Shift + V</li>
+	<li>Rename tab title: F2</li>
 </ul>
-<br>
+
+<p><b>Fixed tab-header keys</b></p>
+
+<p>These keys are not configurable and act only while a tab header has focus. Click a tab title or use a tab-navigation shortcut to focus it.</p>
+
 <ul>
-	<li>Fixed tab-header keys (always on when a tab title has the focus, not editable). Click a tab title, then use these:<br>
-		<table>
-			<thead>
-			<tr>
-				<th>Description</th>
-				<th>Key</th>
-			</tr>
-			</thead>
-			<tbody>
-			<tr><td>Previous Tab</td><td>Left Arrow</td></tr>
-			<tr><td>Next Tab</td><td>Right Arrow</td></tr>
-			<tr><td>First Tab</td><td>Home</td></tr>
-			<tr><td>Last Tab</td><td>End</td></tr>
-			<tr><td>Enter Request Editor</td><td>Down Arrow</td></tr>
-			</tbody>
-		</table>
-	</li>
+	<li>Previous tab: Left Arrow</li>
+	<li>Next tab: Right Arrow</li>
+	<li>First tab: Home</li>
+	<li>Last tab: End</li>
+	<li>Enter the HTTP request editor: Down Arrow</li>
 </ul>
-<br>
+
+<p><b>Fixed mouse actions on Repeater and Intruder tabs</b></p>
+
 <ul>
-	<li>Fixed mouse actions on Repeater and Intruder tabs:<br>
-		<table>
-			<thead>
-			<tr>
-				<th>Description</th>
-				<th>Combinations/Shortcuts</th>
-			</tr>
-			</thead>
-			<tbody>
-			<tr><td>Show Context Menu for Repeater and Intruder Tabs</td><td>Mouse Middle-Click<br />Alt + Any Mouse Key</td></tr>
-			<tr><td>Scroll Through Tabs</td><td>Mouse Wheel (when enabled in the tab menu)</td></tr>
-			<tr><td>Increase Font Size</td><td>Ctrl + Mouse Wheel Up</td></tr>
-			<tr><td>Decrease Font Size</td><td>Ctrl + Mouse Wheel Down</td></tr>
-			<tr><td>Increase Font Size &amp; Bold</td><td>Middle Click + Ctrl</td></tr>
-			<tr><td>Decrease Font Size &amp; Bold</td><td>Middle Click + Ctrl + Shift</td></tr>
-			<tr><td>Big &amp; Red &amp; Bold</td><td>Middle Click + Shift</td></tr>
-			</tbody>
-		</table>
-	</li>
+	<li>Show tab menu: middle-click, or Alt + any mouse button.</li>
+	<li>Scroll through tabs: mouse wheel, when enabled in the tab menu.</li>
+	<li>Increase font size: Ctrl + mouse wheel up, when mouse-wheel actions are enabled.</li>
+	<li>Decrease font size: Ctrl + mouse wheel down, when mouse-wheel actions are enabled.</li>
+	<li>Increase font size and make bold: Ctrl + middle-click.</li>
+	<li>Decrease font size and make bold: Ctrl + Shift + middle-click.</li>
+	<li>Apply the big, red and bold style: Shift + middle-click.</li>
 </ul>
-<br>
+
+<p><b>Default main-window shortcut</b></p>
+
 <ul>
-	<li>You can use the following key combination(s) on the main window frame:<br>
-		<table>
-			<thead>
-			<tr>
-				<th>Description</th>
-				<th>Combinations/Shortcuts</th>
-			</tr>
-			</thead>
-			<tbody>
-			<tr>
-				<td>Move Burp Suite Window to the centre of the Screen</td>
-				<td>Ctrl + Alt + C</td>
-			</tr>
-			</tbody>
-		</table>
-	</li>
+	<li>Move the Burp window to the centre of the screen: Ctrl + Alt + C. This shortcut can also be changed in Keyboard Shortcuts.</li>
 </ul>
-<br>
+
 <p><b>Usage Tips</b></p>
+
 <ul>
-	<li>Click a tab title (or use a shortcut jump) to focus the tab header, then use the arrows to move between tabs and the Down arrow to drop into the request editor to edit it. Use Alt+Up or click to go back to the tab.</li>
-	<li>Ctrl+C and Ctrl+V are not assigned by default so a paste can never rename a tab by accident. Copy and paste titles use Ctrl+Shift+C and Ctrl+Shift+V, and a pasted title can be reverted from the tab menu under Previous Titles.</li>
-	<li>After setting style on a sub-tab, setting the same title on another sub-tab will copy its style</li>
-	<li>Alt + Any Mouse Click works on empty parts of the tabs which do not contain any text</li>
-	<li>Use the&nbsp;<code>Debug</code>&nbsp;option in&nbsp;<code>Global Settings</code>&nbsp;if you are reporting a bug or if you want to see what is happening</li>
-	<li>Check the&nbsp;<a href="https://github.com/irsdl/BurpSuiteSharpenerEx">extension&#39;s GitHub repository</a>&nbsp;rather than BApp Store for the latest updates</li>
-	<li>A sample of icons should also be accessible in the&nbsp;repository</li>
+	<li>Use Down Arrow on a focused tab header to enter the request editor, and Alt + Up to return from the request or response editor.</li>
+	<li>Copy and paste titles with Ctrl + Shift + C and Ctrl + Shift + V. Restore a pasted title from Previous Titles in the tab menu.</li>
+	<li>After styling a tab, assigning the same title to another tab copies its saved style.</li>
+	<li>Alt + click also opens the tab menu on empty areas of the tab strip.</li>
+	<li>Use Debug Settings under Global Settings when investigating or reporting a problem.</li>
+	<li>See the <a href="https://github.com/irsdl/BurpSuiteSharpenerEx">project repository</a> and <a href="https://github.com/irsdl/BurpSuiteSharpenerEx/releases">GitHub Releases</a> for changes and available jars. The BApp Store version may lag behind GitHub.</li>
+	<li>Sample icons are available in the repository's <a href="https://github.com/irsdl/BurpSuiteSharpenerEx/tree/main/burpicon-sample">burpicon-sample</a> and <a href="https://github.com/irsdl/BurpSuiteSharpenerEx/tree/main/hacker-sample-icons">hacker-sample-icons</a> directories.</li>
 </ul>
 
-<p><b>Limitation</b></p>
+<p><b>Compatibility and Limitations</b></p>
 
 <ul>
-	<li>This extension targets the most recent Burp Suite release. The minimum supported version is Burp Suite 2024.2, as that is the first release that requires Java 21.</li>
-	<li>It was last tested with the pro version 2026.4.3. It should also be compatible with the community edition. Users of older Burp Suite versions can use the legacy extension linked from the repository.</li>
+	<li>Sharpener targets current Burp Stable and Early Adopter releases, Professional and Community editions, on Windows, macOS and Linux.</li>
+	<li>Java 21 is required, giving a technical baseline of Burp 2024.2 or later. This does not establish compatibility with every older Burp release. Older installations can use a suitable historical jar from GitHub Releases.</li>
+	<li>Recorded live runs exercised earlier Windows jars with Professional Early Adopter 2026.11 and Community 2026.3.3. These are partial results; full UI, clipboard, manual and cross-platform validation remains incomplete. The unreleased Settings changes need separate host validation. See the <a href="https://github.com/irsdl/BurpSuiteSharpenerEx/blob/main/docs/burp-ui-compatibility.md">compatibility notes</a> for current evidence.</li>
+	<li>The installed Windows main/taskbar icon may remain unchanged even when unpinned. Detached-window icon handling is separate, and native icon behaviour depends on the host platform.</li>
+	<li>Burp UI changes can affect tab discovery and styling. Report problems on the <a href="https://github.com/irsdl/BurpSuiteSharpenerEx/issues">issue tracker</a>, including the Burp version, edition and operating system.</li>
 </ul>

@@ -11,6 +11,7 @@ import burp.api.montoya.core.HighlightColor;
 import burp.api.montoya.core.ByteArray;
 import burp.api.montoya.http.HttpService;
 import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.requests.MalformedRequestException;
 import burp.api.montoya.http.handler.*;
 import burp.api.montoya.proxy.http.*;
 import burp.api.montoya.proxy.websocket.*;
@@ -71,6 +72,60 @@ public class ManualHighlighterRequestResponseHandler implements ProxyRequestHand
         if (color != null) annotations.setHighlightColor(color);
     }
 
+    private void annotateRequest(HttpRequest request, Annotations annotations, boolean limited) {
+        if (!limited) {
+            annotate(request.toByteArray(), annotations, true, false);
+            return;
+        }
+        if (requestMayFit(request)) {
+            ByteArray actual = request.toByteArray();
+            // Content-Length is only an admission hint. All subsequent decisions and
+            // marker matching use the original request's actual bytes and total length.
+            if (actual.length() <= ManualHighlighterSettings.LOGGER_INSPECTION_BYTE_LIMIT) {
+                annotate(actual, annotations, true, false);
+                return;
+            }
+        }
+        // Montoya API improvement: expose actual message/body length without materialising
+        // bytes, plus a bounded byte-range reader with bounded copying. body().length()
+        // can copy the full payload. An understated Content-Length can therefore cause
+        // one full copy above before the actual-size check rejects body inspection.
+        // Never scan an oversized body or substitute a Content-Length-truncated request.
+        try {
+            annotate(request.withBody("").toByteArray(), annotations, true, true);
+        } catch (MalformedRequestException malformed) {
+            // A malformed request may not support withBody(). Preserve its traffic and
+            // annotations; falling back to the complete message would defeat the limit.
+        }
+    }
+
+    private boolean requestMayFit(HttpRequest request) {
+        try {
+            if (request.hasHeader("Transfer-Encoding")) return false;
+            String declared = null;
+            for (var header : request.headers()) {
+                if (!header.name().equalsIgnoreCase("Content-Length")) continue;
+                if (declared != null) return false; // Duplicate lengths are ambiguous hints.
+                declared = header.value();
+            }
+            if (declared == null) return false;
+            declared = declared.trim();
+            if (declared.isEmpty() || declared.length() > 19) return false;
+            int length = 0;
+            int limit = ManualHighlighterSettings.LOGGER_INSPECTION_BYTE_LIMIT;
+            for (int i = 0; i < declared.length(); i++) {
+                char digit = declared.charAt(i);
+                if (digit < '0' || digit > '9') return false;
+                length = length * 10 + digit - '0';
+                if (length > limit) return false;
+            }
+            int offset = request.bodyOffset();
+            return offset >= 0 && offset <= limit && length <= limit - offset;
+        } catch (MalformedRequestException malformed) {
+            return false;
+        }
+    }
+
     @Override
     public RequestToBeSentAction handleHttpRequestToBeSent(HttpRequestToBeSent request) {
         // Logger annotations apply to every HTTP tool. Only Proxy rewrites temp markers.
@@ -82,7 +137,7 @@ public class ManualHighlighterRequestResponseHandler implements ProxyRequestHand
             if (fromProxy != null) annotations.setHighlightColor(fromProxy);
             else {
                 boolean limited = capabilitySettings.isLoggerInspectionLimited();
-                annotate(request.toByteArray(), annotations, true, limited);
+                annotateRequest(request, annotations, limited);
             }
         }
         return RequestToBeSentAction.continueWith(request, annotations);

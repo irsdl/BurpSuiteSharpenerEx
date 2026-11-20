@@ -23,7 +23,7 @@ public class ManualHighlighterSettings extends CapabilitySettings {
     public ManualHighlighterSettings(ExtensionSharedParameters sharedParameters) {
         super(sharedParameters,
                 new Capability("Manual Highlighter (Proxy and Logger)",
-                        "Highlight Proxy and Logger traffic using tempcolorCOLORNAME or permcolorCOLORNAME. Logger inspects the first 65,536 raw message bytes by default; disable its limit for complete inspection. Proxy temporary-marker removal is unchanged; permcolor is retained.",
+                        "Highlight Proxy and Logger traffic using tempcolorCOLORNAME or permcolorCOLORNAME. Logger's 64 KiB limit uses Content-Length only as an initial hint, then checks actual whole-request size before inspecting a body. Oversized or unknown-size requests use headers; responses use their initial bytes. Turn off the limit for complete inspection. Proxy temporary-marker removal is unchanged; permcolor is retained.",
                         "manualHighlightCapability",
                         Arrays.asList(CapabilityGroup.PROXY_REQUEST_HANDLER, CapabilityGroup.PROXY_RESPONSE_HANDLER, CapabilityGroup.WEBSOCKET_CREATION_HANDLER, CapabilityGroup.HTTP_HANDLER),
                         "ninja.burpsuite.extension.sharpener.capabilities.implementations.ManualHighlighterRequestResponseHandler",

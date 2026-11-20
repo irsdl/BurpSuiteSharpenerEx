@@ -19,9 +19,14 @@ Measurements compare baseline, limited and unlimited callbacks on actual Burp
 message/ByteArray implementations with 1 KiB, 64 KiB, 1 MiB and 10 MiB synthetic
 messages. Callback interfaces are developer adapters. Sequential and four-thread
 runs cover absent/early/late markers and separate Proxy rewriting; disabled and
-cached-color paths are measured separately. Reports include latency percentiles,
+cached-color paths are measured separately. Header markers and fresh-request
+callbacks also verify the Content-Length admission hint followed by an actual
+whole-request size check. Small fitting requests include their bodies; declared
+or actually oversized and unknown-size requests use headers. Understated-length
+and missing-length fixtures are measured separately, including their remaining
+copy costs. Response prefixes retain their byte cutoff. Reports include latency percentiles,
 thread allocations/rate, process-wide GC deltas, throughput and maximum scanner
-read offset. They include host `toByteArray()` and bounded slices in the timing,
+read offset. They include host header-view creation, `toByteArray()` and bounded slices in the timing,
 but scanner bounds do not establish a bound on host API internals. No tight
 timing assertion is used as a substitute for these measurements.
 

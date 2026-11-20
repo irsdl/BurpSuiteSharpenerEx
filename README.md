@@ -47,11 +47,24 @@ Refer to the "Burp Suite Compatibility and Reporting Errors" section for detaile
 
 ## Manual highlighting inspection (unreleased)
 
-Logger highlighting inspects the **first 65,536 raw bytes of each HTTP message**
-by default, including the request/status line, headers and body. URL and header
-markers can still highlight messages with large bodies. A complete marker must
-fit within that range; markers beyond it or crossing the boundary are ignored.
-An unusually long URL or header section can consume the entire allowance.
+Logger highlighting has a **64 KiB limit enabled by default**. A single valid
+Content-Length and the header-section size are used only as an initial hint. If
+the declared complete request could fit, Sharpener obtains the **original
+request's bytes** and checks their actual length. Complete requests at or below
+65,536 bytes are inspected, including their bodies. The declaration never
+controls how many actual bytes are scanned.
+
+Declared or actually oversized requests use a header-only inspection view,
+including the URL. Missing/invalid/duplicate Content-Length or Transfer-Encoding
+also uses this fallback. Bodies of oversized requests are skipped completely,
+including markers near their start. The header view and raw response prefixes
+are inspected up to 65,536 bytes; a complete marker must fit in that range.
+
+An understated Content-Length can still make Burp copy a large request before
+the actual-size check rejects body inspection. The public API exposes no
+documented copy-free actual-length accessor or bounded request reader; see
+[the API improvement proposal](docs/montoya-message-size-api.md). The original
+request is never replaced or truncated by the header-only inspection view.
 
 For complete inspection, turn off **Sharpener > Global Settings > Supported
 Capabilities > Manual Highlighter (Proxy and Logger) > Limit Logger inspection
@@ -236,7 +249,7 @@ Pull requests are welcome. Pushes and releases have separate validation gates:
 * New or changed behaviour must be covered by test cases in `src/test/java`. The extension cannot run outside Burp Suite, so tests use mocked Montoya interfaces and plain Swing components.
 * Compatibility work targets both Burp Stable and Early Adopter. See the [compatibility design and host validation checklist](docs/burp-ui-compatibility.md); simulated layouts do not replace loading the jar in both release channels.
 * Keep Windows, macOS and Linux supported. Native changes need guarded portable paths and live evidence for each OS/channel before release; see [platform icons and dynamic host testing](docs/platform-icons-and-testing.md). Windows icon changes apply to running windows, preserving existing launcher files and pinned shortcuts.
-* Normal CI is read-only and validates Linux and Windows builds. Publication uses the separate manual release workflow on `main`, with the [recorded 4.93 maintainer exception](docs/release-4.93-approval.json), release gate and exact tested Windows jar hash. Deferred checks remain visible and are not BApp certification. Existing releases/assets are preserved. For a release:
+* Normal CI is read-only and validates Linux and Windows builds. Publication uses the separate manual release workflow on `main`, with a version-specific maintainer approval, release gate and exact tested Windows jar hash. The [4.93 exception](docs/release-4.93-approval.json) applies only to 4.93; [4.94 has a separate record](docs/release-4.94-approval.json). Deferred checks remain visible and are not BApp certification. Existing releases/assets are preserved. For a release:
   * Bump `version` in `src/main/resources/extension.properties`. It must stay parseable as a number (for example `4.7`), because the update checker compares it numerically.
   * Add a brief section at the top of [CHANGES.md](CHANGES.md) using `## Version X.Y (YYYY-MM-DD)`, with known limitations. Obtain version-specific maintainer approval, review upstream guidance, pass the release gate and dispatch the manual release workflow; never publish automatically on ordinary pushes.
 
