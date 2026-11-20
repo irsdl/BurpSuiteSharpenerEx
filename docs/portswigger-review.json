@@ -149,7 +149,7 @@
       "raw_evidence": "Current 4.94 reports retained in temp/full-ui-test-reports outside build; source-bound hashes in docs/manual-highlighter-size-guard-validation.json. Historical loss remains recorded."
     },
     "release_gate": "4.94 must remain blocked until its own explicit maintainer deferral approval; old 4.93 approval cannot authorize it.",
-    "review_input_selection": "Eight push-gate fixture checks pass: ignored tooling and out-of-scope files excluded; new workflows, tracked ignored files and their edits, binary changes and root ignore policy included; CRLF/LF canonicalization enforced. Canonical Git archives for both checkout newline settings match across 431 inputs; original negative review/release gates rerun successfully.",
+    "review_input_selection": "Eight push-gate fixture checks pass: ignored tooling and out-of-scope files excluded; new workflows, tracked ignored files and their edits, binary changes and root ignore policy included; CRLF/LF canonicalization enforced. Canonical Git archives for both checkout newline settings match across 431 inputs; original negative review/release gates rerun successfully. 4.94 initial cloud jobs passed tests/packaging then rejected the digest: the existing benchmark CSV still had Git-normalized LF while its measured evidence used CRLF. Preserved the original CSV bytes with -text and explicitly re-added that tracked file; old evidence hashes remain intact. This fixes the input snapshot, without relaxing the digest check.",
     "cloud_validation": [
       {
         "url": "https://github.com/irsdl/BurpSuiteSharpenerEx/actions/runs/44275441903",
