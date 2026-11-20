@@ -1,6 +1,6 @@
-# Sharpener menu and optional native Settings (unreleased)
+# Sharpener menu and optional native Settings (4.94)
 
-Initial migration prepared 2026-11-19; usability correction 2026-11-20. Development version 4.94 remains unreleased; earlier host evidence records the tested 4.93 jars. No new
+Initial migration prepared 2026-11-19; usability correction 2026-11-20. Version 4.94 is covered by [its own release approval](release-4.94-approval.json); earlier host evidence records the tested 4.93 jars. No new
 dependency, toolchain, preference store or version floor is introduced. Existing
 JSON serialization and registration/defaults remain in the settings classes and
 vendored preferences library. The separate [manual highlighter performance work](manual-highlighter-performance.md)
@@ -86,8 +86,7 @@ They do not establish native desktop compatibility.
 Live search/discovery, dialog modality/focus, native effects, physical shortcut
 conflicts, save/reopen, theme/DPI layouts and unload/reload require actual host
 evidence. Current Community, Early Adopter and macOS/Linux Stable/EA evidence
-remains pending; no 4.93 deferral or successful local build approves this new UI
-or a future publication. Keep raw reports under ignored `temp/full-ui-test-reports/`.
+remains pending. The separate 4.94 approval accepts its recorded gaps for this version only; the 4.93 deferral does not carry forward. Keep raw reports under ignored `temp/full-ui-test-reports/`.
 
 Upstream API references checked 2026-11-19:
 [SettingsPanel](https://portswigger.github.io/burp-extensions-montoya-api/javadoc/burp/api/montoya/ui/settings/SettingsPanel.html),
@@ -144,4 +143,4 @@ The [Global screenshot](../images/sharpener-settings.png) is from the isolated
 Professional host; the [Project layout preview](../images/sharpener-project-settings-preview.png)
 is a synthetic headless render. These do not establish physical DPI/theme,
 current Community or other-platform compatibility. The suite remains incomplete
-while clipboard/manual/host matrix work is pending; no release is approved.
+while clipboard/manual/host matrix work is pending. The maintainer accepts these gaps for GitHub 4.94; this is not a full host pass or BApp certification.

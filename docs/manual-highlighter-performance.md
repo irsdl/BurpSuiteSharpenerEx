@@ -1,10 +1,9 @@
-# Manual highlighter performance (unreleased)
+# Manual highlighter performance (4.94)
 
 Implemented 2026-11-20 on top of the restored Sharpener menu and optional Settings
-form. Development version 4.94 remains unreleased. Historical benchmark/menu host
+form. Version 4.94 has a separate [maintainer release approval](release-4.94-approval.json). Historical benchmark/menu host
 evidence records the earlier tested 4.93 jars; the header-fallback follow-up records
-its tested 4.94 jar separately. This work introduces no dependency, toolchain or
-publication approval. The separate development branch is
+its tested 4.94 jar separately. This work introduces no dependency or toolchain change; the linked release approval accepts only its listed evidence gaps. The separate development branch is
 `perf/manual-highlighter-inspection`.
 
 ## Behavior and configuration
@@ -45,7 +44,7 @@ replace/truncate the transmitted request.
 An understated declaration can still incur one full host copy before the
 actual-size check rejects body inspection. Montoya provides sizes through
 ByteArray but no documented copy-free actual-length accessor or bounded raw
-request reader. The source comment, unreleased release note and
+request reader. The source comment, 4.94 release note and
 [local API proposal](montoya-message-size-api.md) describe this remaining cost
 and suggested improvements; no upstream issue has been submitted.
 

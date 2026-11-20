@@ -13,7 +13,7 @@ pending/blocked evidence results remain truthful; this is not full compliance,
 a completed host matrix or BApp Store certification. The changelog is finalized.
 
 For the 4.94 candidate, [the separate approval record](release-4.94-approval.json)
-starts pending. The 4.93 acceptance cannot approve another version. The release
+records the current maintainer's explicit acceptance of its listed evidence gaps. The 4.93 acceptance cannot approve another version. The release
 gate and publisher select the approval matching the exact extension version;
 they require explicit, unexpired acceptance of every unresolved finding and
 matching source, packaged version, review and tested Windows jar hashes.

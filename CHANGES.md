@@ -2,12 +2,12 @@
 
 ## Version 4.94 (2026-11-20)
 
-Unreleased.
-
 - Keep the full Sharpener menu on every supported host and add an optional native Settings page.
 - Organize optional Settings into Global and Project tabs with compact selectors, aligned fields and immediate preference updates.
 - Limit Logger inspection to 64 KiB by default. Use Content-Length only as an initial hint, then check actual whole-request size before scanning its body; oversized or unknown-size requests use headers. Responses use their first 64 KiB. Turn the limit off for complete inspection. Proxy and WebSocket behavior is unchanged.
-- Known Montoya API limitation: an understated Content-Length can still cause a complete copy before rejection. Copy-free actual-size metadata and bounded byte reads would remove this overhead; see [the API proposal](docs/montoya-message-size-api.md).
+- Known Montoya API limitation: an understated Content-Length can still cause a complete copy before rejection. Copy-free actual-size metadata and bounded byte reads would remove this overhead; see [the API proposal](https://github.com/irsdl/BurpSuiteSharpenerEx/blob/main/docs/montoya-message-size-api.md).
+
+Known limitation: the installed Windows main/taskbar icon may remain unchanged. Full UI, Community, cross-platform and provenance validation are deferred under the version-specific maintainer approval.
 
 ## Version 4.93 (2026-11-18)
 

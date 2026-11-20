@@ -45,7 +45,7 @@ Refer to the "Burp Suite Compatibility and Reporting Errors" section for detaile
 * Ability to highlight HTTP and WebSocket requests and responses in proxy by detecting the "permcolorCOLORNAME" pattern
 * Logger HTTP highlighting using the same markers, including traffic sent by other Burp tools
 
-## Manual highlighting inspection (unreleased)
+## Manual highlighting inspection
 
 Logger highlighting has a **64 KiB limit enabled by default**. A single valid
 Content-Length and the header-section size are used only as an initial hint. If
@@ -90,9 +90,9 @@ still be expensive. See the [implementation and measurements](docs/manual-highli
 
 ## Burp Suite Compatibility and Reporting Errors
 
-Sharpener targets current Burp Stable and Early Adopter, including Community Edition, with priority on roughly the preceding year and Windows automation. An earlier Windows Professional EA 2026.11 jar passed 23 automated UI groups, including Proxy/Logger marker colouring; an earlier Community 2026.3.3 jar passed 21. The expanded Community rerun timed out at startup. Full UI/clipboard/manual and other-OS validation is deferred for 4.93 by the maintainer, not recorded as passed. See the [retained observations and limitations](docs/full-ui-validation.json) and [release approval](docs/release-4.93-approval.json).
+Sharpener targets current Burp Stable and Early Adopter, including Community Edition, with priority on roughly the preceding year and Windows automation. The 4.94 development jar passed 27 automated UI groups and 444 benchmark comparisons on Windows Professional 2026.11.2. Historical Community 2026.3.3 evidence applies only to its earlier jar; its expanded rerun timed out at startup. Full UI/clipboard/manual, current Community and other-OS validation are deferred for 4.94 by the maintainer, not recorded as passed. See the [source-bound observations and limitations](docs/manual-highlighter-size-guard-validation.json) and [4.94 release approval](docs/release-4.94-approval.json).
 
-Known issue: the installed Windows main/taskbar icon may remain unchanged even when unpinned. Detached-window icon handling is separate; this issue is deferred for 4.93.
+Known issue: the installed Windows main/taskbar icon may remain unchanged even when unpinned. Detached-window icon handling is separate; this issue is deferred for 4.94.
 
 Java 21 is required (Burp 2024.2 or later). This bytecode baseline does not establish API compatibility with every older Burp release. See the [host validation checklist](docs/burp-ui-compatibility.md) and [current compliance findings](docs/portswigger-compliance.md).
 
@@ -121,7 +121,7 @@ Please feel free to submit your new feature requests using `FR: ` in its title i
 It would be great to also list any known available extensions which might have implemented suggested features.
 Perhaps the best features can be imported from different open-source extensions so the overhead of adding different extensions can be reduced.
 
-## Settings (unreleased)
+## Settings
 
 The **Sharpener** top menu remains available on every supported host, with all
 existing settings, Keyboard Shortcuts, help links and maintenance commands.

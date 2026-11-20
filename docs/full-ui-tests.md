@@ -30,8 +30,7 @@ read offset. They include host header-view creation, `toByteArray()` and bounded
 but scanner bounds do not establish a bound on host API internals. No tight
 timing assertion is used as a substitute for these measurements.
 
-For 4.93 the maintainer explicitly deferred the full/manual/clipboard and other-OS
-runs. These are not normal build/release blockers under the recorded approval.
+For 4.93 and separately 4.94, the maintainer explicitly deferred the listed full/manual/clipboard and other-OS runs under version-specific approvals. These remain incomplete results and are not normal build/release blockers within those approvals.
 Windows is the current automation priority. The eight manual groups in
 `full-ui-manual-cases.md` are the automation backlog, not completed test results;
 convert their practical checks into Windows-compatible automation in future work.
@@ -222,7 +221,7 @@ the earlier jar/catalog. The expanded 33-group highlighter rerun timed out at
 Community startup while desktop control was unavailable; no assertions ran.
 Its blocked report is retained, and a new run is required.
 
-## Unreleased menu and Settings usability correction
+## 4.94 menu and Settings usability correction
 
 The full Sharpener top menu is required on every host, including hosts with the
 optional native Settings API. Help and maintenance actions remain in that menu.
@@ -252,4 +251,4 @@ raw reports before removing their storage. The original migration's results in
 [native-settings-validation.json](native-settings-validation.json) apply only to
 those recorded jars; the revised implementation is recorded separately in
 [settings-usability-validation.json](settings-usability-validation.json).
-The 4.93 release exception does not approve these unreleased UI changes.
+The 4.93 exception does not approve another version. The separate [4.94 approval](release-4.94-approval.json) accepts its listed gaps without turning the suite into a pass.
