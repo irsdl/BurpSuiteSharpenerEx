@@ -5,6 +5,26 @@ changes. It is **not** part of `build`, `test`, `check`, normal CI, push readine
 or the distributable jar. Existing quick headless tests remain the normal build.
 The developer harness is built separately under `build/full-ui-harness/`.
 
+The optional manual-highlighter measurement case additionally accepts
+`-PfullUiHighlighterBaselineJar=/path/reviewed-baseline.jar` and
+`-PfullUiHighlighterBaselineSha256=<reviewed-sha256>` with `fullUiTest`.
+The runner verifies the baseline before launching and again in the host. It
+loads only that jar's highlighter handler and its private cache class through a
+separate developer class loader; it does not initialize another extension or
+load its dependencies. Without these explicit inputs the measurement case is
+not applicable, rather than evidence of a performance pass. All measurement
+code stays in the opt-in harness and out of the distributed extension jar.
+
+Measurements compare baseline, limited and unlimited callbacks on actual Burp
+message/ByteArray implementations with 1 KiB, 64 KiB, 1 MiB and 10 MiB synthetic
+messages. Callback interfaces are developer adapters. Sequential and four-thread
+runs cover absent/early/late markers and separate Proxy rewriting; disabled and
+cached-color paths are measured separately. Reports include latency percentiles,
+thread allocations/rate, process-wide GC deltas, throughput and maximum scanner
+read offset. They include host `toByteArray()` and bounded slices in the timing,
+but scanner bounds do not establish a bound on host API internals. No tight
+timing assertion is used as a substitute for these measurements.
+
 For 4.93 the maintainer explicitly deferred the full/manual/clipboard and other-OS
 runs. These are not normal build/release blockers under the recorded approval.
 Windows is the current automation priority. The eight manual groups in
@@ -85,10 +105,14 @@ closes only the process it launched. The default timeout is 600 seconds; use
   `127.0.0.1:9`. They are seeded into tools and never sent. The suite exercises
   actual Sharpener Swing action listeners, dialogs, headers and live host APIs.
   It does not send traffic to targets or automatically open browser links.
-- The Proxy/Logger cases additionally send small HTTP fixtures through a
+- The Proxy/Logger cases additionally send synthetic HTTP fixtures (up to 512 KiB) through a
   disposable loopback-only Proxy listener to an owned loopback origin, both on
   temporary ports. The harness checks origin bytes and Content-Length, Proxy
   history annotations, and live table-renderer colours in Proxy and Logger.
+  Large-message cases verify complete temporary-marker removal with both Logger
+  settings and explicitly assert the different Proxy/Logger outcomes for late
+  permanent markers. Uncolored row backgrounds are compared with two verified
+  neutral fixtures so alternating table stripes are not mistaken for a color.
   It restores the test host's listener/interception settings and closes its
   server/observer registrations. These client-side test sockets are excluded
   from the production jar; no external target receives fixture traffic.

@@ -77,14 +77,18 @@ public final class SettingsPanelView implements AutoCloseable {
 
         JPanel capabilities = card(global, "Traffic highlighting", "Enable Sharpener's highlighting features.");
         for (var control : controls.values()) if (control.path().startsWith("Global Settings/Supported Capabilities/")) {
-            String label = switch (control.label()) {
-                case "Manual Highlighter (Proxy and Logger)" -> "Manual highlighting in Proxy and Logger";
+            String label = switch (control.path()) {
+                case SharpenerSettingsActions.MANUAL_HIGHLIGHTER_ENABLED -> "Enable manual highlighting in Proxy and Logger";
+                case SharpenerSettingsActions.MANUAL_HIGHLIGHTER_LIMIT -> "Limit Logger inspection to 64 KiB per HTTP message";
+                default -> switch (control.label()) {
                 case "PwnFox Highlighter" -> "PwnFox highlighting";
                 case "PwnFox: Remove the color header" -> "Remove the X-PwnFox-Color request header";
                 default -> control.label();
+                };
             };
             JCheckBox check = checkbox(control.path(), label);
-            if (control.label().startsWith("PwnFox:")) check.setBorder(BorderFactory.createEmptyBorder(0, 22, 0, 0));
+            if (control.label().startsWith("PwnFox:") || control.path().equals(SharpenerSettingsActions.MANUAL_HIGHLIGHTER_LIMIT))
+                check.setBorder(BorderFactory.createEmptyBorder(0, 22, 0, 0));
             capabilities.add(check);
         }
         JPanel diagnostics = card(global, "Diagnostics and updates", "Update checks are optional and contact the project on GitHub.");

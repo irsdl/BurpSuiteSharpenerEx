@@ -22,6 +22,7 @@ public final class FullUiExtension implements BurpExtension {
                 Path loaded=Path.of(ExtensionMainClass.class.getProtectionDomain().getCodeSource().getLocation().toURI()).toRealPath();
                 if(!jar.equals(loaded))throw new IllegalStateException("Sharpener classes were not loaded from the requested packaged jar");
                 report=new FullUiReport(directory,FullUiReport.sha256(jar));
+                report.host.put("harness_sha256",FullUiReport.sha256(Path.of(FullUiCases.class.getProtectionDomain().getCodeSource().getLocation().toURI())));
                 report.host.put("burp_build",String.valueOf(api.burpSuite().version().buildNumber()));
                 report.host.put("edition",api.burpSuite().version().edition().name());
                 String expected=System.getProperty("sharpener.fullUi.edition","auto");

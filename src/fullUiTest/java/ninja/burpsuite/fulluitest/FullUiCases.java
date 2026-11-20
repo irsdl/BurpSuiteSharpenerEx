@@ -93,6 +93,7 @@ final class FullUiCases {
             check("context-menu",this::contextMenus);
             check("proxy-highlighting",()->{traffic=new ProxyHighlightingCases(real,p,report);traffic.proxy();});
             check("logger-highlighting",()->{if(traffic==null)throw new Ui.Blocked("Proxy fixtures unavailable");try{traffic.logger();}finally{traffic.close();}});
+            check("highlighter-performance",()->new ManualHighlighterPerformanceCases(p,report).run());
             check("request-editor",this::requestEditor);
             check("optional-ui",()->{
                 Ui.require(!p.features.hasSuiteTab && !p.features.hasHttpResponseEditor,"Optional feature flags changed: add functional cases before enabling placeholders");
@@ -245,6 +246,20 @@ final class FullUiCases {
             Ui.require(p.preferences.safeGetBooleanSetting(entry.getValue())!=before,"Global preference did not toggle");top("Global Settings/"+entry.getKey());
         }
         for(String path:topPaths("Global Settings/Supported Capabilities/")){top(path);top(path);}
+        String limit=ninja.burpsuite.extension.sharpener.uiSelf.settings.SharpenerSettingsActions.MANUAL_HIGHLIGHTER_LIMIT;
+        if(!nativeMode)Ui.run(()->{
+            var enabled=Ui.item(p.topMenuBar,ninja.burpsuite.extension.sharpener.uiSelf.settings.SharpenerSettingsActions.MANUAL_HIGHLIGHTER_ENABLED);
+            var inspection=Ui.item(p.topMenuBar,limit);
+            Ui.require(enabled.getParent()==inspection.getParent()&&enabled.getParent() instanceof JPopupMenu popup
+                    &&popup.getInvoker() instanceof JMenu group&&group.getText().equals("Manual Highlighter (Proxy and Logger)"),"Manual highlighting and its limit must share one submenu");
+        });
+        String key=ninja.burpsuite.extension.sharpener.capabilities.implementations.ManualHighlighterSettings.LIMIT_LOGGER_INSPECTION_SETTING_NAME;
+        boolean saved=p.preferences.safeGetBooleanSetting(key);
+        top(limit);Ui.require(p.preferences.safeGetBooleanSetting(key)!=saved,"Logger inspection preference did not change");
+        closeSettings();if(nativeMode)try{openSettings();}catch(Exception failure){throw new IllegalStateException(failure);}
+        Ui.run(()->{if(!nativeMode)p.topMenuBar.updateTopMenuBar();});
+        Ui.require(Ui.edt(()->Ui.settings(settingsRoot()).get(limit).isSelected())==!saved,"Reopened limit checkbox lost preference");
+        top(limit);Ui.require(p.preferences.safeGetBooleanSetting(key)==saved,"Logger inspection preference did not restore");
         for(String path:topPaths("Global Settings/Debug Settings/"))top(path);
         top("Global Settings/Debug Settings/Disabled");
     }

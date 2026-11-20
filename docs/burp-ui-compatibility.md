@@ -101,6 +101,14 @@ separate unresolved build/CI admission and provenance gates.
 
 ## Unreleased native settings surface
 
+The separate [manual highlighter performance change](manual-highlighter-performance.md)
+adds the default-on Logger inspection limit to both existing configuration
+surfaces. Its source-bound Windows Professional 2026.11.2 evidence is recorded
+in [manual-highlighter-performance-validation.json](manual-highlighter-performance-validation.json):
+387 headless tests, 27 live groups and 228 benchmark comparisons pass. Clipboard
+is blocked, eight manual groups and current Community/EA/other-OS coverage remain
+pending. This does not turn the full suite or the host matrix into a pass.
+
 Every supported host retains the complete Sharpener menu. Supporting hosts
 also offer Settings > Extensions > Sharpener as an optional configuration page. Native panel registration and optional
 Settings navigation are checked separately. See [the migration inventory and

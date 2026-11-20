@@ -41,6 +41,7 @@ class SettingsUiTest {
             // Each fixture models its own extension classloader and the unchanged canonical keys.
             Set<String> keys = new HashSet<>(List.of("checkForUpdate", "debugLevel", "ToolsThemeName", "ToolsThemeCustomPath", "ToolsIconSize", "isToolTabPaneScrollable", "BurpTitle", "BurpResourceIconName", "BurpIconCustomPath", "LastBurpIconCustomPath", "useLastScreenPositionAndSize", "detectOffScreenPosition", "lastApplicationPosition", "lastApplicationSize", "customShortcutsV2", "pwnFoxSupportCapability", "pwnFoxRemoveColorHeader", "manualHighlightCapability"));
             for (var tool : BurpUITools.MainTabs.values()) keys.add("isUnique_" + tool);
+            keys.add(ManualHighlighterSettings.LIMIT_LOGGER_INSPECTION_SETTING_NAME);
             for (String key : keys) if (NameManager.isReserved(key)) NameManager.release(key);
             new MainTabsSettings(p); new BurpFrameSettings(p);
             p.preferences.register("checkForUpdate", boolean.class, false);
@@ -143,6 +144,12 @@ class SettingsUiTest {
         BurpUIDiscovery.onEdt(() -> {
             JPanel content = new JPanel(); SettingsPanelView panel = new SettingsPanelView(p, content); owned.add(panel);
             TopMenu menu = new TopMenu(p); owned.add(menu);
+            AbstractButton manualEnabled=button(menu,SharpenerSettingsActions.MANUAL_HIGHLIGHTER_ENABLED);
+            AbstractButton manualLimit=button(menu,SharpenerSettingsActions.MANUAL_HIGHLIGHTER_LIMIT);
+            assertEquals("Enabled",manualEnabled.getText());assertEquals("Limit Logger inspection to 64 KiB",manualLimit.getText());
+            assertSame(manualEnabled.getParent(),manualLimit.getParent(),"The inspection limit belongs inside the Manual Highlighter submenu");
+            assertEquals("Manual Highlighter (Proxy and Logger)",((JMenu)((JPopupMenu)manualEnabled.getParent()).getInvoker()).getText());
+            assertTrue(button(content,SharpenerSettingsActions.MANUAL_HIGHLIGHTER_LIMIT).getInsets().left>button(content,SharpenerSettingsActions.MANUAL_HIGHLIGHTER_ENABLED).getInsets().left);
             for (Component view : List.of(content, menu)) {
                 p.preferences.set("detectOffScreenPosition", true);
                 // Deliberately stale view: the explicit selected value, not the cached preference, wins.
@@ -151,6 +158,12 @@ class SettingsUiTest {
                 assertEquals("false", store.globalStore.get("detectOffScreenPosition"));
                 button(view, "Global Settings/Supported Capabilities/PwnFox: Remove the color header").doClick(0);
                 assertEquals(String.valueOf(p.preferences.safeGetBooleanSetting("pwnFoxRemoveColorHeader")), store.globalStore.get("pwnFoxRemoveColorHeader"));
+                String limitPath=SharpenerSettingsActions.MANUAL_HIGHLIGHTER_LIMIT;
+                p.preferences.set(ManualHighlighterSettings.LIMIT_LOGGER_INSPECTION_SETTING_NAME,false);
+                button(view,limitPath).setSelected(true);button(view,limitPath).doClick(0);
+                assertEquals("false",store.globalStore.get(ManualHighlighterSettings.LIMIT_LOGGER_INSPECTION_SETTING_NAME),"Explicit selection wins over stale stored state");
+                button(view,limitPath).doClick(0);
+                assertEquals("true",store.globalStore.get(ManualHighlighterSettings.LIMIT_LOGGER_INSPECTION_SETTING_NAME));
             }
             JFrame frame = mock(JFrame.class); when(p.get_mainFrameUsingMontoya()).thenReturn(frame); when(frame.getTitle()).thenReturn("Original");
             actions.setTitle("Custom"); assertEquals("\"Custom\"", store.projectStore.get("BurpTitle")); assertFalse(store.globalStore.containsKey("BurpTitle"));

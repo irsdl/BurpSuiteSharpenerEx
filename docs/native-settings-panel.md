@@ -1,9 +1,10 @@
 # Sharpener menu and optional native Settings (unreleased)
 
-Initial migration prepared 2026-11-19; usability correction 2026-11-20. Version remains 4.93 while this work is unreleased. No new
-dependency, toolchain, preference store, highlighter algorithm or version floor
-is introduced. Existing JSON serialization and registration/defaults remain in
-the settings classes and vendored preferences library.
+Initial migration prepared 2026-11-19; usability correction 2026-11-20. Development version 4.94 remains unreleased; earlier host evidence records the tested 4.93 jars. No new
+dependency, toolchain, preference store or version floor is introduced. Existing
+JSON serialization and registration/defaults remain in the settings classes and
+vendored preferences library. The separate [manual highlighter performance work](manual-highlighter-performance.md)
+adds one global inspection preference to both configuration surfaces.
 
 ## Settings and actions inventory
 
@@ -20,7 +21,8 @@ it does not delete arbitrary user data. Controls use explicit selected values.
 | Scrollable tool pane | `isToolTabPaneScrollable` / boolean / global | false | Set scroll/wrap policy on the EDT when a tool pane is available. |
 | Remember window geometry | `useLastScreenPositionAndSize` / boolean / global | false | Existing frame listeners save/apply geometry; stored `lastApplicationPosition` (Point) and `lastApplicationSize` (Dimension) default null. |
 | Off-screen recovery | `detectOffScreenPosition` / boolean / global | true | Existing window listener performs recovery. |
-| Manual Highlighter (Proxy and Logger) | `manualHighlightCapability` / boolean / global | true | Existing HTTP/WebSocket handlers read the same capability state. No cutoff exists in this branch. |
+| Manual Highlighter (Proxy and Logger) > Enabled | `manualHighlightCapability` / boolean / global | true | HTTP/WebSocket handlers read the same capability state. Disabling preserves the saved inspection limit. |
+| Manual Highlighter (Proxy and Logger) > Limit Logger inspection to 64 KiB | `manualHighlightLimitLoggerInspection` / boolean / global | true | Grouped under its feature in the menu and indented below its enable checkbox in Settings. General HTTP callbacks inspect the first 65,536 raw bytes when enabled, complete messages otherwise. Immediate effect; reset-all restores true. Proxy rewriting and WebSocket semantics remain unchanged. |
 | PwnFox Highlighter | `pwnFoxSupportCapability` / boolean / global | true | Existing Proxy handler reads the same state. |
 | PwnFox header removal | `pwnFoxRemoveColorHeader` / boolean / global | true | Existing handler removes/retains `X-PwnFox-Color`. |
 | Debug level | `debugLevel` / integer / global | 0 (Disabled) | Same `DebugLevels` enum; update the runtime debug level and preference. |
@@ -37,6 +39,11 @@ Sub-tab styles, context-menu actions and shortcuts continue to use the existing
 project style maps and global shortcut backend. They are not a second Settings
 store. The keyboard editor retains its Save/Close editing semantics; the settings
 panel itself introduces no Apply/Cancel transaction.
+
+The Manual Highlighter menu groups **Enabled** and **Limit Logger inspection to
+64 KiB** in one submenu. The optional form labels the feature **Enable manual
+highlighting in Proxy and Logger**, with its inspection option indented beneath
+it. See the [grouping validation](manual-highlighter-menu-validation.json).
 
 ## Optional API and lifecycle
 

@@ -1,9 +1,12 @@
 # Change History
 
-## Unreleased
+## Version 4.94 (2026-11-20)
+
+Unreleased.
 
 - Keep the full Sharpener menu on every supported host and add an optional native Settings page.
 - Organize optional Settings into Global and Project tabs with compact selectors, aligned fields and immediate preference updates.
+- Limit Logger marker inspection to the first 65,536 raw HTTP message bytes by default, with a saved option grouped under Manual Highlighter for complete inspection. Scan bytes without whole-message String conversion; Proxy rewriting and WebSocket handling retain their existing behavior.
 
 ## Version 4.93 (2026-11-18)
 

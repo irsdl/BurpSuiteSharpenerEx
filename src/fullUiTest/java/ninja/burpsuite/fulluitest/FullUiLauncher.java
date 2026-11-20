@@ -47,6 +47,13 @@ public final class FullUiLauncher {
                 "-Dsharpener.fullUi.jar="+extension,"-Dsharpener.fullUi.clipboard="+options.containsKey("--clipboard"),
                 "-Dsharpener.fullUi.edition="+edition));
         List<String> command=new ArrayList<>();
+        if(options.containsKey("--highlighter-baseline-jar")) {
+            Path baseline=requiredFile(options,"--highlighter-baseline-jar");
+            String hash=Objects.requireNonNull(options.get("--highlighter-baseline-sha256"),"Baseline SHA-256 required");
+            if(!FullUiReport.sha256(baseline).equalsIgnoreCase(hash))throw new IllegalArgumentException("Baseline SHA-256 mismatch");
+            vm.add("-Dsharpener.fullUi.highlighterBaseline="+baseline);
+            vm.add("-Dsharpener.fullUi.highlighterBaselineSha256="+hash);
+        }
         if(options.containsKey("--native-launcher")) {
             Path launcher=requiredFile(options,"--native-launcher");command.add(launcher.toString());
             vm.forEach(value->command.add("-J"+value));

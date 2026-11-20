@@ -45,6 +45,36 @@ Refer to the "Burp Suite Compatibility and Reporting Errors" section for detaile
 * Ability to highlight HTTP and WebSocket requests and responses in proxy by detecting the "permcolorCOLORNAME" pattern
 * Logger HTTP highlighting using the same markers, including traffic sent by other Burp tools
 
+## Manual highlighting inspection (unreleased)
+
+Logger highlighting inspects the **first 65,536 raw bytes of each HTTP message**
+by default, including the request/status line, headers and body. URL and header
+markers can still highlight messages with large bodies. A complete marker must
+fit within that range; markers beyond it or crossing the boundary are ignored.
+An unusually long URL or header section can consume the entire allowance.
+
+For complete inspection, turn off **Sharpener > Global Settings > Supported
+Capabilities > Manual Highlighter (Proxy and Logger) > Limit Logger inspection
+to 64 KiB**. Its **Enabled** checkbox controls the feature; the limit is an option
+inside that same submenu. The
+optional Settings page has the same option under Traffic highlighting. The
+global choice persists while the capability is disabled and takes effect on
+subsequent messages without reloading. Reset-all restores the default limit.
+Full inspection still costs time proportional to the message size.
+
+Requests prefer the first valid `tempcolorCOLORNAME` in the inspected range,
+otherwise the first `permcolorCOLORNAME`; responses use only permanent markers.
+Non-Proxy HTTP traffic is annotated without changing its bytes. The scanner
+does not filter by content type, decode or decompress bodies.
+
+Proxy still searches complete messages and removes **all** recognized temporary
+request markers, including those beyond 65,536 bytes. Its existing bounded
+temporary-color cache supplies Logger annotations before scanning, subject to
+its existing eviction limits. A late permanent marker can therefore color Proxy
+history while its separate Logger entry stays unchanged; disabling the limit
+restores complete Logger detection. Proxy rewriting and text WebSocket work can
+still be expensive. See the [implementation and measurements](docs/manual-highlighter-performance.md).
+
 ## Burp Suite Compatibility and Reporting Errors
 
 Sharpener targets current Burp Stable and Early Adopter, including Community Edition, with priority on roughly the preceding year and Windows automation. An earlier Windows Professional EA 2026.11 jar passed 23 automated UI groups, including Proxy/Logger marker colouring; an earlier Community 2026.3.3 jar passed 21. The expanded Community rerun timed out at startup. Full UI/clipboard/manual and other-OS validation is deferred for 4.93 by the maintainer, not recorded as passed. See the [retained observations and limitations](docs/full-ui-validation.json) and [release approval](docs/release-4.93-approval.json).

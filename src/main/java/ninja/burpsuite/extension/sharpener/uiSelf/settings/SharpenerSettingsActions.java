@@ -5,6 +5,7 @@ package ninja.burpsuite.extension.sharpener.uiSelf.settings;
 
 import ninja.burpsuite.extension.sharpener.*;
 import ninja.burpsuite.extension.sharpener.capabilities.implementations.PwnFoxSettings;
+import ninja.burpsuite.extension.sharpener.capabilities.implementations.ManualHighlighterSettings;
 import ninja.burpsuite.extension.sharpener.uiControllers.mainTabs.MainTabsStyleHandler;
 import ninja.burpsuite.extension.sharpener.uiControllers.shortcuts.ShortcutsDialog;
 import ninja.burpsuite.libs.burp.generic.*;
@@ -22,6 +23,9 @@ import java.util.function.*;
 
 /** Shared control definitions and effects. Existing settings classes still own registration/defaults. */
 public final class SharpenerSettingsActions implements AutoCloseable {
+    public static final String MANUAL_HIGHLIGHTER_PATH = "Global Settings/Supported Capabilities/Manual Highlighter (Proxy and Logger)/";
+    public static final String MANUAL_HIGHLIGHTER_ENABLED = MANUAL_HIGHLIGHTER_PATH + "Enabled";
+    public static final String MANUAL_HIGHLIGHTER_LIMIT = MANUAL_HIGHLIGHTER_PATH + "Limit Logger inspection to 64 KiB";
     public static final String BURP_ICON_FOLDER = "icons";
     public static final int BURP_ICON_MENU_WIDTH = 16;
     public enum Kind { ACTION, CHECK, RADIO }
@@ -129,7 +133,12 @@ public final class SharpenerSettingsActions implements AutoCloseable {
         c.add(check("Global Settings/Use Last Screen Position And Size When Opened", "useLastScreenPositionAndSize"));
         c.add(check("Global Settings/Detect Off Screen Window Position", "detectOffScreenPosition"));
         for (var setting : p.allSettings.capabilitySettingsList) {
-            c.add(new Control("Global Settings/Supported Capabilities/" + setting.capability.name, Kind.CHECK, setting.capability.description, setting::isEnabled, setting::setEnabled, null));
+            if (setting instanceof ManualHighlighterSettings manual) {
+                c.add(new Control(MANUAL_HIGHLIGHTER_ENABLED, Kind.CHECK, setting.capability.description, setting::isEnabled, setting::setEnabled, null));
+                c.add(new Control(MANUAL_HIGHLIGHTER_LIMIT, Kind.CHECK,
+                        "Inspect only the first 65,536 bytes of each HTTP message for Logger highlighting. Turn off to inspect complete messages. Proxy temporary-marker removal is unchanged.",
+                        manual::isLoggerInspectionLimited, manual::setLoggerInspectionLimited, null));
+            } else c.add(new Control("Global Settings/Supported Capabilities/" + setting.capability.name, Kind.CHECK, setting.capability.description, setting::isEnabled, setting::setEnabled, null));
             if (setting instanceof PwnFoxSettings fox)
                 c.add(new Control("Global Settings/Supported Capabilities/PwnFox: Remove the color header", Kind.CHECK,
                         "Remove X-PwnFox-Color before sending; disable to keep it for other tools.", fox::isHeaderRemovalEnabled, fox::setHeaderRemovalEnabled, null));
