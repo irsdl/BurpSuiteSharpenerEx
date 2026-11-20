@@ -15,6 +15,7 @@ import burp.api.montoya.proxy.ProxyHttpRequestResponse;
 import com.google.gson.*;
 import ninja.burpsuite.extension.sharpener.ExtensionSharedParameters;
 import ninja.burpsuite.extension.sharpener.capabilities.objects.CapabilitySettings;
+import ninja.burpsuite.extension.sharpener.capabilities.implementations.ManualHighlighterSettings;
 import ninja.burpsuite.libs.burp.generic.*;
 import javax.swing.*;
 import java.awt.*;
@@ -43,6 +44,7 @@ final class ProxyHighlightingCases implements AutoCloseable {
     final List<Registration> observers=new ArrayList<>();
     final CapabilitySettings setting;
     final boolean initiallyEnabled;
+    final boolean initiallyLimited;
     String originalOptions;
     boolean userOptions;
     boolean originallyIntercepting, closed, proxyPassed;
@@ -53,6 +55,7 @@ final class ProxyHighlightingCases implements AutoCloseable {
         this.api=api;this.parameters=parameters;this.report=report;
         setting=parameters.allSettings.capabilitySettingsList.stream().filter(c->c.capability.settingName.equals("manualHighlightCapability")).findFirst().orElseThrow();
         initiallyEnabled=setting.isEnabled();
+        initiallyLimited=((ManualHighlighterSettings)setting).isLoggerInspectionLimited();
         origin=new ServerSocket(0,16,InetAddress.getByName("127.0.0.1"));
         server=Thread.ofPlatform().daemon().name("SharpenerLocalHighlightFixture").start(this::serve);
     }
@@ -67,13 +70,14 @@ final class ProxyHighlightingCases implements AutoCloseable {
         JsonArray listeners=new JsonArray();listeners.add(listener);proxy.add("request_listeners",listeners);
         if(userOptions)api.burpSuite().importUserOptionsFromJson(config.toString());else api.burpSuite().importProjectOptionsFromJson(config.toString());api.proxy().disableIntercept();
         Ui.run(()->setting.setEnabled(true));
+        Ui.run(()->((ManualHighlighterSettings)setting).setLoggerInspectionLimited(true));
         observers.add(api.proxy().registerRequestHandler(new ProxyRequestHandler(){
             public ProxyRequestReceivedAction handleRequestReceived(InterceptedRequest request){observe(request.headerValue("X-Sharpener-Test"),"proxy",request.messageId(),request.annotations().highlightColor());return ProxyRequestReceivedAction.continueWith(request,request.annotations());}
             public ProxyRequestToBeSentAction handleRequestToBeSent(InterceptedRequest request){return ProxyRequestToBeSentAction.continueWith(request,request.annotations());}
         }));
         observers.add(api.http().registerHttpHandler(new HttpHandler(){
             public RequestToBeSentAction handleHttpRequestToBeSent(HttpRequestToBeSent request){observe(request.headerValue("X-Sharpener-Test"),"http",request.messageId(),request.annotations().highlightColor());return RequestToBeSentAction.continueWith(request,request.annotations());}
-            public ResponseReceivedAction handleHttpResponseReceived(HttpResponseReceived response){return ResponseReceivedAction.continueWith(response,response.annotations());}
+            public ResponseReceivedAction handleHttpResponseReceived(HttpResponseReceived response){observe(response.initiatingRequest().headerValue("X-Sharpener-Test"),"http_response",response.messageId(),response.annotations().highlightColor());return ResponseReceivedAction.continueWith(response,response.annotations());}
         }));
         await(()->{try(Socket socket=new Socket()){socket.connect(new InetSocketAddress("127.0.0.1",proxyPort),200);return true;}catch(IOException waiting){return false;}},"Loopback Proxy listener did not start");
         exchange("control","","plain","",HighlightColor.NONE);
@@ -89,6 +93,17 @@ final class ProxyHighlightingCases implements AutoCloseable {
         exchange("disabled","tempcolorred","plain","permcolorblue",HighlightColor.NONE);
         Ui.require(received.get(ids.get("disabled")).target().contains("tempcolorred"),"Disabled highlighter changed request");
         Ui.run(()->setting.setEnabled(true));
+        for(boolean limited:List.of(true,false)) {
+            Ui.run(()->((ManualHighlighterSettings)setting).setLoggerInspectionLimited(limited));
+            String suffix=limited?"limited":"unlimited";
+            exchange("large-temporary-"+suffix,"permcolorblue","x".repeat(100_000)+"tempcolorred-tail-tempcolorblue","",HighlightColor.RED);
+            Wire large=received.get(ids.get("large-temporary-"+suffix));
+            Ui.require(!large.body().contains("tempcolor")&&large.body().endsWith("-tail-"),"Large Proxy request did not remove every temporary marker");
+            Ui.require(large.contentLength()==large.body().length(),"Large rewritten Content-Length changed");
+            exchange("late-permanent-"+suffix,"","x".repeat(100_000)+"permcolorblue","",HighlightColor.BLUE);
+            exchange("late-response-"+suffix,"","plain","x".repeat(100_000)+"permcolorgreen",HighlightColor.GREEN);
+        }
+        Ui.run(()->((ManualHighlighterSettings)setting).setLoggerInspectionLimited(true));
         select(BurpUITools.MainTabs.Proxy);
         Ui.run(()->{
             Component content=BurpUIDiscovery.toolContent(parameters.get_rootTabbedPaneUsingMontoya(),BurpUITools.MainTabs.Proxy);
@@ -115,6 +130,34 @@ final class ProxyHighlightingCases implements AutoCloseable {
         for(var fixture:Map.of("control",HighlightColor.NONE,"temporary",HighlightColor.RED,"permanent",HighlightColor.BLUE,"response",HighlightColor.GREEN).entrySet())
             Ui.require(Objects.equals(evidence.get("logger_"+fixture.getKey()),palette.get(fixture.getValue())),"Logger row colour differs from Proxy "+fixture.getValue()+" for "+fixture.getKey());
         Ui.require(Objects.equals(evidence.get("logger_other_tool"),palette.get(HighlightColor.RED)),"Other-tool Logger marker did not change rendered colour");
+        Set<Integer> uncoloredBackgrounds=new HashSet<>(List.of(rowBackground(BurpUITools.MainTabs.Logger,ids.get("unknown")),rowBackground(BurpUITools.MainTabs.Logger,ids.get("disabled"))));
+        evidence.put("uncolored_logger_backgrounds",uncoloredBackgrounds);
+        for(boolean limited:List.of(true,false)) {
+            String suffix=limited?"limited":"unlimited";
+            for(String fixture:List.of("large-temporary-","late-permanent-","late-response-")) {
+                String name=fixture+suffix,idValue=ids.get(name);
+                await(()->messageIds.containsKey(idValue)&&messageIds.get(idValue).containsKey("http_response_color"),"Missing Logger observer result: "+name);
+                var observed=messageIds.get(idValue);
+                HighlightColor expected=fixture.equals("large-temporary-")?HighlightColor.RED:limited?HighlightColor.NONE:fixture.equals("late-permanent-")?HighlightColor.BLUE:HighlightColor.GREEN;
+                String stage=fixture.equals("late-response-")?"http_response_color":"http_color";
+                Ui.require(expected.name().equals(observed.get(stage)),"Logger cutoff mismatch for "+name+": "+observed);
+                int background=rowBackground(BurpUITools.MainTabs.Logger,idValue);
+                evidence.put("logger_"+name,Map.of("callback_color",observed.get(stage),"rendered_background",background,"expected_background",palette.get(expected)));save();
+                Ui.require(expected==HighlightColor.NONE?uncoloredBackgrounds.contains(background):background==palette.get(expected),"Logger rendered cutoff colour mismatch: "+name+" callback="+observed.get(stage)+" actual="+background+" expected="+palette.get(expected));
+            }
+            Ui.run(()->((ManualHighlighterSettings)setting).setLoggerInspectionLimited(limited));
+            for(String placement:List.of("small","early","late")) {
+                String other=id("other-"+placement+"-"+suffix);replies.put(other,"reply tempcolorred");
+                String body=switch(placement){case "small"->"tempcolorred";case "early"->"tempcolorred"+"x".repeat(100_000);default->"x".repeat(100_000)+"tempcolorred";};
+                var sentRequest=HttpRequest.httpRequest(HttpService.httpService("127.0.0.1",origin.getLocalPort(),false),"POST /"+other+" HTTP/1.1\r\nHost: 127.0.0.1:"+origin.getLocalPort()+"\r\nX-Sharpener-Test: "+other+"\r\nContent-Length: "+body.length()+"\r\nConnection: close\r\n\r\n"+body);
+                var result=api.http().sendRequest(sentRequest);
+                await(()->received.containsKey(other)&&messageIds.containsKey(other)&&messageIds.get(other).containsKey("http_color"),"Other-tool body marker did not reach Logger");
+                Ui.require(received.get(other).body().equals(body),"Non-Proxy body was rewritten");
+                Ui.require((limited&&!placement.equals("small")?"NONE":"RED").equals(messageIds.get(other).get("http_color")),"Non-Proxy body-marker limit mismatch: "+placement);
+                Ui.require(Arrays.equals(result.request().toByteArray().getBytes(),sentRequest.toByteArray().getBytes()),"Non-Proxy request content changed");
+            }
+        }
+        evidence.put("logger_cutoff","Verified Content-Length hint plus actual-size guard: small bodies inspected, large early/late bodies skipped with the limit on, complete inspection with it off, response prefixes, cached Proxy colours and unchanged wire bytes");save();
     }
     String id(String name){return "sharpener-highlight-"+name+"-"+UUID.randomUUID().toString().substring(0,8);}
     void observe(String id,String stage,int number,HighlightColor color){if(id!=null&&id.startsWith("sharpener-highlight-")){var values=messageIds.computeIfAbsent(id,ignored->new ConcurrentHashMap<>());values.put(stage+"_id",number);values.put(stage+"_color",color.name());}}
@@ -135,7 +178,7 @@ final class ProxyHighlightingCases implements AutoCloseable {
         byte[] payload=body.getBytes(StandardCharsets.ISO_8859_1);
         String target="/"+id+"/"+marker;
         String raw="POST http://127.0.0.1:"+origin.getLocalPort()+target+" HTTP/1.1\r\nHost: 127.0.0.1:"+origin.getLocalPort()+"\r\nX-Sharpener-Test: "+id+"\r\nContent-Length: "+payload.length+"\r\nConnection: close\r\n\r\n"+body;
-        try(Socket socket=new Socket("127.0.0.1",proxyPort)){socket.setSoTimeout(10000);socket.getOutputStream().write(raw.getBytes(StandardCharsets.ISO_8859_1));socket.getOutputStream().flush();String response=new String(socket.getInputStream().readNBytes(65536),StandardCharsets.ISO_8859_1);Ui.require(response.contains("200 OK"),"Proxy fixture did not get successful origin response");}
+        try(Socket socket=new Socket("127.0.0.1",proxyPort)){socket.setSoTimeout(10000);socket.getOutputStream().write(raw.getBytes(StandardCharsets.ISO_8859_1));socket.getOutputStream().flush();String response=new String(socket.getInputStream().readNBytes(524288),StandardCharsets.ISO_8859_1);Ui.require(response.contains("200 OK"),"Proxy fixture did not get successful origin response");}
         await(()->received.containsKey(id)&&history(id)!=null&&history(id).response()!=null,"Proxy history did not capture fixture "+name);
         ProxyHttpRequestResponse message=history(id);
         Ui.require(message.annotations().highlightColor()==expected,"Proxy "+name+" expected "+expected+" but got "+message.annotations().highlightColor());
@@ -175,7 +218,7 @@ final class ProxyHighlightingCases implements AutoCloseable {
                 socket.setSoTimeout(5000);InputStream input=socket.getInputStream();String first=line(input);if(first.isBlank())continue;
                 StringBuilder headers=new StringBuilder();String id="";int length=0;
                 for(int count=0;count<100;count++){String header=line(input);if(header.isEmpty())break;headers.append(header).append('\n');int colon=header.indexOf(':');if(colon>0){String key=header.substring(0,colon);String value=header.substring(colon+1).strip();if(key.equalsIgnoreCase("Content-Length"))length=Integer.parseInt(value);if(key.equalsIgnoreCase("X-Sharpener-Test"))id=value;}}
-                if(length<0||length>65536)throw new IOException("Fixture body limit exceeded");byte[] body=input.readNBytes(length);if(body.length!=length)throw new EOFException("Origin body shorter than Content-Length");
+                if(length<0||length>524288)throw new IOException("Fixture body limit exceeded");byte[] body=input.readNBytes(length);if(body.length!=length)throw new EOFException("Origin body shorter than Content-Length");
                 received.put(id,new Wire(first,headers.toString(),new String(body,StandardCharsets.ISO_8859_1),length));
                 byte[] reply=replies.getOrDefault(id,"").getBytes(StandardCharsets.ISO_8859_1);
                 OutputStream output=socket.getOutputStream();output.write(("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: "+reply.length+"\r\nConnection: close\r\n\r\n").getBytes(StandardCharsets.ISO_8859_1));output.write(reply);output.flush();
@@ -187,6 +230,7 @@ final class ProxyHighlightingCases implements AutoCloseable {
         if(closed)return;closed=true;origin.close();server.join(2000);
         for(Registration observer:observers)observer.deregister();
         Ui.run(()->setting.setEnabled(initiallyEnabled));
+        Ui.run(()->((ManualHighlighterSettings)setting).setLoggerInspectionLimited(initiallyLimited));
         if(originalOptions!=null){if(userOptions)api.burpSuite().importUserOptionsFromJson(originalOptions);else api.burpSuite().importProjectOptionsFromJson(originalOptions);if(originallyIntercepting)api.proxy().enableIntercept();else api.proxy().disableIntercept();}
     }
 }

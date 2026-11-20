@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "approved": true,
+  "version": "4.94",
+  "tag": "main_4.94",
+  "repository": "irsdl/BurpSuiteSharpenerEx",
+  "human_approver": "irsdl (repository maintainer and current user)",
+  "approval_recorded_utc": "2026-11-20T20:06:09.278809+00:00",
+  "prepared_utc": "2026-11-20T18:36:03.751349+00:00",
+  "expires_utc": "2026-11-27T20:06:09.278809+00:00",
+  "instruction": "User answered the explicit 4.94 evidence-gap acceptance question with: \"release 4.94\". The preceding request also authorizes successful GitHub builds, publication, updating PortSwigger/sharpener PR #6 and providing a portal comment for manual posting.",
+  "scope": "Publish GitHub 4.94 from reviewed main after passing Linux/Windows checks and exact tested Windows/publisher jar identity. Accept only the listed incomplete host/UI/Community/clipboard/manual/provenance and historical evidence findings. Update existing PortSwigger/sharpener PR #6. No applicable unpatched vulnerability, failed automated check, wrong artifact, unrelated input or BApp certification waiver. No portal comment will be posted automatically.",
+  "deferred_criteria": [
+    3,
+    5,
+    6,
+    8,
+    9,
+    10
+  ],
+  "deferred_finding_ids": [
+    "deferred-1",
+    "deferred-2",
+    "deferred-3",
+    "deferred-4",
+    "deferred-5",
+    "deferred-6",
+    "deferred-7",
+    "deferred-8",
+    "installed-windows-icon"
+  ],
+  "deferred_findings": [
+    {
+      "id": "deferred-1",
+      "finding": "The ten identified Gradle/Guava advisories are fixed by the exact human-approved local composition. Complete native/shaded/build inventory, publisher provenance and managed-runner evidence remain incomplete.",
+      "status": "deferred-by-maintainer-for-4.94",
+      "verified": false
+    },
+    {
+      "id": "deferred-2",
+      "finding": "Complete Stable and Windows/macOS/Linux channel matrix, including real host persistence/reload, remains unverified.",
+      "status": "deferred-by-maintainer-for-4.94",
+      "verified": false
+    },
+    {
+      "id": "deferred-3",
+      "finding": "Live offline, multi-monitor/dialog, large-project responsiveness and memory evidence absent.",
+      "status": "deferred-by-maintainer-for-4.94",
+      "verified": false
+    },
+    {
+      "id": "deferred-4",
+      "finding": "Advertised historical minimum Burp/API compatibility and final BApp/release metadata need reconciliation.",
+      "status": "deferred-by-maintainer-for-4.94",
+      "verified": false
+    },
+    {
+      "id": "deferred-5",
+      "finding": "Real macOS/Linux host and visual taskbar/pinned-launcher evidence absent; Windows/macOS/Linux x Stable/Early Adopter matrix required.",
+      "status": "deferred-by-maintainer-for-4.94",
+      "verified": false
+    },
+    {
+      "id": "deferred-6",
+      "finding": "Latest 4.94 Windows Professional 2026.11.2 run has 27 PASS, zero FAIL, clipboard opt-in BLOCKED and eight manual groups pending. Current Community results and the six-host/channel matrix remain incomplete.",
+      "status": "deferred-by-maintainer-for-4.94",
+      "verified": false
+    },
+    {
+      "id": "deferred-7",
+      "finding": "Historical expanded Community rerun timed out at startup without assertions. No current 4.94 Community regression is available; earlier 21 PASS apply only to their original jar/catalog. No new activation is authorized.",
+      "status": "deferred-by-maintainer-for-4.94",
+      "verified": false
+    },
+    {
+      "id": "deferred-8",
+      "finding": "Historical raw full UI reports were removed by an earlier clean build. Current 4.94 raw reports are retained outside build and bound by hashes in docs/manual-highlighter-size-guard-validation.json; historical raw evidence cannot be recovered.",
+      "status": "deferred-by-maintainer-for-4.94",
+      "verified": false
+    },
+    {
+      "id": "installed-windows-icon",
+      "finding": "Maintainer reports installed Windows main/taskbar icon does not change even unpinned; retained as a known limitation for 4.94. Detached-window behaviour is separate.",
+      "status": "known-issue-deferred-by-maintainer-for-4.94",
+      "verified": false
+    }
+  ],
+  "community_basis": "Shared APIs imply an expectation only, not a completed 4.94 Community regression.",
+  "artifact_binding": "Release gate must emit source/jar/review/approval hashes and test results; read-only Windows build and isolated publisher must have identical jar SHA-256.",
+  "owner": "irsdl",
+  "bapp_submission_authorized": true,
+  "security_recheck": {
+    "evaluation_utc": "2026-11-20T18:34:36.353501+00:00",
+    "source": "https://api.osv.dev/v1/querybatch",
+    "queries": 99,
+    "query_sha256": "8add6e5026eee6dc5f34d2c9a4c740834caaa543efcbb4d387854157a656768a",
+    "response_sha256": "6869f5747a66a6ae280f6c176f78db753898fb2709e1d206e61461b6469e3668",
+    "matched_advisories": 0,
+    "coverage": "Unchanged 99 recorded runtime/test/metadata and identifiable Gradle Maven coordinates, including Gradle core and replacement Guava parent. Compare with docs/release-4.93-approval.json. Complete shaded/native provenance remains incomplete; no universal clean bill or new dependency admission."
+  },
+  "validation_record": "docs/manual-highlighter-size-guard-validation.json",
+  "record_time_basis": "Recording UTC; exact user-message timestamp was not supplied",
+  "bapp_submission_scope": "Update existing PortSwigger/sharpener PR #6 source and description only. Portal #599 comment is drafted for the user to post manually; no automated /reopen.",
+  "target_policy": "Current Stable/Early Adopter and approximately the preceding year; retain Windows/macOS/Linux code support. Partial Windows evidence is not a completed matrix.",
+  "automation_follow_up": "Keep the heavy suite opt-in. Automate practical Windows manual groups in future work; obtain real Community and other-OS/channel evidence when available."
+}

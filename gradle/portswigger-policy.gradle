@@ -100,18 +100,20 @@ def readReview = {
     new groovy.json.JsonSlurper().parse(reviewFile)
 }
 
-// The maintainer explicitly accepted the listed evidence gaps for GitHub 4.93.
+// Each release needs its own maintainer acceptance of the exact evidence gaps.
 // This path never turns an untested criterion into a pass or approves a BApp.
 def releaseException = { review ->
-    def approvalFile = file('docs/release-4.93-approval.json')
-    if (!approvalFile.isFile()) throw new GradleException('Missing maintainer release exception')
-    def approval = new groovy.json.JsonSlurper().parse(approvalFile)
     def properties = new Properties()
     file('src/main/resources/extension.properties').withInputStream { properties.load(it) }
+    def version = properties.getProperty('version')
+    if (!(version ==~ /[0-9]+\.[0-9]+/)) throw new GradleException('Invalid numeric release version')
+    def approvalFile = file("docs/release-${version}-approval.json")
+    if (!approvalFile.isFile()) throw new GradleException('Missing version-specific maintainer release exception')
+    def approval = new groovy.json.JsonSlurper().parse(approvalFile)
     def now = java.time.Instant.now()
     if (approval.schema_version != 1 || approval.approved != true ||
-            approval.version != '4.93' || properties.getProperty('version') != approval.version ||
-            approval.tag != 'main_4.93' || approval.repository != 'irsdl/BurpSuiteSharpenerEx' ||
+            approval.version != version ||
+            approval.tag != "main_${version}" || approval.repository != 'irsdl/BurpSuiteSharpenerEx' ||
             !approval.human_approver || !approval.instruction ||
             java.time.Instant.parse(approval.approval_recorded_utc).isAfter(now) ||
             !java.time.Instant.parse(approval.expires_utc).isAfter(now) ||
@@ -200,8 +202,8 @@ tasks.register('verifyReleaseReadiness') {
             def receipt = [schema_version: 1, version: approval.version, tag: approval.tag,
                 repository: approval.repository, source_revision: revision, jar_sha256: hash,
                 jar_bytes: jar.length(), reviewed_input_sha256: review.reviewed_input_sha256,
-                approval_record_sha256: java.security.MessageDigest.getInstance('SHA-256').digest(file('docs/release-4.93-approval.json').bytes).encodeHex().toString(),
-                maintainer: approval.human_approver, approval_scope: 'Explicit GitHub 4.93 release with deferred validation; not a full host/security or BApp pass',
+                approval_record_sha256: java.security.MessageDigest.getInstance('SHA-256').digest(file("docs/release-${approval.version}-approval.json").bytes).encodeHex().toString(),
+                maintainer: approval.human_approver, approval_scope: "Explicit GitHub ${approval.version} release with deferred validation; not a full host/security or BApp pass",
                 generated_utc: java.time.Instant.now().toString(), tests: tests,
                 deferred_findings: review.deferred_findings,
                 toolchain: [gradle: gradle.gradleVersion, java_runtime: System.getProperty('java.runtime.version'),
@@ -210,7 +212,7 @@ tasks.register('verifyReleaseReadiness') {
             def output = file('build/reports/release-evidence.json')
             output.parentFile.mkdirs()
             output.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(receipt)) + '\n', 'UTF-8')
-            println "4.93 release readiness passed under the recorded maintainer exception. Jar SHA-256: $hash"
+            println "${approval.version} release readiness passed under the recorded maintainer exception. Jar SHA-256: $hash"
             return
         }
         if (review.release_disposition != 'approved' || review.release_blockers ||

@@ -39,6 +39,7 @@ final class FullUiCases {
     ExtensionSharedParameters p;
     JFrame frame;
     String caseId;
+    boolean nativeMode;
     ProxyHighlightingCases traffic;
     final List<Throwable> asynchronous=new java.util.concurrent.CopyOnWriteArrayList<>();
     FullUiCases(MontoyaApi real,FullUiReport report){this.real=real;this.storage=new FullUiStorage(real);this.report=report;}
@@ -52,7 +53,10 @@ final class FullUiCases {
                 Field field=ExtensionMainClass.class.getDeclaredField("sharedParameters");field.setAccessible(true);p=(ExtensionSharedParameters)field.get(extension);
                 frame=p.get_mainFrameUsingMontoya();
                 Ui.require(frame!=null && p.allSettings!=null && p.allSettings.isLoaded(),"Core UI failed to initialize");
-                Ui.await(()->p.topMenuBar!=null && Ui.menu(p.topMenuBar).size()>20,"Top menu did not populate");
+                Ui.await(()->p.settingsSurface!=null && p.settingsSurface.component()!=null && Ui.settings(settingsRoot()).size()>20,"Settings surface did not populate");
+                Ui.require(p.topMenuBar!=null && Ui.menu(p.topMenuBar).size()>20,"Full Sharpener top menu missing");
+                Ui.await(()->p.topMenuBar.isShowing() && p.topMenuBar.getWidth()>0 && p.topMenuBar.getHeight()>0
+                        && SwingUtilities.isDescendingFrom(p.topMenuBar,frame.getJMenuBar()),"Sharpener menu caption is not visible in Burp's menu bar");
                 Ui.require(p.get_rootTabbedPaneUsingMontoya()!=null,"Main tabs unavailable");
                 HttpRequest request=HttpRequest.httpRequestFromUrl("http://127.0.0.1:9/sharpener-full-ui-fixture");
                 for(int i=1;i<=3;i++){real.repeater().sendToRepeater(request,"Sharpener-UI-"+i);real.intruder().sendToIntruder(request,"Sharpener-UI-"+i);}
@@ -61,13 +65,22 @@ final class FullUiCases {
                 for(var tool:tools())Ui.await(()->handlers(tool).size()>=3,"Missing recognised tab headers in "+tool);
                 Ui.require(storage.errors.isEmpty(),"Startup compatibility/errors: "+storage.errors);
             });
-            if(p==null || frame==null || p.topMenuBar==null)return;
+            if(p==null || frame==null || p.settingsSurface==null || p.settingsSurface.component()==null)return;
+            check("settings-discovery",this::settingsDiscovery);
             check("main-styles",this::mainStyles);
             check("global-options",this::globalOptions);
             check("frame-title",this::frameTitle);
             check("frame-icons",this::frameIcons);
             check("about",()->dialogTop("About Sharpener","About this extension",d->{Ui.require(Ui.find(d,JOptionPane.class).stream().anyMatch(pane->String.valueOf(pane.getMessage()).contains("version")),"Missing about version");Ui.accept(d);}));
             check("shortcuts-dialog",this::shortcuts);
+            check("native-form",()->{
+                if(p.settingsSurface.isNative()) {
+                    nativeMode=true;
+                    try { mainStyles();globalOptions();frameTitle();frameIcons();shortcuts(); }
+                    finally {nativeMode=false;closeSettings();}
+                } else Ui.require(p.topMenuBar!=null,"Older hosts must keep the complete menu");
+            });
+            closeSettings();
             for(var tool:tools()) {
                 String prefix=tool.toString().toLowerCase(Locale.ROOT);
                 check(prefix+"-styles",()->subtabStyles(tool));
@@ -80,6 +93,7 @@ final class FullUiCases {
             check("context-menu",this::contextMenus);
             check("proxy-highlighting",()->{traffic=new ProxyHighlightingCases(real,p,report);traffic.proxy();});
             check("logger-highlighting",()->{if(traffic==null)throw new Ui.Blocked("Proxy fixtures unavailable");try{traffic.logger();}finally{traffic.close();}});
+            check("highlighter-performance",()->new ManualHighlighterPerformanceCases(p,report).run());
             check("request-editor",this::requestEditor);
             check("optional-ui",()->{
                 Ui.require(!p.features.hasSuiteTab && !p.features.hasHttpResponseEditor,"Optional feature flags changed: add functional cases before enabling placeholders");
@@ -97,15 +111,32 @@ final class FullUiCases {
                 dialogTop("Remove All Settings & Unload","Sharpener Extension: Reset All Settings & Unload",d->Ui.press(d,"No"));
                 Ui.require(!p.isUnloaded(),"Cancelled unload still unloaded extension");
             });
-            manualTop("Project Page (Opens a Browser)","browser-links");manualTop("Report Bug/Feature (Opens a Browser)","browser-links");manualTop("Check for Update on Start","update-network");
+            manualTop("Project Page (Opens a Browser)","browser-links");manualTop("Report Bug/Feature (Opens a Browser)","browser-links");manualTop("Check for Update on Start","update-network");manual.put("Settings/Check for Update on Start","update-network");
+            closeSettings();
+            check("settings-navigation",()->{
+                if(p.settingsSurface.canOpen())for(var tool:tools()) {
+                    closeSettings();var h=handler(tool);var popup=popup(h);
+                    SwingUtilities.invokeLater(()->Ui.click(Ui.item(popup,"Sharpener Settings...")));
+                    Ui.await(()->{Ui.revealSettings(nativeRoot());return nativeRoot().isShowing();},"Context settings navigation failed");
+                    exercised.add(tool+"/Sharpener Settings...");report.controls.put(tool+"/Sharpener Settings...",caseId);
+                }
+                closeSettings();
+            });
             check("menu-coverage",this::coverage);
             check("cleanup",()->{
+                nativeMode=p.settingsSurface.isNative();
+                openSettings();
+                Window settings=p.settingsSurface.isNative()?Ui.edt(()->SwingUtilities.getWindowAncestor(settingsRoot())):null;
+                SwingUtilities.invokeLater(()->Ui.click(Ui.setting(settingsRoot(),"Project Settings/Change Burp Suite Title")));
+                Ui.await(()->Arrays.stream(Window.getWindows()).anyMatch(w->w instanceof JDialog d && d.isShowing() && d.getTitle().equals("Change Burp Suite Title")),"Pending owned dialog not displayed before unload");
                 real.extension().unload();Ui.flush();
                 Ui.await(p::isUnloaded,"Unload did not stop timers");
                 Ui.require(p.backgroundTasks.isStopped(),"Workers survived unload");
-                Ui.require(p.iconRefreshWindowFocusListener==null,"Icon refresh listener survived unload");
+                Ui.await(()->p.iconRefreshWindowFocusListener==null,"Icon refresh listener survived unload");
                 Ui.require(Ui.edt(()->frame.getRootPane().getClientProperty(ExtensionMainClass.INSTANCE_MARKER_KEY))==null,"Instance marker survived unload");
                 Ui.require(Ui.edt(()->!BurpUITools.isMenuBarLoaded("Sharpener",frame.getJMenuBar())),"Extension menu survived unload");
+                Ui.await(()->Arrays.stream(Window.getWindows()).noneMatch(w->w instanceof JDialog d && d.isShowing() && d.getTitle().equals("Change Burp Suite Title")),"Owned dialog survived unload");
+                if(settings!=null)Ui.require(Ui.edt(settings::isShowing),"Extension cleanup closed Burp's Settings window");
             });
         } finally {
             if(traffic!=null)traffic.close();
@@ -132,17 +163,59 @@ final class FullUiCases {
     void click(Component root,String path,String prefix) {
         Ui.run(()->{JMenuItem item=Ui.item(root,path);String actual=Ui.menu(root).entrySet().stream().filter(e->e.getValue()==item).findFirst().orElseThrow().getKey();Ui.click(item);exercised.add(prefix+actual);report.controls.put(prefix+actual,caseId);});Ui.flush();
     }
-    void top(String path){click(p.topMenuBar,path,"Top/");}
+    Component nativeRoot(){return p.settingsSurface.component();}
+    Component settingsRoot(){return nativeMode && p.settingsSurface.isNative()?nativeRoot():p.topMenuBar;}
+    String controlPrefix(){return nativeMode?"Settings/":"Top/";}
+    void openSettings() throws Exception {
+        if(!p.settingsSurface.isNative() || Ui.edt(()->nativeRoot().isShowing()))return;
+        SwingUtilities.invokeLater(()->{
+            if(p.settingsSurface.canOpen())p.settingsSurface.open();
+            else {
+                var candidates=Ui.menu(frame.getJMenuBar()).entrySet().stream().filter(e->e.getKey().endsWith("Settings")||e.getKey().endsWith("Settings...")).toList();
+                Ui.require(candidates.size()==1,"Open Burp Settings manually: navigation API is unavailable");Ui.click(candidates.getFirst().getValue());
+            }
+        });
+        Ui.await(()->{Ui.revealSettings(nativeRoot());return nativeRoot().isShowing();},"Native Sharpener panel not discovered in actual Burp Settings");
+    }
+    void closeSettings() {
+        if(p.settingsSurface.isNative())Ui.run(()->{Window settings=SwingUtilities.getWindowAncestor(nativeRoot());
+            if(settings!=null && settings!=frame)settings.dispatchEvent(new WindowEvent(settings,WindowEvent.WINDOW_CLOSING));});
+    }
+    void settingsDiscovery() throws Exception {
+        openSettings();
+        if(p.settingsSurface.isNative()) {
+            Ui.require(p.topMenuBar!=null,"Native Settings must not replace the full top menu");
+            Ui.require(Ui.edt(()->nativeRoot().isShowing()),"Panel is not actually displayed");
+            Ui.require(Ui.edt(()->Ui.find(nativeRoot(),JTextComponent.class).stream().anyMatch(l->l.getText().contains("this project"))),"Missing project scope help");
+            closeSettings();openSettings();
+            p.preferences.set("detectOffScreenPosition",false);Ui.flush();
+            Ui.require(!Ui.edt(()->Ui.setting(nativeRoot(),"Global Settings/Detect Off Screen Window Position").isSelected()),"External preference change not refreshed");
+            p.preferences.set("detectOffScreenPosition",true);Ui.flush();
+            Ui.run(()->{
+                Ui.find(nativeRoot(),JTabbedPane.class).getFirst().setSelectedIndex(0);
+                var source=nativeRoot();var picture=new java.awt.image.BufferedImage(source.getWidth(),source.getHeight(),java.awt.image.BufferedImage.TYPE_INT_RGB);
+                Graphics2D g=picture.createGraphics();try{source.printAll(g);}finally{g.dispose();}
+                try{ImageIO.write(picture,"png",report.directory.resolve("native-settings.png").toFile());}catch(java.io.IOException e){throw new IllegalStateException(e);}
+            });
+            closeSettings();
+        } else Ui.require(p.topMenuBar!=null,"Fallback host has no real menu");
+    }
+    void top(String path) {
+        try{if(nativeMode)openSettings();else closeSettings();}catch(Exception e){throw new IllegalStateException(e);}
+        Ui.run(()->{Ui.click(Ui.setting(settingsRoot(),path));exercised.add(controlPrefix()+path);report.controls.put(controlPrefix()+path,caseId);});Ui.flush();
+    }
     void tab(SubTabsContainerHandler handler,String path){click(popup(handler),path,handler.currentToolTab+"/");}
     void dialogTop(String path,String title,java.util.function.Consumer<JDialog> respond)throws Exception {
-        Ui.dialog(frame,()->{JMenuItem item=Ui.item(p.topMenuBar,path);exercised.add("Top/"+path);Ui.click(item);},title,respond);report.controls.put("Top/"+path,caseId);
+        if(nativeMode)openSettings();else closeSettings();
+        Ui.run(()->Ui.setting(settingsRoot(),path).reveal());Ui.flush();
+        Ui.dialog(nativeMode?SwingUtilities.getWindowAncestor(nativeRoot()):frame,()->{var item=Ui.setting(settingsRoot(),path);exercised.add(controlPrefix()+path);Ui.click(item);},title,respond);report.controls.put(controlPrefix()+path,caseId);
     }
     void dialogTab(SubTabsContainerHandler handler,String path,String title,java.util.function.Consumer<JDialog> respond)throws Exception {
         JPopupMenu popup=popup(handler);String actual=Ui.edt(()->Ui.menu(popup).entrySet().stream().filter(e->e.getValue()==Ui.item(popup,path)).findFirst().orElseThrow().getKey());
         Ui.dialog(frame,()->{exercised.add(handler.currentToolTab+"/"+actual);Ui.click(Ui.item(popup,path));},title,respond);report.controls.put(handler.currentToolTab+"/"+actual,caseId);
     }
 
-    List<String> topPaths(String prefix){return Ui.edt(()->Ui.menu(p.topMenuBar).keySet().stream().filter(path->path.startsWith(prefix)).toList());}
+    List<String> topPaths(String prefix){return Ui.edt(()->Ui.settings(settingsRoot()).keySet().stream().filter(path->path.startsWith(prefix)).toList());}
     void mainStyles() throws Exception {
         String style="Global Settings/Tools' Template And Style/";
         top(style+"Enable All");
@@ -158,8 +231,8 @@ final class FullUiCases {
         for(String path:topPaths(style+"Icons' Size/")){top(path);Ui.require(path.endsWith("/"+p.preferences.safeGetStringSetting("ToolsIconSize")),"Icon size did not change");}
         top(style+"Disable All");
         for(String path:topPaths(style))if(!path.substring(style.length()).contains("/")&&!path.endsWith("All")) {
-            boolean before=Ui.edt(()->Ui.item(p.topMenuBar,path).isSelected());top(path);
-            Ui.require(Ui.edt(()->Ui.item(p.topMenuBar,path).isSelected())!=before,"Tool checkbox did not toggle: "+path);top(path);
+            boolean before=Ui.edt(()->Ui.setting(settingsRoot(),path).isSelected());top(path);
+            Ui.require(Ui.edt(()->Ui.setting(settingsRoot(),path).isSelected())!=before,"Tool checkbox did not toggle: "+path);top(path);
         }
         top(style+"Icons' Theme/@irsdl");top(style+"Icons' Size/16");
         top(style+"Proxy");
@@ -173,6 +246,20 @@ final class FullUiCases {
             Ui.require(p.preferences.safeGetBooleanSetting(entry.getValue())!=before,"Global preference did not toggle");top("Global Settings/"+entry.getKey());
         }
         for(String path:topPaths("Global Settings/Supported Capabilities/")){top(path);top(path);}
+        String limit=ninja.burpsuite.extension.sharpener.uiSelf.settings.SharpenerSettingsActions.MANUAL_HIGHLIGHTER_LIMIT;
+        if(!nativeMode)Ui.run(()->{
+            var enabled=Ui.item(p.topMenuBar,ninja.burpsuite.extension.sharpener.uiSelf.settings.SharpenerSettingsActions.MANUAL_HIGHLIGHTER_ENABLED);
+            var inspection=Ui.item(p.topMenuBar,limit);
+            Ui.require(enabled.getParent()==inspection.getParent()&&enabled.getParent() instanceof JPopupMenu popup
+                    &&popup.getInvoker() instanceof JMenu group&&group.getText().equals("Manual Highlighter (Proxy and Logger)"),"Manual highlighting and its limit must share one submenu");
+        });
+        String key=ninja.burpsuite.extension.sharpener.capabilities.implementations.ManualHighlighterSettings.LIMIT_LOGGER_INSPECTION_SETTING_NAME;
+        boolean saved=p.preferences.safeGetBooleanSetting(key);
+        top(limit);Ui.require(p.preferences.safeGetBooleanSetting(key)!=saved,"Logger inspection preference did not change");
+        closeSettings();if(nativeMode)try{openSettings();}catch(Exception failure){throw new IllegalStateException(failure);}
+        Ui.run(()->{if(!nativeMode)p.topMenuBar.updateTopMenuBar();});
+        Ui.require(Ui.edt(()->Ui.settings(settingsRoot()).get(limit).isSelected())==!saved,"Reopened limit checkbox lost preference");
+        top(limit);Ui.require(p.preferences.safeGetBooleanSetting(key)==saved,"Logger inspection preference did not restore");
         for(String path:topPaths("Global Settings/Debug Settings/"))top(path);
         top("Global Settings/Debug Settings/Disabled");
     }
@@ -204,7 +291,7 @@ final class FullUiCases {
         dialogTop("Keyboard Shortcuts","Sharpener Keyboard Shortcuts",d->{var table=Ui.find(d,JTable.class).getFirst();Ui.require(table.getRowCount()>=10,"Missing shortcut rows");Ui.press(d,"Save");});
         dialogTop("Keyboard Shortcuts","Sharpener Keyboard Shortcuts",d->Ui.press(d,"Close"));
         // Reset's confirmation and reopened dialog run inside nested Swing event loops.
-        SwingUtilities.invokeLater(()->Ui.click(Ui.item(p.topMenuBar,"Keyboard Shortcuts")));
+        SwingUtilities.invokeLater(()->Ui.click(Ui.setting(settingsRoot(),"Keyboard Shortcuts")));
         Ui.await(()->Arrays.stream(Window.getWindows()).anyMatch(w->w instanceof JDialog d&&d.isShowing()&&d.getTitle().equals("Sharpener Keyboard Shortcuts")),"Shortcut dialog did not open");
         SwingUtilities.invokeLater(()->{for(Window w:Window.getWindows())if(w instanceof JDialog d&&d.isShowing()&&d.getTitle().equals("Sharpener Keyboard Shortcuts"))Ui.press(d,"Reset to Defaults");});
         Ui.await(()->Arrays.stream(Window.getWindows()).anyMatch(w->w instanceof JDialog d&&d.isShowing()&&d.getTitle().equals("Reset Shortcuts")),"Shortcut reset confirmation missing");
@@ -352,8 +439,10 @@ final class FullUiCases {
                 .replace("/Find Title (Click > Next, Right-Click > Prev)/","/Find Title/");
     }
     void coverage() {
-        Map<String,JMenuItem> observed=new TreeMap<>(Ui.edt(()->{Map<String,JMenuItem> all=new TreeMap<>();Ui.menu(p.topMenuBar).forEach((path,item)->all.put("Top/"+path,item));return all;}));
-        for(var tool:tools())Ui.edt(()->{Ui.menu(popup(handler(tool))).forEach((path,item)->observed.put(tool+"/"+path,item));return null;});
+        Map<String,Ui.Setting> observed=new TreeMap<>(Ui.edt(()->{Map<String,Ui.Setting> all=new TreeMap<>();
+            Ui.settings(p.topMenuBar).forEach((path,item)->all.put("Top/"+path,item));
+            if(p.settingsSurface.isNative())Ui.settings(nativeRoot()).forEach((path,item)->all.put("Settings/"+path,item));return all;}));
+        for(var tool:tools())Ui.edt(()->{Ui.menu(popup(handler(tool))).forEach((path,item)->observed.put(tool+"/"+path,new Ui.Setting(item,-1)));return null;});
         List<String> missing=new ArrayList<>();
         Set<String> completed=exercised.stream().map(FullUiCases::coveragePath).collect(java.util.stream.Collectors.toSet());
         for(var entry:observed.entrySet()) {

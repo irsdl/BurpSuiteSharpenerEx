@@ -8,8 +8,10 @@ package ninja.burpsuite.extension.sharpener.capabilities.implementations;
 
 import burp.api.montoya.core.Annotations;
 import burp.api.montoya.core.HighlightColor;
+import burp.api.montoya.core.ByteArray;
 import burp.api.montoya.http.HttpService;
 import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.requests.MalformedRequestException;
 import burp.api.montoya.http.handler.*;
 import burp.api.montoya.proxy.http.*;
 import burp.api.montoya.proxy.websocket.*;
@@ -25,7 +27,8 @@ import burp.api.montoya.core.ToolType;
 
 public class ManualHighlighterRequestResponseHandler implements ProxyRequestHandler, ProxyResponseHandler, ProxyWebSocketCreationHandler, ProxyMessageHandler, HttpHandler {
     ExtensionSharedParameters sharedParameters;
-    CapabilitySettings capabilitySettings;
+    ManualHighlighterSettings capabilitySettings;
+    private final ManualHighlightScanner scanner;
     private final PendingProxyColors pendingProxyColors = new PendingProxyColors(1024);
 
     // Burp uses separate Proxy/Logger annotations for the same message ID.
@@ -49,7 +52,8 @@ public class ManualHighlighterRequestResponseHandler implements ProxyRequestHand
 
     public ManualHighlighterRequestResponseHandler(ExtensionSharedParameters sharedParameters, CapabilitySettings capabilitySettings) {
         this.sharedParameters = sharedParameters;
-        this.capabilitySettings = capabilitySettings;
+        this.capabilitySettings = (ManualHighlighterSettings) capabilitySettings;
+        scanner = new ManualHighlightScanner(sharedParameters.burpSupportedColorNames);
 
         highlightPatternToBeRemovedStr = "tempcolor("+sharedParameters.burpSupportedColorNames+")";
         highlightPatternStayStr = "permcolor("+sharedParameters.burpSupportedColorNames+")";
@@ -61,30 +65,92 @@ public class ManualHighlighterRequestResponseHandler implements ProxyRequestHand
         return HighlightColor.valueOf(name.toUpperCase(Locale.ROOT));
     }
 
-    private void annotate(String message, Annotations annotations, boolean request) {
-        if (!capabilitySettings.isEnabled()) return;
-        Matcher temporary = highlightPatternToBeRemoved.matcher(message);
-        Matcher permanent = highlightPatternStayPattern.matcher(message);
-        if (request && temporary.find()) annotations.setHighlightColor(markerColor(temporary.group(1)));
-        else if (permanent.find()) annotations.setHighlightColor(markerColor(permanent.group(1)));
+    private void annotate(ByteArray message, Annotations annotations, boolean request, boolean limited) {
+        int length = message.length();
+        int end = limited ? Math.min(length, ManualHighlighterSettings.LOGGER_INSPECTION_BYTE_LIMIT) : length;
+        HighlightColor color = scanner.scan(message, end, request);
+        if (color != null) annotations.setHighlightColor(color);
+    }
+
+    private void annotateRequest(HttpRequest request, Annotations annotations, boolean limited) {
+        if (!limited) {
+            annotate(request.toByteArray(), annotations, true, false);
+            return;
+        }
+        if (requestMayFit(request)) {
+            ByteArray actual = request.toByteArray();
+            // Content-Length is only an admission hint. All subsequent decisions and
+            // marker matching use the original request's actual bytes and total length.
+            if (actual.length() <= ManualHighlighterSettings.LOGGER_INSPECTION_BYTE_LIMIT) {
+                annotate(actual, annotations, true, false);
+                return;
+            }
+        }
+        // Montoya API improvement: expose actual message/body length without materialising
+        // bytes, plus a bounded byte-range reader with bounded copying. body().length()
+        // can copy the full payload. An understated Content-Length can therefore cause
+        // one full copy above before the actual-size check rejects body inspection.
+        // Never scan an oversized body or substitute a Content-Length-truncated request.
+        try {
+            annotate(request.withBody("").toByteArray(), annotations, true, true);
+        } catch (MalformedRequestException malformed) {
+            // A malformed request may not support withBody(). Preserve its traffic and
+            // annotations; falling back to the complete message would defeat the limit.
+        }
+    }
+
+    private boolean requestMayFit(HttpRequest request) {
+        try {
+            if (request.hasHeader("Transfer-Encoding")) return false;
+            String declared = null;
+            for (var header : request.headers()) {
+                if (!header.name().equalsIgnoreCase("Content-Length")) continue;
+                if (declared != null) return false; // Duplicate lengths are ambiguous hints.
+                declared = header.value();
+            }
+            if (declared == null) return false;
+            declared = declared.trim();
+            if (declared.isEmpty() || declared.length() > 19) return false;
+            int length = 0;
+            int limit = ManualHighlighterSettings.LOGGER_INSPECTION_BYTE_LIMIT;
+            for (int i = 0; i < declared.length(); i++) {
+                char digit = declared.charAt(i);
+                if (digit < '0' || digit > '9') return false;
+                length = length * 10 + digit - '0';
+                if (length > limit) return false;
+            }
+            int offset = request.bodyOffset();
+            return offset >= 0 && offset <= limit && length <= limit - offset;
+        } catch (MalformedRequestException malformed) {
+            return false;
+        }
     }
 
     @Override
     public RequestToBeSentAction handleHttpRequestToBeSent(HttpRequestToBeSent request) {
         // Logger annotations apply to every HTTP tool. Only Proxy rewrites temp markers.
-        HighlightColor fromProxy = request.toolSource() != null && request.toolSource().isFromTool(ToolType.PROXY)
+        var source = request.toolSource();
+        HighlightColor fromProxy = source != null && source.isFromTool(ToolType.PROXY)
                 ? pendingProxyColors.take(request.messageId()) : null;
+        Annotations annotations = request.annotations();
         if (capabilitySettings.isEnabled()) {
-            if (fromProxy != null) request.annotations().setHighlightColor(fromProxy);
-            else annotate(request.toString(), request.annotations(), true);
+            if (fromProxy != null) annotations.setHighlightColor(fromProxy);
+            else {
+                boolean limited = capabilitySettings.isLoggerInspectionLimited();
+                annotateRequest(request, annotations, limited);
+            }
         }
-        return RequestToBeSentAction.continueWith(request, request.annotations());
+        return RequestToBeSentAction.continueWith(request, annotations);
     }
 
     @Override
     public ResponseReceivedAction handleHttpResponseReceived(HttpResponseReceived response) {
-        if (capabilitySettings.isEnabled()) annotate(response.toString(), response.annotations(), false);
-        return ResponseReceivedAction.continueWith(response, response.annotations());
+        Annotations annotations = response.annotations();
+        if (capabilitySettings.isEnabled()) {
+            boolean limited = capabilitySettings.isLoggerInspectionLimited();
+            annotate(response.toByteArray(), annotations, false, limited);
+        }
+        return ResponseReceivedAction.continueWith(response, annotations);
     }
 
     // REQUEST

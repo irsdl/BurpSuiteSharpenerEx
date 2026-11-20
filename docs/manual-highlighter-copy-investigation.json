@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-11-20T15:07:44.560284+00:00",
+  "disposition": "Investigation only: production body-prefix highlighting is unchanged pending the inspection-behaviour decision.",
+  "source_revision": "d3d48763d1c6961fbbb04e2eb61e59a1b364cd98",
+  "source_state": "Uncommitted description correction and developer-only first-access API probes",
+  "digest_algorithm": "SHA-256 over sorted repository-relative UTF-8 path, NUL, raw per-file SHA-256 bytes",
+  "input_selection_record": "docs/manual-highlighter-performance-validation.json",
+  "production_inputs_sha256": "637de442ff98bc0f7fc1b275f1066181e242f7267405a7828f6a5c4d690f98fe",
+  "full_ui_inputs_sha256": "a0aa7aea13e117f8c47bfab6947d083f98badc6e950f774ade0a1b8ea173c3db",
+  "jar_sha256": "9fdcd3224122a4f3597739d6fefac8e7b4d1c3223eec21063b900f00cbd8b62e",
+  "host": {
+    "harness_sha256": "41440f10a420d4b96d6e0917f04ccb13826a82b83d8b6d83398ee5a1f4a92e7e",
+    "burp_build": "20261102000055152",
+    "edition": "PROFESSIONAL",
+    "requested_edition": "professional",
+    "os": "Windows 11",
+    "jre": "25.0.5.1+2-LTS",
+    "os_family": "windows"
+  },
+  "raw_report": "temp/full-ui-test-reports/run-6326384831956146178/manual-highlighter-performance.json",
+  "raw_report_sha256": "153c308b4dee5579968f00e4a075012858f81b0d1ad55bcd5cff52f9644fcd1f",
+  "host_results": "temp/full-ui-test-reports/run-6326384831956146178/results.json",
+  "host_results_sha256": "dd9219d3d80282cd43e2eeda8e7fa59393dc15994cafca753f18c4dcee75b98c",
+  "host_overall": "INCOMPLETE",
+  "host_counts": {
+    "PASS": 27,
+    "BLOCKED": 1,
+    "NOT_APPLICABLE": 1,
+    "MANUAL_REQUIRED": 8
+  },
+  "owned_host_exited": true,
+  "measurement_scope": "Fresh actual Burp request for each call; construction outside timing/allocation intervals; 3 warmup objects then 16 new measured objects per operation. withoutBody measures an immutable withBody(\"\") copy followed by its toByteArray(); the original is never sent or modified.",
+  "fresh_request_api_components": [
+    {
+      "samples": 16,
+      "message_bytes": 1024,
+      "allocated_bytes_per_call": 1592.0,
+      "p95_ns": 3400,
+      "operation": "toByteArray",
+      "p50_ns": 1300
+    },
+    {
+      "samples": 16,
+      "message_bytes": 1024,
+      "allocated_bytes_per_call": 1648.0,
+      "p95_ns": 1900,
+      "operation": "body",
+      "p50_ns": 1800
+    },
+    {
+      "samples": 16,
+      "message_bytes": 1024,
+      "allocated_bytes_per_call": 1584.0,
+      "p95_ns": 13300,
+      "operation": "bodyOffset",
+      "p50_ns": 2700
+    },
+    {
+      "samples": 16,
+      "message_bytes": 1024,
+      "allocated_bytes_per_call": 7001.0,
+      "p95_ns": 131700,
+      "operation": "withoutBody",
+      "p50_ns": 13800
+    },
+    {
+      "samples": 16,
+      "message_bytes": 65536,
+      "allocated_bytes_per_call": 66104.0,
+      "p95_ns": 6600,
+      "operation": "toByteArray",
+      "p50_ns": 6200
+    },
+    {
+      "samples": 16,
+      "message_bytes": 65536,
+      "allocated_bytes_per_call": 66160.0,
+      "p95_ns": 24800,
+      "operation": "body",
+      "p50_ns": 7100
+    },
+    {
+      "samples": 16,
+      "message_bytes": 65536,
+      "allocated_bytes_per_call": 1584.0,
+      "p95_ns": 2800,
+      "operation": "bodyOffset",
+      "p50_ns": 2000
+    },
+    {
+      "samples": 16,
+      "message_bytes": 65536,
+      "allocated_bytes_per_call": 4520.0,
+      "p95_ns": 112400,
+      "operation": "withoutBody",
+      "p50_ns": 16800
+    },
+    {
+      "samples": 16,
+      "message_bytes": 1048576,
+      "allocated_bytes_per_call": 1049144.0,
+      "p95_ns": 163300,
+      "operation": "toByteArray",
+      "p50_ns": 112900
+    },
+    {
+      "samples": 16,
+      "message_bytes": 1048576,
+      "allocated_bytes_per_call": 1049200.0,
+      "p95_ns": 256500,
+      "operation": "body",
+      "p50_ns": 84400
+    },
+    {
+      "samples": 16,
+      "message_bytes": 1048576,
+      "allocated_bytes_per_call": 1584.0,
+      "p95_ns": 43900,
+      "operation": "bodyOffset",
+      "p50_ns": 7100
+    },
+    {
+      "samples": 16,
+      "message_bytes": 1048576,
+      "allocated_bytes_per_call": 4520.0,
+      "p95_ns": 32700,
+      "operation": "withoutBody",
+      "p50_ns": 15000
+    },
+    {
+      "samples": 16,
+      "message_bytes": 10485760,
+      "allocated_bytes_per_call": 10486328.0,
+      "p95_ns": 2354500,
+      "operation": "toByteArray",
+      "p50_ns": 2011000
+    },
+    {
+      "samples": 16,
+      "message_bytes": 10485760,
+      "allocated_bytes_per_call": 10486384.0,
+      "p95_ns": 2200700,
+      "operation": "body",
+      "p50_ns": 1992500
+    },
+    {
+      "samples": 16,
+      "message_bytes": 10485760,
+      "allocated_bytes_per_call": 1584.0,
+      "p95_ns": 52000,
+      "operation": "bodyOffset",
+      "p50_ns": 18300
+    },
+    {
+      "samples": 16,
+      "message_bytes": 10485760,
+      "allocated_bytes_per_call": 4520.0,
+      "p95_ns": 91200,
+      "operation": "withoutBody",
+      "p50_ns": 52800
+    }
+  ],
+  "headless": {
+    "command": "gradlew.bat build fullUiTestPlan --offline --dependency-verification strict",
+    "result": "PASS",
+    "tests": 387,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "log": "temp/request-copy-investigation-build.log",
+    "log_sha256": "6aabbec0ce4b5fdbc481170d631b9c76563d815a79e54075311b05ed367c688e"
+  },
+  "findings": [
+    "First body() access also copies the complete body on this Windows Professional host; warmed-object measurements can conceal it.",
+    "The public HttpRequest API exposes no bounded raw request byte reader.",
+    "A header-only immutable copy avoids body-size-proportional allocation in these measurements, but would omit request-body markers while limited mode is enabled."
+  ],
+  "pending": [
+    "Maintainer decision on limited-mode request-body detection; no production allocation fix is claimed.",
+    "Clipboard opt-in was absent; eight manual groups and the remaining host matrix are not passes."
+  ],
+  "professional_activation": "Existing cache reused by isolated runner; no new activation performed",
+  "release_approved": false,
+  "publication_performed": false
+}

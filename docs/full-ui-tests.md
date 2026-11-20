@@ -5,8 +5,32 @@ changes. It is **not** part of `build`, `test`, `check`, normal CI, push readine
 or the distributable jar. Existing quick headless tests remain the normal build.
 The developer harness is built separately under `build/full-ui-harness/`.
 
-For 4.93 the maintainer explicitly deferred the full/manual/clipboard and other-OS
-runs. These are not normal build/release blockers under the recorded approval.
+The optional manual-highlighter measurement case additionally accepts
+`-PfullUiHighlighterBaselineJar=/path/reviewed-baseline.jar` and
+`-PfullUiHighlighterBaselineSha256=<reviewed-sha256>` with `fullUiTest`.
+The runner verifies the baseline before launching and again in the host. It
+loads only that jar's highlighter handler and its private cache class through a
+separate developer class loader; it does not initialize another extension or
+load its dependencies. Without these explicit inputs the measurement case is
+not applicable, rather than evidence of a performance pass. All measurement
+code stays in the opt-in harness and out of the distributed extension jar.
+
+Measurements compare baseline, limited and unlimited callbacks on actual Burp
+message/ByteArray implementations with 1 KiB, 64 KiB, 1 MiB and 10 MiB synthetic
+messages. Callback interfaces are developer adapters. Sequential and four-thread
+runs cover absent/early/late markers and separate Proxy rewriting; disabled and
+cached-color paths are measured separately. Header markers and fresh-request
+callbacks also verify the Content-Length admission hint followed by an actual
+whole-request size check. Small fitting requests include their bodies; declared
+or actually oversized and unknown-size requests use headers. Understated-length
+and missing-length fixtures are measured separately, including their remaining
+copy costs. Response prefixes retain their byte cutoff. Reports include latency percentiles,
+thread allocations/rate, process-wide GC deltas, throughput and maximum scanner
+read offset. They include host header-view creation, `toByteArray()` and bounded slices in the timing,
+but scanner bounds do not establish a bound on host API internals. No tight
+timing assertion is used as a substitute for these measurements.
+
+For 4.93 and separately 4.94, the maintainer explicitly deferred the listed full/manual/clipboard and other-OS runs under version-specific approvals. These remain incomplete results and are not normal build/release blockers within those approvals.
 Windows is the current automation priority. The eight manual groups in
 `full-ui-manual-cases.md` are the automation backlog, not completed test results;
 convert their practical checks into Windows-compatible automation in future work.
@@ -85,10 +109,14 @@ closes only the process it launched. The default timeout is 600 seconds; use
   `127.0.0.1:9`. They are seeded into tools and never sent. The suite exercises
   actual Sharpener Swing action listeners, dialogs, headers and live host APIs.
   It does not send traffic to targets or automatically open browser links.
-- The Proxy/Logger cases additionally send small HTTP fixtures through a
+- The Proxy/Logger cases additionally send synthetic HTTP fixtures (up to 512 KiB) through a
   disposable loopback-only Proxy listener to an owned loopback origin, both on
   temporary ports. The harness checks origin bytes and Content-Length, Proxy
   history annotations, and live table-renderer colours in Proxy and Logger.
+  Large-message cases verify complete temporary-marker removal with both Logger
+  settings and explicitly assert the different Proxy/Logger outcomes for late
+  permanent markers. Uncolored row backgrounds are compared with two verified
+  neutral fixtures so alternating table stripes are not mistaken for a color.
   It restores the test host's listener/interception settings and closes its
   server/observer registrations. These client-side test sockets are excluded
   from the production jar; no external target receives fixture traffic.
@@ -108,7 +136,7 @@ The [case catalog](../src/fullUiTest/resources/ui-cases.json) is the executable
 inventory. The automated portion covers:
 
 - Actual extension startup, main/tool discovery, registration and unload cleanup.
-- Every main-menu theme, icon size and tool checkbox; enable/disable all;
+- Every displayed native-panel control and actual top-menu control, including themes, icon sizes and tool checkboxes; enable/disable all;
   scrolling, geometry, capability and debug controls.
 - Title and icon input/chooser dialogs, bundled/custom icons, reset confirmation,
   About, shortcut table Save/Close/Reset and parent ownership.
@@ -127,7 +155,7 @@ inventory. The automated portion covers:
   markers, disabled handling, rewritten Content-Length and visible row colours.
   `logger-highlighting` compares the live Proxy/Logger colour palette and checks
   that other-tool HTTP markers colour Logger without changing their wire content.
-  These bring the opt-in catalog to 33 case groups (25 automated, eight manual).
+  The settings migration adds discovery/refresh and navigation cases to the catalog; the eight manual groups remain required.
 
 The [manual cases](full-ui-manual-cases.md) complete desktop interaction coverage:
 browser/update handoff, native taskbar/Dock appearance, physical key capture and
@@ -192,3 +220,35 @@ does not replace current Stable or macOS/Linux checks. That result is bound to
 the earlier jar/catalog. The expanded 33-group highlighter rerun timed out at
 Community startup while desktop control was unavailable; no assertions ran.
 Its blocked report is retained, and a new run is required.
+
+## 4.94 menu and Settings usability correction
+
+The full Sharpener top menu is required on every host, including hosts with the
+optional native Settings API. Help and maintenance actions remain in that menu.
+The optional form has Global and Project tabs and compact selectors. The two
+presentations share one preferences/action backend.
+
+The harness exercises the actual complete menu in the regular action cases.
+`settings-discovery` checks the additional native form and verifies that the menu
+remains present. `native-form` repeats appearance/capability/title/icon/shortcut
+cases through the actual dropdowns, checkboxes and buttons in both scope tabs.
+Coverage inventories both surfaces separately, together with context menus;
+menu testing cannot stand in for form testing. `settings-navigation` exercises
+supported context navigation. Cleanup unloads with Settings and an owned input
+dialog open, preserving Burp's window.
+
+Headless layout checks render light/dark Global/Project forms at 460px and 740px,
+assert readable selector widths and visible project fields, and save previews
+under `build/reports/settings-preview/`. These previews are layout evidence,
+not host or physical desktop compatibility. The live harness also paints the
+actually displayed native form to `native-settings.png` in its ignored report.
+Search, physical keyboard/focus/conflicts, high-DPI/theme transitions, real
+project save/reopen and other OS/channel runs remain explicit manual work.
+
+Run `build`, `fullUiTestPlan` and explicitly `fullUiTest` after this change. The
+heavy suite remains absent from normal build/check/test/CI/packaging. Preserve
+raw reports before removing their storage. The original migration's results in
+[native-settings-validation.json](native-settings-validation.json) apply only to
+those recorded jars; the revised implementation is recorded separately in
+[settings-usability-validation.json](settings-usability-validation.json).
+The 4.93 exception does not approve another version. The separate [4.94 approval](release-4.94-approval.json) accepts its listed gaps without turning the suite into a pass.

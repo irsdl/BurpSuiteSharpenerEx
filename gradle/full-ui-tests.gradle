@@ -47,6 +47,12 @@ tasks.register('fullUiTest', JavaExec) {
         if (providers.gradleProperty('fullUiAutomatedOnly').getOrElse('false') == 'true') args '--automated-only'
         if (providers.gradleProperty('fullUiClipboard').getOrElse('false') == 'true') args '--clipboard'
         if (providers.gradleProperty('burpExecutable').isPresent()) args '--native-launcher', file(providers.gradleProperty('burpExecutable').get()).absolutePath
+        if (providers.gradleProperty('fullUiHighlighterBaselineJar').isPresent()) {
+            if (!providers.gradleProperty('fullUiHighlighterBaselineSha256').isPresent())
+                throw new GradleException('Provide the reviewed baseline jar SHA-256 with -PfullUiHighlighterBaselineSha256.')
+            args '--highlighter-baseline-jar', file(providers.gradleProperty('fullUiHighlighterBaselineJar').get()).absolutePath,
+                    '--highlighter-baseline-sha256', providers.gradleProperty('fullUiHighlighterBaselineSha256').get()
+        }
     }
 }
 tasks.register('fullUiTestReview', JavaExec) {

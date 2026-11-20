@@ -15,14 +15,16 @@ class ReleaseGuardTests(unittest.TestCase):
     def setUp(self):
         self.owned = tempfile.TemporaryDirectory()
         self.root = Path(self.owned.name)
-        for directory in ("docs", "build/reports", "releases"):
+        for directory in ("docs", "build/reports", "releases", "src/main/resources"):
             (self.root / directory).mkdir(parents=True)
+        self.properties = self.root / "src/main/resources/extension.properties"
+        self.properties.write_text("version=4.93\n", encoding="utf-8")
         self.revision = "a" * 40
         self.env = {"GITHUB_REPOSITORY": publisher.REPOSITORY, "GITHUB_REF": "refs/heads/main",
                     "GITHUB_EVENT_NAME": "workflow_dispatch", "GITHUB_SHA": self.revision,
                     "GITHUB_WORKFLOW_REF": publisher.REPOSITORY + "/.github/workflows/release.yml@refs/heads/main"}
         now = datetime.datetime.now(datetime.timezone.utc)
-        self.approval = {"schema_version": 1, "approved": True, "version": "4.93", "tag": publisher.TAG,
+        self.approval = {"schema_version": 1, "approved": True, "version": "4.93", "tag": "main_4.93",
                          "repository": publisher.REPOSITORY, "human_approver": "fixture-reviewer",
                          "instruction": "fixture approval", "approval_recorded_utc": (now - datetime.timedelta(minutes=5)).isoformat(),
                          "expires_utc": (now + datetime.timedelta(days=1)).isoformat(),
@@ -38,7 +40,7 @@ class ReleaseGuardTests(unittest.TestCase):
         self.approval["deferred_findings"] = self.review["deferred_findings"]
         self.write("docs/release-4.93-approval.json", self.approval)
         self.write("docs/portswigger-review.json", self.review)
-        self.receipt = {"source_revision": self.revision, "version": "4.93", "tag": publisher.TAG,
+        self.receipt = {"source_revision": self.revision, "version": "4.93", "tag": "main_4.93",
                         "repository": publisher.REPOSITORY, "maintainer": "fixture-reviewer",
                         "approval_record_sha256": publisher.sha256(self.root / "docs/release-4.93-approval.json"),
                         "reviewed_input_sha256": "b" * 64, "deferred_findings": self.review["deferred_findings"],
@@ -68,6 +70,31 @@ class ReleaseGuardTests(unittest.TestCase):
         self.assertEqual(jar, self.jar)
         self.assertEqual(receipt["deferred_findings"], self.review["deferred_findings"])
         self.assertIn("Fixture notes", notes)
+
+    def test_previous_approval_cannot_authorize_next_version(self):
+        self.properties.write_text("version=4.94\n", encoding="utf-8")
+        with self.assertRaises(FileNotFoundError): self.check()
+        self.write("docs/release-4.94-approval.json", self.approval)
+        with self.assertRaises(ValueError): self.check()
+
+    def test_new_version_requires_its_own_approval_artifact_and_receipt(self):
+        self.properties.write_text("version=4.94\n", encoding="utf-8")
+        approval = dict(self.approval, version="4.94", tag="main_4.94")
+        self.write("docs/release-4.94-approval.json", approval)
+        self.make_jar("4.94")
+        self.env["EXPECTED_JAR_SHA256"] = publisher.sha256(self.jar)
+        self.receipt.update(version="4.94", tag="main_4.94", jar_sha256=publisher.sha256(self.jar),
+                            jar_bytes=self.jar.stat().st_size,
+                            approval_record_sha256=publisher.sha256(self.root / "docs/release-4.94-approval.json"))
+        self.write("build/reports/release-evidence.json", self.receipt)
+        (self.root / "CHANGES.md").write_text("## Version 4.94 (2026-11-20)\n\n- Fixture notes.\n")
+        self.assertEqual(self.check()[0], self.jar)
+
+    def test_malformed_or_duplicate_source_versions_rejected(self):
+        for value in ("version=../4.93\n", "version=4.93\nversion=4.94\n",
+                      "version=4.93\nversion=NaN\n", "version=NaN\n"):
+            self.properties.write_text(value, encoding="utf-8")
+            with self.subTest(value=value), self.assertRaises(ValueError): self.check()
 
     def test_wrong_event_ref_workflow_or_source_rejected(self):
         for key, value in (("GITHUB_EVENT_NAME", "pull_request"), ("GITHUB_REF", "refs/heads/feature"),

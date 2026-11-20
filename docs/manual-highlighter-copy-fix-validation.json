@@ -1,0 +1,377 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-11-20T15:21:44.201566+00:00",
+  "disposition": "Unreleased local 4.94 header-fallback implementation; production behavior and new source-bound evidence supersede the earlier pending copy investigation. No publication approval.",
+  "maintainer_direction": "2026-11-20: inspect complete messages with the limit off; when efficient bounded request-body inspection is unavailable, fall back to the header part.",
+  "source_revision": "d3d48763d1c6961fbbb04e2eb61e59a1b364cd98",
+  "source_state": "Uncommitted request-copy fix, tests and documentation; existing unrelated description edits preserved",
+  "digest_algorithm": "SHA-256 over sorted repository-relative UTF-8 path, NUL, raw per-file SHA-256 bytes",
+  "input_selection_record": "docs/manual-highlighter-performance-validation.json",
+  "production_inputs_sha256": "3ec1bb6404051ec8f57ac7269edb56bab00a2f519280108f629e388e6b08996f",
+  "headless_inputs_sha256": "6fec63dbfd1c0653e15993b829d4158b1993a2437a63741988886d3f353abfb0",
+  "full_ui_inputs_sha256": "28dea0e4d551ab802b6810efe652fe8aeb70f0847bc42cda4501fb3f920ff1eb",
+  "jar_sha256": "da67db435264aa07f8ac307109303880f3cf516c4cc837764e0037d2931c37dd",
+  "version": "4.94",
+  "jdk_pin": "gradle/validation-jdk.json",
+  "jdk_pin_sha256": "caa67f9c40498613f42bd820b0c9224c7aae7be0e3765b97579838d9154f42e1",
+  "gradle_composition_pin": "gradle/security-toolchain.properties",
+  "gradle_composition_pin_sha256": "84633e5aee6a30f5dc1f3b9cdf552a97bb18b10221cc60d23628162bc4866f51",
+  "headless": {
+    "command": "gradlew.bat build fullUiTestPlan --offline --dependency-verification strict",
+    "result": "PASS",
+    "tests": 398,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "log": "temp/request-copy-fix-final-build.log",
+    "log_sha256": "bd68f78c456e48afbfefe129cda7a47757025b8c0b86b081ce1249a01ec4570e"
+  },
+  "host": {
+    "harness_sha256": "01a1bf3918adb2cddd5ee38d05b073f98633aabe2bd401084fa30d6a821e3133",
+    "burp_build": "20261102000055152",
+    "edition": "PROFESSIONAL",
+    "requested_edition": "professional",
+    "os": "Windows 11",
+    "jre": "25.0.5.1+2-LTS",
+    "os_family": "windows"
+  },
+  "host_tested_utc": "2026-11-20T15:19:53.111302500Z",
+  "host_results": "temp/full-ui-test-reports/run-6225838670840220907/results.json",
+  "host_results_sha256": "6cc5a0012b5c92594eeeb1eaf61e82f4a4cbb6d5f416812637e0a59167c72552",
+  "host_overall": "INCOMPLETE",
+  "host_counts": {
+    "PASS": 27,
+    "BLOCKED": 1,
+    "NOT_APPLICABLE": 1,
+    "MANUAL_REQUIRED": 8
+  },
+  "owned_host_exited": true,
+  "host_gradle_exit": 1,
+  "host_gradle_exit_reason": "Full suite remains INCOMPLETE: clipboard was not opted in and eight manual groups remain required. No failed automated assertions.",
+  "host_log": "temp/request-copy-fix-live.log",
+  "host_log_sha256": "b2a2d3ee88776f84c1d2dc20c2f207d3dd258300f5f47df4a453e5a116e7e4ae",
+  "benchmark": {
+    "result": "PASS",
+    "cells": 300,
+    "matrix": "docs/manual-highlighter-copy-fix-benchmark.csv",
+    "matrix_sha256": "a9435e316700021a9290d3ff76253af861feaff28f2c3ec0c91ee1254ef71219",
+    "raw_report": "temp/full-ui-test-reports/run-6225838670840220907/manual-highlighter-performance.json",
+    "raw_report_sha256": "4b20afb3650ffd64539caaaba451c06b7647e73805b1fcd2ec653f972ca2d07a",
+    "baseline_jar_sha256": "a667081b95d8d13de3cef73078a2af895ae9f4b10b925e356797571f3eb1119e",
+    "scope": "Actual Burp message, annotation and action implementations; callback interfaces are developer adapters. Complete callback timing/allocation includes header-only view construction and conversion. Both warmed and fresh requests are tested; original-message/body access is forbidden in limited requests. Latency samples are illustrative, not guarantees.",
+    "fresh_request_api_components": [
+      {
+        "message_bytes": 1024,
+        "samples": 16,
+        "p50_ns": 1100,
+        "operation": "toByteArray",
+        "p95_ns": 2600,
+        "allocated_bytes_per_call": 1688.0
+      },
+      {
+        "message_bytes": 1024,
+        "samples": 16,
+        "p50_ns": 1500,
+        "operation": "body",
+        "p95_ns": 1800,
+        "allocated_bytes_per_call": 1744.0
+      },
+      {
+        "message_bytes": 1024,
+        "samples": 16,
+        "p50_ns": 2000,
+        "operation": "bodyOffset",
+        "p95_ns": 13000,
+        "allocated_bytes_per_call": 1584.0
+      },
+      {
+        "message_bytes": 1024,
+        "samples": 16,
+        "p50_ns": 9100,
+        "operation": "withoutBody",
+        "p95_ns": 117800,
+        "allocated_bytes_per_call": 7235.0
+      },
+      {
+        "message_bytes": 65536,
+        "samples": 16,
+        "p50_ns": 5500,
+        "operation": "toByteArray",
+        "p95_ns": 15000,
+        "allocated_bytes_per_call": 66200.0
+      },
+      {
+        "message_bytes": 65536,
+        "samples": 16,
+        "p50_ns": 5700,
+        "operation": "body",
+        "p95_ns": 9300,
+        "allocated_bytes_per_call": 66256.0
+      },
+      {
+        "message_bytes": 65536,
+        "samples": 16,
+        "p50_ns": 2100,
+        "operation": "bodyOffset",
+        "p95_ns": 3100,
+        "allocated_bytes_per_call": 1584.0
+      },
+      {
+        "message_bytes": 65536,
+        "samples": 16,
+        "p50_ns": 16700,
+        "operation": "withoutBody",
+        "p95_ns": 68300,
+        "allocated_bytes_per_call": 4760.0
+      },
+      {
+        "message_bytes": 1048576,
+        "samples": 16,
+        "p50_ns": 111800,
+        "operation": "toByteArray",
+        "p95_ns": 154400,
+        "allocated_bytes_per_call": 1049240.0
+      },
+      {
+        "message_bytes": 1048576,
+        "samples": 16,
+        "p50_ns": 76100,
+        "operation": "body",
+        "p95_ns": 87900,
+        "allocated_bytes_per_call": 1049296.0
+      },
+      {
+        "message_bytes": 1048576,
+        "samples": 16,
+        "p50_ns": 5000,
+        "operation": "bodyOffset",
+        "p95_ns": 23600,
+        "allocated_bytes_per_call": 1584.0
+      },
+      {
+        "message_bytes": 1048576,
+        "samples": 16,
+        "p50_ns": 16500,
+        "operation": "withoutBody",
+        "p95_ns": 43700,
+        "allocated_bytes_per_call": 4520.0
+      },
+      {
+        "message_bytes": 10485760,
+        "samples": 16,
+        "p50_ns": 802600,
+        "operation": "toByteArray",
+        "p95_ns": 7579800,
+        "allocated_bytes_per_call": 10486328.0
+      },
+      {
+        "message_bytes": 10485760,
+        "samples": 16,
+        "p50_ns": 778700,
+        "operation": "body",
+        "p95_ns": 2758200,
+        "allocated_bytes_per_call": 10486384.0
+      },
+      {
+        "message_bytes": 10485760,
+        "samples": 16,
+        "p50_ns": 18300,
+        "operation": "bodyOffset",
+        "p95_ns": 61300,
+        "allocated_bytes_per_call": 1584.0
+      },
+      {
+        "message_bytes": 10485760,
+        "samples": 16,
+        "p50_ns": 49500,
+        "operation": "withoutBody",
+        "p95_ns": 79800,
+        "allocated_bytes_per_call": 4520.0
+      }
+    ],
+    "fresh_limited_request_callbacks": [
+      {
+        "samples": 16,
+        "p50_ns": 20400,
+        "header_views_per_callback": 1,
+        "original_payload_accesses": 0,
+        "message_bytes": 1024,
+        "allocated_bytes_per_callback": 6856.0,
+        "placement": "absent",
+        "p95_ns": 42100
+      },
+      {
+        "samples": 16,
+        "p50_ns": 19900,
+        "header_views_per_callback": 1,
+        "original_payload_accesses": 0,
+        "message_bytes": 1024,
+        "allocated_bytes_per_callback": 6856.0,
+        "placement": "early",
+        "p95_ns": 84500
+      },
+      {
+        "samples": 16,
+        "p50_ns": 22900,
+        "header_views_per_callback": 1,
+        "original_payload_accesses": 0,
+        "message_bytes": 1024,
+        "allocated_bytes_per_callback": 9426.5,
+        "placement": "late",
+        "p95_ns": 245400
+      },
+      {
+        "samples": 16,
+        "p50_ns": 17600,
+        "header_views_per_callback": 1,
+        "original_payload_accesses": 0,
+        "message_bytes": 1024,
+        "allocated_bytes_per_callback": 7576.0,
+        "placement": "header",
+        "p95_ns": 30400
+      },
+      {
+        "samples": 16,
+        "p50_ns": 16500,
+        "header_views_per_callback": 1,
+        "original_payload_accesses": 0,
+        "message_bytes": 65536,
+        "allocated_bytes_per_callback": 11994.0,
+        "placement": "absent",
+        "p95_ns": 314000
+      },
+      {
+        "samples": 16,
+        "p50_ns": 15000,
+        "header_views_per_callback": 1,
+        "original_payload_accesses": 0,
+        "message_bytes": 65536,
+        "allocated_bytes_per_callback": 6856.0,
+        "placement": "early",
+        "p95_ns": 51900
+      },
+      {
+        "samples": 16,
+        "p50_ns": 18200,
+        "header_views_per_callback": 1,
+        "original_payload_accesses": 0,
+        "message_bytes": 65536,
+        "allocated_bytes_per_callback": 9331.0,
+        "placement": "late",
+        "p95_ns": 186100
+      },
+      {
+        "samples": 16,
+        "p50_ns": 16800,
+        "header_views_per_callback": 1,
+        "original_payload_accesses": 0,
+        "message_bytes": 65536,
+        "allocated_bytes_per_callback": 7576.0,
+        "placement": "header",
+        "p95_ns": 57900
+      },
+      {
+        "samples": 16,
+        "p50_ns": 29200,
+        "header_views_per_callback": 1,
+        "original_payload_accesses": 0,
+        "message_bytes": 1048576,
+        "allocated_bytes_per_callback": 6856.0,
+        "placement": "absent",
+        "p95_ns": 51500
+      },
+      {
+        "samples": 16,
+        "p50_ns": 20800,
+        "header_views_per_callback": 1,
+        "original_payload_accesses": 0,
+        "message_bytes": 1048576,
+        "allocated_bytes_per_callback": 6856.0,
+        "placement": "early",
+        "p95_ns": 46600
+      },
+      {
+        "samples": 16,
+        "p50_ns": 20900,
+        "header_views_per_callback": 1,
+        "original_payload_accesses": 0,
+        "message_bytes": 1048576,
+        "allocated_bytes_per_callback": 6856.0,
+        "placement": "late",
+        "p95_ns": 38400
+      },
+      {
+        "samples": 16,
+        "p50_ns": 21500,
+        "header_views_per_callback": 1,
+        "original_payload_accesses": 0,
+        "message_bytes": 1048576,
+        "allocated_bytes_per_callback": 7576.0,
+        "placement": "header",
+        "p95_ns": 44600
+      },
+      {
+        "samples": 16,
+        "p50_ns": 62100,
+        "header_views_per_callback": 1,
+        "original_payload_accesses": 0,
+        "message_bytes": 10485760,
+        "allocated_bytes_per_callback": 6856.0,
+        "placement": "absent",
+        "p95_ns": 135600
+      },
+      {
+        "samples": 16,
+        "p50_ns": 57400,
+        "header_views_per_callback": 1,
+        "original_payload_accesses": 0,
+        "message_bytes": 10485760,
+        "allocated_bytes_per_callback": 6856.0,
+        "placement": "early",
+        "p95_ns": 186600
+      },
+      {
+        "samples": 16,
+        "p50_ns": 50800,
+        "header_views_per_callback": 1,
+        "original_payload_accesses": 0,
+        "message_bytes": 10485760,
+        "allocated_bytes_per_callback": 6856.0,
+        "placement": "late",
+        "p95_ns": 80400
+      },
+      {
+        "samples": 16,
+        "p50_ns": 58200,
+        "header_views_per_callback": 1,
+        "original_payload_accesses": 0,
+        "message_bytes": 10485760,
+        "allocated_bytes_per_callback": 7576.0,
+        "placement": "header",
+        "p95_ns": 82300
+      }
+    ]
+  },
+  "production_behavior": {
+    "limit_default": true,
+    "inspection_byte_limit": 65536,
+    "limited_requests": "Up to 65,536 bytes of an immutable withBody(\"\") request-header view, including the URL; never body(), bodyToString(), toString() or toByteArray() on the original request.",
+    "limited_responses": "First 65,536 raw bytes, including headers and body.",
+    "unlimited": "Complete request and response inspection.",
+    "malformed_request": "If a header-only view cannot be constructed, continue with original traffic and annotations; do not materialize the full message as a fallback.",
+    "proxy_and_websockets": "Existing complete Proxy rewriting, bounded temporary-colour cache and text WebSocket behavior retained."
+  },
+  "limitations": [
+    "Actual request length and bounded raw-body reads are not available through the reviewed public API; even small request bodies therefore require turning the limit off. Content-Length is not used as proof of actual body size.",
+    "The inspection copy may normalize framing headers, including Content-Length. It is never forwarded or saved.",
+    "Host API behavior on unusually large header sections is not claimed to have bounded allocation or timing.",
+    "Unlimited scanning and legacy Proxy/WebSocket paths retain message-size-proportional costs.",
+    "Windows Professional 2026.11.2 evidence does not establish Community, Early Adopter, macOS or Linux results."
+  ],
+  "description_validation": "Balanced HTML checked; native Settings described as supplemental to the persistent Sharpener top menu; limited inspection behavior documented.",
+  "dependencies_toolchain_or_workflows_changed": false,
+  "professional_activation": "Existing cache reused by the isolated runner; no new activation performed",
+  "raw_reports_retained": true,
+  "release_approved": false,
+  "publication_performed": false
+}

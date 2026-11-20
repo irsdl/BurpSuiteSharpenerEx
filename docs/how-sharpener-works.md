@@ -248,6 +248,21 @@ Shipped capabilities (both enabled by default, toggled from the top menu):
 
 ## 12. UI owned by the extension (uiSelf)
 
+The unreleased manual highlighter adds global
+`manualHighlightLimitLoggerInspection` (default true). General HTTP callbacks
+scan up to 65,536 bytes by default with a bounded-chunk byte scanner. Requests
+use a valid single Content-Length plus `bodyOffset()` only as an initial size
+hint, rejecting Transfer-Encoding or ambiguous lengths. An admitted request is
+read from its original bytes and scanned completely only when its actual total
+length is at most 65,536. Larger or unknown-size requests use an immutable
+`withBody("")` header-only view. Understated lengths can still incur a complete
+copy before rejection; the [API proposal](montoya-message-size-api.md) describes
+copy-free size metadata and bounded reads. Responses scan their raw
+prefix. Disabling the option restores complete inspection. The full menu and
+optional native form expose the same saved setting. Cached temporary Proxy
+colors bypass scanning. Proxy transformations and text WebSocket paths retain
+their existing full-message behavior. See [behavior and host measurements](manual-highlighter-performance.md).
+
 - **Top menu** (`TopMenu`, the main user entry point, registered in Burp's menu bar; rebuilt on demand by `updateTopMenuBar()` on the EDT). Structure:
   - **Global Settings**: Tools' Template And Style (Enable All / Disable All, Icons' Theme radio group including a custom directory, Icons' Size radio group, per-tool `isUnique_<tool>` checkboxes; Extender/UserOptions/ProjectOptions are skipped, gone in Burp 2024.2+), Scrollable Tool Pane, Use Last Screen Position And Size, Detect Off Screen Window Position, **Supported Capabilities** (one checkbox per capability; PwnFox gets an extra "Remove the color header" item), and **Debug Settings** (radio group over the debug levels).
   - **Project Settings**: Change Burp Suite Title, Change Burp Suite Icon (bundled icons via `ResourceIconCache` or a custom file), Reset Burp Suite Title, Reset Burp Suite Icon.

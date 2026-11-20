@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-11-20T09:39:11.481642+00:00",
+  "version": "4.94",
+  "disposition": "Unreleased local development build; version increment and completed performance/menu changes prepared for local commit only",
+  "source_base_revision": "e8437b200099a261e4cb2e7da3c2091cd6e592d7",
+  "source_state": "Uncommitted changes validated before the local commit; unrelated BappDescription.html edit excluded",
+  "input_selection_record": "docs/manual-highlighter-performance-validation.json",
+  "digest_algorithm": "SHA-256 over sorted repository-relative UTF-8 path, NUL, raw per-file SHA-256 bytes",
+  "production_inputs_sha256": "637de442ff98bc0f7fc1b275f1066181e242f7267405a7828f6a5c4d690f98fe",
+  "headless_inputs_sha256": "234cc1ae7b3b63b569a7c75afee33ac5b57746677b17c5daff2e0cb8c096a70f",
+  "full_ui_inputs_sha256": "a6f91e62d536db5ef46e956b7cae2685b26b6db03c7fceb401ab3e9654c68237",
+  "jar_sha256": "9fdcd3224122a4f3597739d6fefac8e7b4d1c3223eec21063b900f00cbd8b62e",
+  "validation": {
+    "command": "gradlew.bat build fullUiTestPlan --offline --dependency-verification strict",
+    "result": "PASS",
+    "tests": 387,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "packaged_version": "4.94",
+    "developer_harness_excluded": true,
+    "log": "temp/version-4.94-build.log",
+    "log_sha256": "dd41285f7193efd526216f182c18f15ef348d3bfae90a2289622d59efe9b74be"
+  },
+  "jdk_pin": "gradle/validation-jdk.json",
+  "jdk_pin_sha256": "caa67f9c40498613f42bd820b0c9224c7aae7be0e3765b97579838d9154f42e1",
+  "prior_host_evidence": [
+    "docs/settings-usability-validation.json",
+    "docs/manual-highlighter-performance-validation.json",
+    "docs/manual-highlighter-menu-validation.json"
+  ],
+  "host_validation": "Prior host and benchmark results remain bound to their recorded 4.93 jars. No live host or performance run is claimed for the version-only 4.94 build.",
+  "release_approved": false,
+  "publication_performed": false
+}

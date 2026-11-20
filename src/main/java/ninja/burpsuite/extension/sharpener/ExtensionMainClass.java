@@ -23,6 +23,7 @@ import ninja.burpsuite.extension.sharpener.uiSelf.httpRequestResponseEditor.Exte
 import ninja.burpsuite.extension.sharpener.uiControllers.subTabs.SubTabsActions;
 import ninja.burpsuite.extension.sharpener.uiSelf.suiteTab.SuiteTab;
 import ninja.burpsuite.extension.sharpener.uiSelf.topMenu.TopMenu;
+import ninja.burpsuite.extension.sharpener.uiSelf.settings.SettingsSurface;
 import ninja.burpsuite.libs.burp.generic.BurpUITools;
 import ninja.burpsuite.libs.burp.generic.BurpUIDiscovery;
 import ninja.burpsuite.libs.generic.ResourceIconCache;
@@ -54,6 +55,7 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
     private BooleanSupplier ownInstanceMarker = null;
     private JRootPane instanceRootPane;
     private final AtomicBoolean updateCheckRunning = new AtomicBoolean();
+    private final AtomicBoolean cleanupStarted = new AtomicBoolean();
 
     @Override
     public void initialize(MontoyaApi api) {
@@ -126,6 +128,7 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
     }
 
     private void registerOptionalUi(MontoyaApi api) {
+        if (sharedParameters.isUnloaded()) return;
         // create our UI
         // we no longer need to create an extension GUI tab to get access to the jFrame - Montoya can give us access
         if (sharedParameters.features.hasSuiteTab) {
@@ -142,27 +145,11 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
             });
         }
 
+        if (sharedParameters.isUnloaded()) return;
         if (sharedParameters.features.hasTopMenu) {
-            sharedParameters.runOptionalFeature("top menu", () -> {
-                sharedParameters.topMenuBar = new TopMenu(sharedParameters);
-                sharedParameters.extensionTopMenuRegistration = api.userInterface().menuBar().registerMenu(sharedParameters.topMenuBar);
-
-                // After a look and feel (theme) change and reload, the freshly added menu can be given a
-                // zero size because its UI delegate is not installed for the current theme, so it does not
-                // paint even though it is in the menu bar. Reinstall its UI and re-lay out the menu bar.
-                SwingUtilities.invokeLater(() -> {
-                    try {
-                        if (sharedParameters.isUnloaded()) return;
-                        sharedParameters.topMenuBar.updateUI();
-                        JMenuBar mainMenuBar = sharedParameters.get_mainMenuBarUsingMontoya();
-                        if (mainMenuBar != null) {
-                            mainMenuBar.revalidate();
-                            mainMenuBar.repaint();
-                        }
-                    } catch (Exception e) {
-                        sharedParameters.printDebugMessage("Could not refresh the top menu layout: " + e.getMessage());
-                    }
-                });
+            sharedParameters.runOptionalFeature("settings surface", () -> {
+                sharedParameters.settingsSurface = new SettingsSurface(sharedParameters);
+                sharedParameters.settingsSurface.register();
             });
         }
 
@@ -311,6 +298,7 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
     }
 
     public void unload() {
+        if (sharedParameters == null || !cleanupStarted.compareAndSet(false, true)) return;
         sharedParameters.printDebugMessage("unload");
         // stop all delayed tasks first so nothing fires against the dead Burp API while we clean up
         sharedParameters.delayedTasks.stop();
@@ -337,6 +325,7 @@ public class ExtensionMainClass implements BurpExtension, ExtensionUnloadingHand
         }
 
         try {
+            BurpUIDiscovery.onEdt(() -> { sharedParameters.closeSettingsUi(); return null; });
             UIManager.removePropertyChangeListener(lookAndFeelPropChangeListener);
             if (sharedParameters.allSettings != null)
                 BurpUIDiscovery.onEdt(() -> {

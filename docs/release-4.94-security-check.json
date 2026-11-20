@@ -1,0 +1,817 @@
+{
+  "evaluation_utc": "2026-11-20T18:34:36.353501+00:00",
+  "source": "https://api.osv.dev/v1/querybatch",
+  "queries": 99,
+  "query_sha256": "8add6e5026eee6dc5f34d2c9a4c740834caaa543efcbb4d387854157a656768a",
+  "response_sha256": "6869f5747a66a6ae280f6c176f78db753898fb2709e1d206e61461b6469e3668",
+  "matched_advisories": 0,
+  "coverage": "Unchanged 99 recorded runtime/test/metadata and identifiable Gradle Maven coordinates, including Gradle core and replacement Guava parent. Compare with docs/release-4.93-approval.json. Complete shaded/native provenance remains incomplete; no universal clean bill or new dependency admission.",
+  "raw_record_sha256": "c0e6bcc4877f54648e8a075049f75340e87d9fed1e73d1e9b7852f905b2acd58",
+  "queries_reviewed": [
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.fifesoft:rsyntaxtextarea"
+      },
+      "version": "4.0.1"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.formdev:flatlaf"
+      },
+      "version": "3.7.2"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.google.code.findbugs:jsr305"
+      },
+      "version": "3.0.2"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.google.code.gson:gson-parent"
+      },
+      "version": "2.14.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.google.code.gson:gson"
+      },
+      "version": "2.14.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.google.errorprone:error_prone_annotations"
+      },
+      "version": "2.48.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.google.errorprone:error_prone_parent"
+      },
+      "version": "2.48.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "net.bytebuddy:byte-buddy-agent"
+      },
+      "version": "1.17.7"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "net.bytebuddy:byte-buddy-parent"
+      },
+      "version": "1.17.7"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "net.bytebuddy:byte-buddy"
+      },
+      "version": "1.17.7"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "net.java.dev.jna:jna"
+      },
+      "version": "5.19.1"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "net.portswigger.burp.extensions:montoya-api"
+      },
+      "version": "2026.7"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.apache.commons:commons-lang3"
+      },
+      "version": "3.21.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.apache.commons:commons-parent"
+      },
+      "version": "105"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.apache:apache"
+      },
+      "version": "39"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.apiguardian:apiguardian-api"
+      },
+      "version": "1.1.2"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.javassist:javassist"
+      },
+      "version": "3.28.0-GA"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.jspecify:jspecify"
+      },
+      "version": "1.0.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.junit.jupiter:junit-jupiter-api"
+      },
+      "version": "6.1.3"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.junit.jupiter:junit-jupiter-engine"
+      },
+      "version": "6.1.3"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.junit.jupiter:junit-jupiter-params"
+      },
+      "version": "6.1.3"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.junit.jupiter:junit-jupiter"
+      },
+      "version": "6.1.3"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.junit.platform:junit-platform-commons"
+      },
+      "version": "6.1.3"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.junit.platform:junit-platform-engine"
+      },
+      "version": "6.1.3"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.junit.platform:junit-platform-launcher"
+      },
+      "version": "6.1.3"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.junit:junit-bom"
+      },
+      "version": "5.14.4"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.junit:junit-bom"
+      },
+      "version": "6.1.3"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.mockito:mockito-bom"
+      },
+      "version": "4.11.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.mockito:mockito-core"
+      },
+      "version": "5.24.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.objenesis:objenesis-parent"
+      },
+      "version": "3.3"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.objenesis:objenesis"
+      },
+      "version": "3.3"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.opentest4j:opentest4j"
+      },
+      "version": "1.3.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.reflections:reflections"
+      },
+      "version": "0.10.2"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.slf4j:slf4j-api"
+      },
+      "version": "1.7.32"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.slf4j:slf4j-parent"
+      },
+      "version": "1.7.32"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.sonatype.oss:oss-parent"
+      },
+      "version": "7"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.google.guava:guava"
+      },
+      "version": "33.8.0-jre"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.apache.commons:commons-lang3"
+      },
+      "version": "3.20.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "commons-io:commons-io"
+      },
+      "version": "2.20.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.slf4j:slf4j-api"
+      },
+      "version": "2.0.17"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "io.github.java-diff-utils:java-diff-utils"
+      },
+      "version": "4.12"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.jctools:jctools-core"
+      },
+      "version": "4.0.5"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.google.code.findbugs:jsr305"
+      },
+      "version": "3.0.2"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.apache.commons:commons-compress"
+      },
+      "version": "1.28.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.google.errorprone:error_prone_annotations"
+      },
+      "version": "2.50.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.fusesource.jansi:jansi"
+      },
+      "version": "2.4.2"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.slf4j:jul-to-slf4j"
+      },
+      "version": "2.0.17"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.google.code.gson:gson"
+      },
+      "version": "2.14.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.slf4j:jcl-over-slf4j"
+      },
+      "version": "2.0.17"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.slf4j:log4j-over-slf4j"
+      },
+      "version": "2.0.17"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.google.guava:failureaccess"
+      },
+      "version": "1.0.3"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.github.jnr:jnr-constants"
+      },
+      "version": "0.10.4"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.esotericsoftware.kryo:kryo"
+      },
+      "version": "2.24.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.esotericsoftware.reflectasm:reflectasm"
+      },
+      "version": "1.09"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.fasterxml.jackson.core:jackson-core"
+      },
+      "version": "2.22.3"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.fasterxml.jackson.core:jackson-databind"
+      },
+      "version": "2.22.3"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.fasterxml.jackson.datatype:jackson-datatype-jdk8"
+      },
+      "version": "2.22.3"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+      },
+      "version": "2.22.3"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "commons-codec:commons-codec"
+      },
+      "version": "1.18.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.antlr:antlr4-runtime"
+      },
+      "version": "4.7.2"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.github.javaparser:javaparser-core"
+      },
+      "version": "3.27.1"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.apache.httpcomponents:httpclient"
+      },
+      "version": "4.5.14"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.apache.httpcomponents:httpcore"
+      },
+      "version": "4.4.16"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "jcifs:jcifs"
+      },
+      "version": "1.3.17"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.esotericsoftware.minlog:minlog"
+      },
+      "version": "1.2"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.fasterxml.jackson.core:jackson-annotations"
+      },
+      "version": "2.22"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.thoughtworks.qdox:qdox"
+      },
+      "version": "1.12.1"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.apache.maven:maven-settings"
+      },
+      "version": "3.9.5"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.apache.maven:maven-settings-builder"
+      },
+      "version": "3.9.5"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.apache.maven:maven-model"
+      },
+      "version": "3.9.5"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.codehaus.plexus:plexus-utils"
+      },
+      "version": "3.6.1"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.googlecode.plist:dd-plist"
+      },
+      "version": "1.27"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.codehaus.plexus:plexus-cipher"
+      },
+      "version": "2.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.codehaus.plexus:plexus-sec-dispatcher"
+      },
+      "version": "2.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.apache.maven:maven-repository-metadata"
+      },
+      "version": "3.9.5"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.yaml:snakeyaml"
+      },
+      "version": "2.6"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.apache.maven:maven-builder-support"
+      },
+      "version": "3.9.5"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.codehaus.plexus:plexus-interpolation"
+      },
+      "version": "1.26"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.github.mwiede:jsch"
+      },
+      "version": "0.2.16"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.amazonaws:aws-java-sdk-core"
+      },
+      "version": "1.12.780"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.amazonaws:aws-java-sdk-s3"
+      },
+      "version": "1.12.780"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.amazonaws:aws-java-sdk-kms"
+      },
+      "version": "1.12.780"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.amazonaws:aws-java-sdk-sts"
+      },
+      "version": "1.12.780"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.google.apis:google-api-services-storage"
+      },
+      "version": "v1-rev20220705-1.32.1"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.google.api-client:google-api-client"
+      },
+      "version": "1.34.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.google.http-client:google-http-client-gson"
+      },
+      "version": "1.42.2"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.google.http-client:google-http-client"
+      },
+      "version": "1.42.2"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.google.oauth-client:google-oauth-client"
+      },
+      "version": "1.34.1"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.googlecode.jatl:jatl"
+      },
+      "version": "0.2.3"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.eclipse.jgit:org.eclipse.jgit"
+      },
+      "version": "7.2.1.202505142326-r"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.eclipse.jgit:org.eclipse.jgit.ssh.apache"
+      },
+      "version": "7.2.1.202505142326-r"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.eclipse.jgit:org.eclipse.jgit.ssh.apache.agent"
+      },
+      "version": "7.2.1.202505142326-r"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "joda-time:joda-time"
+      },
+      "version": "2.14.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.amazonaws:jmespath-java"
+      },
+      "version": "1.12.780"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.google.http-client:google-http-client-apache-v2"
+      },
+      "version": "1.42.2"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.apache.sshd:sshd-osgi"
+      },
+      "version": "2.15.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.apache.sshd:sshd-sftp"
+      },
+      "version": "2.15.0"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.gradle:gradle-core"
+      },
+      "version": "9.9.1"
+    },
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "com.google.guava:guava-parent"
+      },
+      "version": "33.8.0-jre"
+    }
+  ],
+  "response": {
+    "results": [
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {}
+    ]
+  },
+  "input_sha256": {
+    "gradle.lockfile": "b222ba95578c4c7e34f13edc09ea99bd0e2dddd6dda95ae0ed9f9576be5a2709",
+    "gradle/verification-metadata.xml": "6ae17d4aa183c21da32d0a95e6bd720b693b163f22a16e74fcc2edd9eca7d860",
+    "gradle/ci-jdk.json": "6b4ca40157d77ce675b47055a9ba83ea41614708ab52145c93d7e4bfaf6ee3a9",
+    "gradle/validation-jdk.json": "caa67f9c40498613f42bd820b0c9224c7aae7be0e3765b97579838d9154f42e1",
+    "gradle/security-toolchain.properties": "84633e5aee6a30f5dc1f3b9cdf552a97bb18b10221cc60d23628162bc4866f51"
+  },
+  "jdk_review": "Exact pinned Corretto 21.0.13.1.2 Windows/Linux security-fix review retained in docs/toolchain-security-update-2026-11-18.json, two days old; no JDK or component change.",
+  "upstream_evidence": "Canonical security routes and advisory/fix evidence in docs/dependency-review.md and docs/gradle-security-patch.json remain within seven days. OSV refreshed for this publication candidate; incomplete inventory/provenance remains explicit."
+}

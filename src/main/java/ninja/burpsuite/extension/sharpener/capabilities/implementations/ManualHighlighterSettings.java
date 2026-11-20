@@ -11,15 +11,19 @@ import ninja.burpsuite.extension.sharpener.capabilities.objects.Capability;
 import ninja.burpsuite.extension.sharpener.capabilities.objects.CapabilityGroup;
 import ninja.burpsuite.extension.sharpener.capabilities.objects.CapabilitySettings;
 import ninja.burpsuite.libs.objects.PreferenceObject;
+import ninja.burpsuite.libs.thirdparty.burpextenderutilities.Preferences;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 public class ManualHighlighterSettings extends CapabilitySettings {
+    public static final String LIMIT_LOGGER_INSPECTION_SETTING_NAME = "manualHighlightLimitLoggerInspection";
+    public static final int LOGGER_INSPECTION_BYTE_LIMIT = 65_536;
     public ManualHighlighterSettings(ExtensionSharedParameters sharedParameters) {
         super(sharedParameters,
                 new Capability("Manual Highlighter (Proxy and Logger)",
-                        "Highlight Proxy and Logger traffic using tempcolorCOLORNAME or permcolorCOLORNAME. Proxy removes tempcolor from requests; permcolor is retained.",
+                        "Highlight Proxy and Logger traffic using tempcolorCOLORNAME or permcolorCOLORNAME. Logger's 64 KiB limit uses Content-Length only as an initial hint, then checks actual whole-request size before inspecting a body. Oversized or unknown-size requests use headers; responses use their initial bytes. Turn off the limit for complete inspection. Proxy temporary-marker removal is unchanged; permcolor is retained.",
                         "manualHighlightCapability",
                         Arrays.asList(CapabilityGroup.PROXY_REQUEST_HANDLER, CapabilityGroup.PROXY_RESPONSE_HANDLER, CapabilityGroup.WEBSOCKET_CREATION_HANDLER, CapabilityGroup.HTTP_HANDLER),
                         "ninja.burpsuite.extension.sharpener.capabilities.implementations.ManualHighlighterRequestResponseHandler",
@@ -33,7 +37,16 @@ public class ManualHighlighterSettings extends CapabilitySettings {
 
     @Override
     public Collection<PreferenceObject> definePreferenceObjectCollection() {
-        return null;
+        return List.of(new PreferenceObject(LIMIT_LOGGER_INSPECTION_SETTING_NAME,
+                boolean.class, true, Preferences.Visibility.GLOBAL));
+    }
+
+    public boolean isLoggerInspectionLimited() {
+        return sharedParameters.preferences.safeGetSetting(LIMIT_LOGGER_INSPECTION_SETTING_NAME, true);
+    }
+
+    public void setLoggerInspectionLimited(boolean limited) {
+        sharedParameters.preferences.safeSetSetting(LIMIT_LOGGER_INSPECTION_SETTING_NAME, limited, Preferences.Visibility.GLOBAL);
     }
 
     @Override

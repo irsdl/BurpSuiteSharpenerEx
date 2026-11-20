@@ -78,6 +78,13 @@ The release gate emits the exact jar SHA-256, source revision, test results and
 approval scope in a build receipt. Known applicable vulnerabilities, failed
 automated tests, wrong sources/versions/hashes and missing notices remain errors.
 
+The maintainer separately approved GitHub 4.94 on 2026-11-20 after reviewing its
+specific deferred findings. See `docs/release-4.94-approval.json` for that version's
+scope and expiry. It also authorizes updating existing PortSwigger/sharpener PR
+#6; the portal comment remains for manual posting. Preserve pending evidence
+results. This neither extends the 4.93 exception nor approves a future release,
+an applicable vulnerability, failed checks, wrong artifacts or BApp certification.
+
 Normal PR/main CI is read-only and must never publish. The separate manually
 dispatched release workflow runs only on main: read-only Windows/Linux builds
 precede an isolated publisher which rebuilds the same pinned inputs, runs the

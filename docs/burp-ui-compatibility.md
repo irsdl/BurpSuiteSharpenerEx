@@ -98,3 +98,19 @@ The test runner excludes Pro licensing and checks `COMMUNITY_EDITION` explicitly
 Headless Swing and mocked Montoya tests establish defensive behaviour, not proof
 of host compatibility. See [dependency review](dependency-review.md) for the
 separate unresolved build/CI admission and provenance gates.
+
+## 4.94 native settings surface
+
+The separate [manual highlighter performance change](manual-highlighter-performance.md)
+adds the default-on Logger inspection limit to both existing configuration
+surfaces. Its source-bound Windows Professional 2026.11.2 evidence is recorded
+in [manual-highlighter-size-guard-validation.json](manual-highlighter-size-guard-validation.json):
+419 headless tests, 27 live groups and 444 benchmark comparisons pass. Clipboard
+is blocked, eight manual groups and current Community/EA/other-OS coverage remain
+pending. This does not turn the full suite or the host matrix into a pass.
+
+Every supported host retains the complete Sharpener menu. Supporting hosts
+also offer Settings > Extensions > Sharpener as an optional configuration page. Native panel registration and optional
+Settings navigation are checked separately. See [the migration inventory and
+validation limits](native-settings-panel.md). The Java 21 baseline and existing
+platform guards are unchanged. The separate [4.94 release approval](release-4.94-approval.json) accepts its listed evidence gaps for this version only. Full current Stable/EA, Community and other-OS evidence remains incomplete and must be recorded for each exact tested jar.

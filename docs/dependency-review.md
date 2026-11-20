@@ -417,3 +417,16 @@ Rollback: retain the base revision and original dependency declarations in git
 history plus these inventory/lock hashes. Reverting returns old dependencies and
 is diagnostic rollback only, not a statement that the old toolchain is safe to
 release. Keep the existing preserved stashes and unmerged branches intact.
+
+## 2026-11-20 release 4.94 security recheck
+
+No dependency, lock, verification, JDK or composed Gradle input changed for 4.94.
+Requeried the same 99 recorded runtime/test/metadata and identifiable Gradle Maven
+coordinates against OSV: zero advisory matches. The exact query, response and
+input hashes are retained in [the recheck](release-4.94-security-check.json).
+Existing canonical upstream advisory/fix and exact JDK reviews are two days old;
+the complete native/shaded inventory and publisher provenance remain incomplete.
+This is neither a new component admission nor a full toolchain security audit.
+The version-specific publisher changes use existing standard-library facilities;
+26 Python acquisition/publication guard tests pass. Publication still requires
+current 4.94 acceptance of the recorded evidence gaps and passing release checks.

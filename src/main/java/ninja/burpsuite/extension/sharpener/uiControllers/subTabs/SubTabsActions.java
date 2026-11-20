@@ -996,9 +996,15 @@ public class SubTabsActions {
 
         popupMenu.addSeparator();
 
+        if (sharedParameters.settingsSurface != null && sharedParameters.settingsSurface.canOpen()) {
+            JMenuItem settingsMenu = new JMenuItem("Sharpener Settings...");
+            settingsMenu.addActionListener(e -> sharedParameters.settingsSurface.open());
+            popupMenu.add(settingsMenu);
+        }
+
         JMenuItem keyboardShortcutsMenu = new JMenuItem("Keyboard Shortcuts");
         keyboardShortcutsMenu.setToolTipText("Shows all Sharpener shortcuts and allows changing them");
-        keyboardShortcutsMenu.addActionListener(e -> ShortcutsDialog.show(sharedParameters));
+        keyboardShortcutsMenu.addActionListener(e -> sharedParameters.settingsActions().showShortcuts());
         popupMenu.add(keyboardShortcutsMenu);
 
         return popupMenu;
